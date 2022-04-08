@@ -1,0 +1,69 @@
+name: ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      BuildConfiguration:
+        type: choice
+        description: Build Configuration
+        required: true
+        default: Release
+        options:
+        - Release
+        - Debug
+      PublishPreview:
+        type: string
+        description: Publish preview branch?
+        required: true
+        default: "false"
+  push:
+    branches-ignore:
+      - "preview/**"
+    paths-ignore:
+      - ".azure-pipelines/**"
+      - LICENSE
+      - README.md
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    #no point using matrix build as "Container operations are only supported on Linux runners"
+    # strategy:
+    #   matrix:
+    #     os: [ubuntu-latest,windows-latest]
+    # runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: mcr.microsoft.com/azure-storage/azurite
+        ports:
+          - 10000:10000 #blob
+          - 10001:10001 #queue
+          - 10002:10002 #table
+    outputs:
+      # SemVer: ${{ steps.dotnet.outputs.SemVer }}
+      # FullSemVer: ${{ steps.dotnet.outputs.FullSemVer }}
+      BuildConfiguration: ${{ steps.dotnet.outputs.BuildConfiguration }}
+    # env:
+    #   PublishPreview: ${{ inputs.PublishPreview }}
+    steps:
+      - uses: f2calv/gha-dotnet-nuget@main
+        id: dotnet
+        with:
+          BuildConfiguration: ${{ github.event.inputs.BuildConfiguration }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          PublishPreview: ${{ inputs.PublishPreview }}
+
+  SonarQube:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: f2calv/gha-sonarqube@main
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          BuildConfiguration: ${{ needs.build.outputs.BuildConfiguration }}
+          
