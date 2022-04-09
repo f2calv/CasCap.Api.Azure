@@ -1,9 +1,13 @@
 ﻿using CasCap.Common.Extensions;
 using Xunit;
-namespace CasCap.Tests;
+using Xunit.Abstractions;
 
-public class AzStorageTests
+namespace CasCap.Apis.AzStorage.Tests;
+
+public class AzTableStorageTests : TestBase
 {
+    public AzTableStorageTests(ITestOutputHelper output) : base(output) { }
+
 #pragma warning disable CS0618 // Type or member is obsolete
     [Fact, Trait("Category", "Azure")]
     public void AzureTableKeys()
