@@ -19,7 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="CasCap.Common.Logging" Version="1.2.2" />
+    <PackageReference Include="CasCap.Common.Logging" Version="1.2.3" />
     <PackageReference Include="CasCap.Common.Threading" Version="1.2.2" />
     <PackageReference Include="CasCap.Common.Extensions" Version="1.2.2" />
     <PackageReference Include="CasCap.Common.Serialisation.Json" Version="1.2.2" />
