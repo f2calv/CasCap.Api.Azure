@@ -1,9 +1,4 @@
-﻿using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+﻿
 namespace CasCap.Services;
 
 public interface IAzBlobStorageBase
@@ -17,22 +12,15 @@ public interface IAzBlobStorageBase
     //Task<List<CloudPageBlob>> ListContainerPageBlobs(string? containerName = null, string? prefix = null);
     //Task<List<string>> ListContainers();
     Task UploadBlob(string blobName, byte[] bytes);
-#if NET6_0_OR_GREATER
     Task PageBlobTest();
-#endif
 }
 
 public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
     readonly ILogger _logger;
-
-    //public event EventHandler<AzQueueStorageArgs> BatchCompletedEvent;
-    //protected virtual void OnRaiseBatchCompletedEvent(AzQueueStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
-
     readonly string _connectionString;
     readonly string _containerName;
 
-    //readonly BlobServiceClient _blobServiceClient;
     readonly BlobContainerClient _containerClient;
 
     public AzBlobStorageBase(ILogger<AzBlobStorageBase> logger, string connectionString, string containerName)
@@ -44,11 +32,9 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         if (string.IsNullOrWhiteSpace(_connectionString) || string.IsNullOrWhiteSpace(_containerName))
             throw new ArgumentException("connectionString and/or _queueName not set!");
 
-        //_blobServiceClient = new BlobServiceClient(_connectionString);
         _containerClient = new BlobContainerClient(_connectionString, _containerName);
     }
 
-#if NET6_0_OR_GREATER
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-pageblob-overview?tabs=dotnet
     public async Task PageBlobTest()
@@ -82,7 +68,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         using (var stream = new MemoryStream(bytes))
         {
             var res = pageBlobClient.UploadPages(stream, 0);
-            Debugger.Break();
+            //Debugger.Break();
             //await blockBlob.UploadFromStreamAsync(stream);
         }
 
@@ -93,11 +79,9 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
             var pageBlob = pageBlobClient.Download(range);
         }
 
-
         var pageBlob2 = pageBlobClient.Download(new HttpRange(0, 1000));
-        Debugger.Break();
+        //Debugger.Break();
     }
-#endif
 
     public async Task<bool> CreateContainerIfNotExists(string containerName)
     {

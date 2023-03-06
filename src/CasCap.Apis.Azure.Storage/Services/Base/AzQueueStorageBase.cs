@@ -1,8 +1,4 @@
-﻿using Azure.Storage.Queues;
-using Azure.Storage.Queues.Models;
-using CasCap.Common.Extensions;
-using Microsoft.Extensions.Logging;
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 public interface IAzQueueStorageBase
 {
@@ -17,10 +13,6 @@ public interface IAzQueueStorageBase
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
     readonly ILogger _logger;
-
-    //public event EventHandler<AzQueueStorageArgs> BatchCompletedEvent;
-    //protected virtual void OnRaiseBatchCompletedEvent(AzQueueStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
-
     readonly string _connectionString;
     readonly string _queueName;
 
@@ -83,7 +75,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         return i > 0;
     }
 
-    public async Task<(T? obj, QueueMessage message)> DequeueSingle<T>() where T : class
+    public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
     {
         //_logger.LogTrace("Trying account {accountName}...", _queueClient.AccountName);
         await CreateQueueIfNotExistsAsync();

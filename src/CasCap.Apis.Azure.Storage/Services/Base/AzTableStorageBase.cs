@@ -1,35 +1,29 @@
-﻿using CasCap.Common.Extensions;
-using CasCap.Messages;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Logging;
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 public interface IAzTableStorageBase
 {
     event EventHandler<AzTableStorageArgs> BatchCompletedEvent;
 
-    List<CloudTable> GetTables();
-    Task<CloudTable> GetTblRef(string tableName, bool CreateIfNotExists = true);
-    Task<List<T>> UploadData<T>(CloudTable tbl, List<T> entities, bool verbose = false, bool useParallelism = true) where T : ITableEntity;
-    Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool verbose = false, bool useParallelism = true) where T : ITableEntity;
-    //Task<List<T>> UploadBatch<T>(CloudTable tbl, List<T> entities);
-    //Task<List<T>> UploadBatch<T>(string tableName, List<T> entities);
+    Task<List<TableItem>> GetTables();
+    Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true);
+    Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true) where T : class, ITableEntity;
+    Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true) where T : class, ITableEntity;
 
-    Task DeleteData<T>(string tableName, List<T> entities) where T : ITableEntity, new();
-    //Task DeleteData<T>(CloudTable tbl, List<T> entities) where T : ITableEntity, new();
+    Task DeleteData<T>(string tableName, List<T> entities) where T : class, ITableEntity, new();
+    Task DeleteData<T>(TableClient tbl, List<T> entities) where T : class, ITableEntity, new();
 
-    Task<T> UpsertEntity<T>(string tableName, T entity) where T : ITableEntity, new();
-    Task<T> UpsertEntity<T>(CloudTable tbl, T entity) where T : ITableEntity, new();
+    Task<int> UpsertEntity<T>(string tableName, T entity) where T : class, ITableEntity, new();
+    Task<int> UpsertEntity<T>(TableClient tbl, T entity) where T : class, ITableEntity, new();
 
-    Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : ITableEntity, new();
-    Task<T> GetEntity<T>(CloudTable tbl, string partitionKey, string? rowKey = null) where T : ITableEntity, new();
+    Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
+    Task<T> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
 
-    Task<List<T>> GetEntities<T>(string tableName) where T : ITableEntity, new();
-    Task<List<T>> GetEntities<T>(CloudTable tbl) where T : ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : ITableEntity, new();
-    Task<List<T>> GetEntities<T>(CloudTable tbl, string partitionKey) where T : ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : ITableEntity, new();
-    Task<List<T>> GetEntities<T>(CloudTable tbl, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new();
 }
 
 public abstract class AzTableStorageBase : IAzTableStorageBase
@@ -41,69 +35,58 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     readonly string _connectionString;
 
-    readonly CloudStorageAccount _storageAccount;
-    protected CloudTableClient _tableClient { get; set; }
+    protected TableServiceClient _tableSvcClient { get; set; }
 
     public AzTableStorageBase(ILogger<AzTableStorageBase> logger, string connectionString)
     {
         _logger = logger;
         _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
 
-        _storageAccount = CloudStorageAccount.Parse(_connectionString);
-        //var tableServicePoint = ServicePointManager.FindServicePoint(_storageAccount.TableEndpoint);
-        //tableServicePoint.Expect100Continue = false;
-        //tableServicePoint.UseNagleAlgorithm = false;
-        // Create the table client.
-        _tableClient = _storageAccount.CreateCloudTableClient();
+        _tableSvcClient = new TableServiceClient(_connectionString);
     }
 
-    public List<CloudTable> GetTables()
+    public async Task<List<TableItem>> GetTables() => await _tableSvcClient.QueryAsync().ToListAsync();
+
+    public async Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true)
     {
-        var tables = _tableClient.ListTables().ToList();
-        return tables;
+        var table = _tableSvcClient.GetTableClient(tableName);
+        if (!await _tableSvcClient.ExistsAsync(tableName) && CreateIfNotExists)
+            await table.CreateIfNotExistsAsync();
+        return table;
     }
 
-    public async Task<CloudTable> GetTblRef(string tableName, bool CreateIfNotExists = true)
-    {
-        var tbl = _tableClient.GetTableReference(tableName);
-        if (!await tbl.ExistsAsync() && CreateIfNotExists)
-            await tbl.CreateIfNotExistsAsync();
-        return tbl;
-    }
-
-    protected async Task<CloudTable> SetActiveTable(string tableName, bool CreateIfNotExists = true)
+    protected async Task<TableClient> SetActiveTable(string tableName, bool CreateIfNotExists = true)
     {
         if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentNullException(nameof(tableName), "expected!");
-        var tbl = _tableClient.GetTableReference(tableName);
-        if (!await tbl.ExistsAsync() && CreateIfNotExists) await tbl.CreateIfNotExistsAsync();
-        return tbl;
+        var table = _tableSvcClient.GetTableClient(tableName);
+        if (!await _tableSvcClient.ExistsAsync(table.Name) && CreateIfNotExists) await table.CreateIfNotExistsAsync();
+        return table;
     }
 
     #region C - Create
     //upsert single record
-    public async Task<T> UpsertEntity<T>(string tableName, T entity) where T : ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(string tableName, T entity) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
-        return await UpsertEntity<T>(tbl, entity);
+        var table = await GetTableClient(tableName);
+        return await UpsertEntity<T>(table, entity);
     }
-    public async Task<T> UpsertEntity<T>(CloudTable tbl, T entity) where T : ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(TableClient table, T tableEntity) where T : class, ITableEntity, new()
     {
-        var operation = TableOperation.InsertOrReplace(entity);
-        var result = await tbl.ExecuteAsync(operation);
-        return (T)result.Result;
+        var result = await table.UpsertEntityAsync(tableEntity);
+        return result.Status;
     }
 
     //upsert batch
-    public async Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool verbose = false, bool useParallelism = true) where T : ITableEntity
+    public async Task<List<T>> UploadData<T>(string tableName, List<T> tableEntities, bool useParallelism = true) where T : class, ITableEntity
     {
-        var tbl = await GetTblRef(tableName);
-        return await BatchOperation(tbl, entities, verbose, useParallelism);
+        var tbl = await GetTableClient(tableName);
+        return await BatchOperation(tbl, tableEntities, useParallelism);
     }
 
-    public Task<List<T>> UploadData<T>(CloudTable tbl, List<T> entities, bool verbose = false, bool useParallelism = true) where T : ITableEntity => BatchOperation(tbl, entities, verbose, useParallelism);
+    public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true) where T : class, ITableEntity => BatchOperation(tbl, entities, useParallelism);
     #endregion
 
-    async Task<List<T>> BatchOperation<T>(CloudTable tbl, List<T> entities, bool verbose = false, bool useParallelism = true, bool InsertOrReplace = true) where T : ITableEntity
+    async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true) where T : class, ITableEntity
     {
         var partitions = entities.GroupBy(l => l.PartitionKey)
             .Select(g => new
@@ -113,20 +96,24 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             }).ToList();
 
         var retval = new List<T>(entities.Count);
-        if (useParallelism)
-            await partitions.ForEachAsyncSemaphore(p => RunBatches(p.PartitionKey, p.Entities));
-        else
-            await partitions.ForEachAsync(p => RunBatches(p.PartitionKey, p.Entities));
+        var batch = new List<TableTransactionAction>();
+
+        await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
+            async (p, ct) =>
+            {
+                //TODO: use CancellationToken (ct) where appropriate 
+                await RunBatches(p.PartitionKey, p.Entities);
+            });
+
         return retval;
 
         async Task RunBatches(string _partitionKey, List<T> _entities)
         {
-            //var batches = _entities.GetBatches(100);
             while (_entities.Count > 0)
             {
                 //count how many remaining records
                 var count = _entities.Count;
-                var batchSize = Math.Min(100, count);//TableConstants.TableServiceBatchMaximumOperations not public in current .NET Standard implementation
+                var batchSize = Math.Min(100, count);
                 var top100 = _entities.Take(batchSize).ToList();
                 var _retval = await ExecuteBatchOperation(top100);
                 if (_retval.Count > 0)
@@ -134,8 +121,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     _entities.RemoveRange(0, batchSize);
                     retval!.AddRange(_retval);
                     _logger.LogDebug("account {storageAccountName}, table {tableName}, partition {partition}, (1 of {partitionCount}), {entityCount} entities handled, {remainingCount} entities remaining",
-                        _storageAccount.Credentials.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
-                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_storageAccount.Credentials.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
+                        _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
+                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
                 }
                 else
                 {
@@ -150,46 +137,27 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             if (tbl is null) throw new ArgumentNullException(nameof(tbl));
             if (entityRows.IsNullOrEmpty()) throw new ArgumentNullException(nameof(entityRows));
             var retval = new List<T>();
-            var batchOperation = new TableBatchOperation();
-            foreach (var e in entityRows)
-            {
-                if (e != null)//just for nullable reference types...
-                {
-                    if (InsertOrReplace)
-                    {
-                        //batchOperation.Insert((ITableEntity)e);//we *want* it to error and so help identify issues with the import process!
-                        batchOperation.InsertOrReplace((ITableEntity)e);
-                        //batchOperation.InsertOrMerge
-                    }
-                    else
-                        batchOperation.Delete((ITableEntity)e);
-                }
-            }
+            IEnumerable<TableTransactionAction> tableTxnRows;
+            if (InsertOrReplace)
+                tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.UpsertReplace, p));
+            else
+                tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.Delete, p));
+            batch.AddRange(tableTxnRows);
             try
             {
-                var tableResult = await tbl.ExecuteBatchAsync(batchOperation);
-                retval = tableResult.Select(p => (T)p.Result).ToList();
-            }
-            catch (StorageException se)
-            {
-                if (!se.RequestInformation.ExtendedErrorInformation.ErrorCode.Equals("ResourceNotFound"))
+                var response = await tbl.SubmitTransactionAsync(batch).ConfigureAwait(false);
+                for (var i = 0; i < batch.Count; i++)
                 {
-                    _logger.LogError(se);
-                    throw;
+                    var etag = response.Value[i].Headers.ETag;
+                    if (etag.HasValue)
+                        entityRows[i].ETag = etag.Value;
                 }
-                else
-                {
-                    //occasionally cached data might be out of sync, so ignore these errors
-                    _logger.LogWarning("{exception}", se);
-                }
+                retval = entityRows;
             }
             catch (Exception ex)
             {
-                //lightstreamer sometimes(?) sends the last tick upon a fresh log-in
-                //which often causes a conflict with a tick already inserted *if* the application was recently rebooted!
                 _logger.LogError(ex, "tableName={tableName}, entities.Count={count}", tbl.Name, entityRows.Count);
                 throw;
-                //FuncEmailnu.SendMessageAsync($"{Utilz.GetCallingMethodName()} TableBatchOperation failed", msg);
             }
             return retval;
         }
@@ -197,109 +165,91 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     #region R - Read
     //single record
-    public async Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : ITableEntity, new()
+    public async Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
-        return await GetEntity<T>(tbl, partitionKey, rowKey);
+        var table = await GetTableClient(tableName);
+        return await GetEntity<T>(table, partitionKey, rowKey);
     }
-    public async Task<T> GetEntity<T>(CloudTable tbl, string partitionKey, string? rowKey = null) where T : ITableEntity, new()
+    public async Task<T> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
     {
         if (string.IsNullOrWhiteSpace(rowKey))
-        {
-            //https://docs.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities#sample-query-expressions
-            //https://docs.microsoft.com/en-us/rest/api/storageservices/table-service-rest-api
-            //https://docs.microsoft.com/en-us/rest/api/storageservices/query-entities
-            //https://docs.microsoft.com/en-gb/azure/cosmos-db/table-storage-design-guide#log-tail-pattern
-            //i.e. "https://myaccount.table.core.windows.net/EmployeeExpense(PartitionKey='empid')?$top=10";
-            var top = 1;
-            var query = $"https://{_tableClient.Credentials.AccountName}.table.core.windows.net/{tbl.Name}(PartitionKey='{partitionKey}')?$top={top}";
-            throw new NotImplementedException("I need to create a REST query library for TOP 1 operations...");
-        }
-        var operation = TableOperation.Retrieve<T>(partitionKey, rowKey);
-        var result = await tbl.ExecuteAsync(operation);
-        return (T)result.Result;
+            throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
+        var result = await table.GetEntityAsync<T>(partitionKey, rowKey);
+        return result.Value;
     }
 
     //get everything
-    public async Task<List<T>> GetEntities<T>(string tableName) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
-        return await GetEntities<T>(tbl);
+        var table = await GetTableClient(tableName);
+        return await GetEntities<T>(table);
     }
-    public async Task<List<T>> GetEntities<T>(CloudTable tbl) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table) where T : class, ITableEntity, new()
     {
-        var entities = await tbl.ExecuteQueryAsync(new TableQuery<T>());
-        return entities.ToList();
+        var tableEntities = await table.QueryAsync<T>().ToListAsync();
+        return tableEntities;
     }
 
     //get just the partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
-        return await GetEntities<T>(tbl, partitionKey);
+        var table = await GetTableClient(tableName);
+        return await GetEntities<T>(table, partitionKey);
     }
-    public async Task<List<T>> GetEntities<T>(CloudTable tbl, string partitionKey) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey) where T : class, ITableEntity, new()
     {
-        var query = new TableQuery<T>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
-        var entities = await tbl.ExecuteQueryAsync(query);
-        return entities.ToList();
+        var tableEntities = await table.QueryAsync<T>(p => p.PartitionKey == partitionKey).ToListAsync();
+        return tableEntities;
     }
+    //https://learn.microsoft.com/en-gb/rest/api/storageservices/querying-tables-and-entities
 
     //get just the partition AND newer rowkeys within that partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
-        return await GetEntities<T>(tbl, partitionKey, rowKeyFrom);
+        var table = await GetTableClient(tableName);
+        return await GetEntities<T>(table, partitionKey, rowKeyFrom);
     }
-    public async Task<List<T>> GetEntities<T>(CloudTable tbl, string partitionKey, string rowKeyFrom) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
     {
-        var query = new TableQuery<T>().Where(TableQuery.CombineFilters(
-            TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey),
-            TableOperators.And,
-            TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.LessThan, rowKeyFrom)));
-        var entities = await tbl.ExecuteQueryAsync(query);
+        var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom}");
+        var entities = await table.QueryAsync<T>(filter).ToListAsync();
         return entities.ToList();
     }
 
     //get a range within a partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
+        var tbl = await GetTableClient(tableName);
         return await GetEntities<T>(tbl, partitionKey, rowKeyFrom, rowKeyTo);
     }
-    public async Task<List<T>> GetEntities<T>(CloudTable tbl, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new()
     {
-        var filterDates = TableQuery.CombineFilters(
-             TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.LessThan, rowKeyFrom),//add OrEqual to be inclusive
-             TableOperators.And,
-             TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.GreaterThanOrEqual, rowKeyTo));
-        var filter = TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey), TableOperators.And, filterDates);
-        var query = new TableQuery<T>().Where(filter);
-        var entities = await tbl.ExecuteQueryAsync(query);
+        var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom} and RowKey ge {rowKeyTo}");
+        var entities = await table.QueryAsync<T>(filter).ToListAsync();
         return entities.ToList();
     }
     #endregion
 
     #region U - Update
+    //Note: now using Upsert & Replace
     #endregion
 
     #region D - Delete
     public async Task DeleteTable(string tableName)
     {
-        var tbl = await GetTblRef(tableName);
-        if (tbl != null)
+        if (await _tableSvcClient.ExistsAsync(tableName))
         {
-            var deleted = await tbl.DeleteIfExistsAsync();
-            _logger.LogDebug(deleted ? "{tableName} table deleted!" : "{tableName} table not found???", tbl.Name);
+            var response = await _tableSvcClient.DeleteTableAsync(tableName);
+            _logger.LogDebug("{tableName} {ReasonPhrase}", tableName, response.ReasonPhrase);
         }
     }
 
-    public async Task DeleteData<T>(string tableName, List<T> entities) where T : ITableEntity, new()
+    public async Task DeleteData<T>(string tableName, List<T> entities) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTblRef(tableName);
+        var tbl = await GetTableClient(tableName);
         await BatchOperation(tbl, entities, useParallelism: true, InsertOrReplace: false);
     }
 
-    public Task DeleteData<T>(CloudTable tbl, List<T> entities) where T : ITableEntity, new() => BatchOperation(tbl, entities, InsertOrReplace: false);
+    public Task DeleteData<T>(TableClient tbl, List<T> entities) where T : class, ITableEntity, new() => BatchOperation(tbl, entities, InsertOrReplace: false);
     #endregion
 }

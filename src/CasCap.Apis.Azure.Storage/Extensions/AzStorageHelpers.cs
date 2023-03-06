@@ -1,14 +1,17 @@
-﻿using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Logging;
-//using Microsoft.Azure.Storage.Blob;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 namespace CasCap.Common.Extensions;
 
 public static class AzStorageHelpers
 {
     static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzStorageHelpers));
+
+    public static async Task<bool> ExistsAsync(this TableServiceClient client, string tableName)
+    {
+        await foreach (var tbl in client.QueryAsync(t => t.Name == tableName))
+            return true;
+        return false;
+    }
 
     //static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
     static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
@@ -29,76 +32,6 @@ public static class AzStorageHelpers
             return date;
         else
             throw new ArgumentException("unable to parse {path} to retrieve date", path);
-    }
-
-    //https://ahmet.im/blog/azure-listblobssegmentedasync-listcontainerssegmentedasync-how-to/
-    //public static async Task<List<CloudBlobContainer>> ListContainersAsync(this CloudBlobClient blobClient, BlobContinuationToken? continuationToken = null)
-    //{
-    //    var results = new List<CloudBlobContainer>();
-    //    do
-    //    {
-    //        var response = await blobClient.ListContainersSegmentedAsync(continuationToken);
-    //        continuationToken = response.ContinuationToken;
-    //        results.AddRange(response.Results);
-    //    }
-    //    while (continuationToken != null);
-    //    return results;
-    //}
-
-    //https://ahmet.im/blog/azure-listblobssegmentedasync-listcontainerssegmentedasync-how-to/
-    //public static async Task<List<IListBlobItem>> ListBlobsAsync(this CloudBlobContainer container,
-    //    string? prefix = null, bool useFlatBlobListing = false,
-    //    BlobContinuationToken? continuationToken = null)
-    //{
-    //    var lst = new List<IListBlobItem>();
-    //    var i = 0;
-    //    do
-    //    {
-    //        if (i > 0) Debug.Write(".");
-    //        if (i % 100 == 0) Debug.WriteLine(string.Empty);
-    //        //BlobListingDetails.All / BlobListingDetails.Snapshots is not compatible with useFlatBlobListing = false
-    //        var blobListingDetails = BlobListingDetails.Copy | BlobListingDetails.Metadata | BlobListingDetails.UncommittedBlobs;
-    //        var response = await container.ListBlobsSegmentedAsync(prefix, useFlatBlobListing, blobListingDetails, null, continuationToken, null, null);
-    //        continuationToken = response.ContinuationToken;
-    //        lst.AddRange(response.Results);
-    //        i++;
-    //    }
-    //    while (continuationToken != null);
-    //    Debug.WriteLine(string.Empty);
-    //    return lst;
-    //}
-
-    //https://stackoverflow.com/questions/24234350/how-to-execute-an-azure-table-storage-query-async-client-version-4-0-1
-    public static async Task<List<T>> ExecuteQueryAsync<T>(this CloudTable table,
-        TableQuery<T> query,
-        TableContinuationToken? continuationToken = null) where T : ITableEntity, new()
-    {
-        var lst = new List<T>();
-        var i = 0;
-        var msg = $"tableName={table.Name}, {(string.IsNullOrWhiteSpace(query.FilterString) ? "*" : query.FilterString)}";
-        var sw = Stopwatch.StartNew();
-        do
-        {
-            if (i == 0)
-                Debug.WriteLine($"{msg}, starting;");
-            else
-            {
-                Debug.Write(".");
-                if (i % 100 == 0) Debug.WriteLine(string.Empty);
-            }
-            var response = await table.ExecuteQuerySegmentedAsync(query, continuationToken);
-            continuationToken = response.ContinuationToken;
-            lst.AddRange(response);
-            i++;
-        } while (continuationToken != null);
-        sw.Stop();
-        Debug.WriteLine(string.Empty);
-        var recsPerSecond = 0d;
-        if (lst.Count > 0) recsPerSecond = lst.Count / sw.Elapsed.TotalSeconds;
-        Debug.WriteLine($"{msg}, {lst.Count:###,###,###,##0} entities in {sw.Elapsed.TotalSeconds:0.0##}s, {recsPerSecond:###,##0.0} records/second.");
-        _logger.LogDebug("{tableName}, {entityCount:###,###,###,##0} entities in {TotalSeconds:0.0##}s, {recsPerSecond:###,##0.0} records/second.",
-            table.Name, lst.Count, sw.Elapsed.TotalSeconds, recsPerSecond);
-        return lst;
     }
 
     /// <summary>
@@ -143,6 +76,12 @@ public static class AzStorageHelpers
         return (DateTime.MaxValue.Ticks - thisDate.Ticks).ToString("d19");
     }
 
+    //public static string GetAzureRowKey(this TimeSpan ts)
+    //{
+    //    var str = (DateTime.MaxValue.Ticks - ts.Ticks).ToString("d19");
+    //    return str[^12];
+    //}
+
     const long ticksInADay = 863999999999;
 
     public static string GetRowKeyNEW(this DateTime thisDate, bool lexical = true)
@@ -167,12 +106,6 @@ public static class AzStorageHelpers
         if (!long.TryParse(thisRowKey, out long _tickCount))
             throw new ArgumentException("unable to parse {rowKey} to retrieve tick count", thisRowKey);
         var ticks = lexical ? ticksInADay - _tickCount : _tickCount;
-        return dt.AddTicks(ticks);
+        return DateTime.SpecifyKind(dt.AddTicks(ticks), DateTimeKind.Utc);
     }
-
-    //public static string GetAzureRowKey(this TimeSpan ts)
-    //{
-    //    var str = (DateTime.MaxValue.Ticks - ts.Ticks).ToString("d19");
-    //    return str[^12];
-    //}
 }
