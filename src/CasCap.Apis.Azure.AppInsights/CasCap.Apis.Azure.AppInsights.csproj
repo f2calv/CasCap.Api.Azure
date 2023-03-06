@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <!--<Nullable>enable</Nullable>-->
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
+    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Release'">
+    <PackageReference Include="CasCap.Common.Logging" Version="2.0.5" />
+    <PackageReference Include="CasCap.Common.Extensions" Version="2.0.5" />
+  </ItemGroup>
+
+</Project>
