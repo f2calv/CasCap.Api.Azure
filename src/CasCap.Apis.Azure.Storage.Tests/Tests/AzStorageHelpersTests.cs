@@ -1,6 +1,4 @@
-﻿using CasCap.Common.Extensions;
-using Xunit;
-namespace CasCap.Tests;
+﻿namespace CasCap.Tests;
 
 public class AzStorageTests
 {

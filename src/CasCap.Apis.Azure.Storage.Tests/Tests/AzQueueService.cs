@@ -1,6 +1,4 @@
-﻿using CasCap.Services;
-using Microsoft.Extensions.Logging;
-namespace CasCap.Tests;
+﻿namespace CasCap.Tests;
 
 public interface IAzQueueService : IAzQueueStorageBase {
 }

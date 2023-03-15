@@ -1,6 +1,3 @@
-using Xunit;
-using Xunit.Abstractions;
-
 namespace CasCap.Tests;
 
 public class AzQueueStorageTests : TestBase {

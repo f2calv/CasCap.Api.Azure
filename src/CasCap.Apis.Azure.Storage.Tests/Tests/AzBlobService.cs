@@ -1,5 +1,4 @@
-﻿using CasCap.Services;
-using Microsoft.Extensions.Logging;
+﻿
 namespace CasCap.Tests;
 
 public interface IAzBlobService : IAzBlobStorageBase {
