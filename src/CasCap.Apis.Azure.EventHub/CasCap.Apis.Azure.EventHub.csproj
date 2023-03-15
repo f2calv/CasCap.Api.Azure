@@ -16,15 +16,22 @@
     <PackageReference Include="Azure.Messaging.EventHubs" Version="5.8.1" />
     <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.8.1" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
-    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
-    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialisation.MessagePack\CasCap.Common.Serialisation.MessagePack.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Release'">
-    <PackageReference Include="CasCap.Common.Logging" Version="2.0.5" />
-    <PackageReference Include="CasCap.Common.Extensions" Version="2.0.5" />
-    <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="2.0.5" />
-  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(Configuration)'=='Debug'">
+      <ItemGroup>
+        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
+        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
+        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialisation.MessagePack\CasCap.Common.Serialisation.MessagePack.csproj" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.5" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.5" />
+        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="2.0.5" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
 </Project>
