@@ -1,5 +1,4 @@
-﻿
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 public interface IAzBlobStorageBase
 {
