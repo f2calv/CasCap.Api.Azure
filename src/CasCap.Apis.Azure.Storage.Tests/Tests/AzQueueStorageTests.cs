@@ -1,16 +1,15 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace CasCap.Apis.AzStorage.Tests;
+namespace CasCap.Tests;
 
-public class AzQueueStorageTests : TestBase
-{
+public class AzQueueStorageTests : TestBase {
+
     public AzQueueStorageTests(ITestOutputHelper output) : base(output) { }
 
     [Fact]
-    public async Task End2End()
-    {
-        var inputTestString = nameof(End2End);
+    public async Task AzQueue() {
+        string inputTestString = nameof(inputTestString);
 
         var testObj = new TestMessage { testString = inputTestString };
 
@@ -22,7 +21,7 @@ public class AzQueueStorageTests : TestBase
 
         var result3 = await _queueSvc.DequeueSingle<TestMessage>();
         Assert.NotNull(result3.obj);
-        Assert.Equal(result3.obj?.testString, inputTestString);
+        Assert.Equal(result3.obj.testString, inputTestString);
 
         var result4 = await _queueSvc.Enqueue(testObj);
         Assert.True(result4);
@@ -33,9 +32,8 @@ public class AzQueueStorageTests : TestBase
     }
 }
 
-public class TestMessage
-{
+public class TestMessage {
     public Guid id { get; set; } = Guid.NewGuid();
     public DateTime dt { get; set; } = DateTime.UtcNow;
-    public string testString { get; set; } = string.Empty!;
+    public string testString { get; set; }
 }
