@@ -1,18 +1,14 @@
-﻿using CasCap.Apis.AzCognitiveServices;
-using Microsoft.CognitiveServices.Speech;
+﻿using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Logging;
-using NAudio.Wave;
 namespace CasCap.Services;
 
 /// <summary>
-/// Because of reference to NAudio dependency inject this manually at start of relevant process,
-/// to prevent .NET Standard warnings.
 /// https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/csharp/sharedcontent/console/speech_synthesis_samples.cs
 /// </summary>
 public interface IText2SpeechService
 {
-    Task playSound(string soundbyte);
+    Task CreateWAV(string soundbyte, string path);
 }
 
 public class Text2SpeechService : IText2SpeechService
@@ -37,51 +33,7 @@ public class Text2SpeechService : IText2SpeechService
         //_speechConfig.SpeechSynthesisLanguage = "en-GB";
     }
 
-    public async Task playSound(string soundbyte)
-    {
-        soundbyte = soundbyte.Replace("_", " ");//clean up any possible incoming enum.ToString()
-        var IsWindowsMedia = true;
-        var fileName = string.Empty;
-        fileName = soundbyte switch
-        {
-            SoundBytes.start => "chimes.wav",
-            SoundBytes.end => "tada.wav",
-            SoundBytes.alert => "ding.wav",
-            SoundBytes.error => "Windows Hardware Fail.wav",
-            SoundBytes.connect => "Windows Hardware Insert.wav",
-            SoundBytes.disconnect => "Windows Hardware Remove.wav",
-            _ => ((Func<string>)(() =>
-            {
-                IsWindowsMedia = false;
-                return $"{soundbyte}.wav";
-            }))()
-        };
-        var dir = Path.Combine(_localPath, $"temp/soundbytes/");
-        if (!File.Exists(dir))
-            Directory.CreateDirectory(dir);
-        var path = Path.Combine(dir, fileName);
-        if (IsWindowsMedia) path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "media", fileName);
-        if (!File.Exists(path))
-            await CreateWAV(soundbyte, path);
-
-        using var audioFile = new AudioFileReader(path);
-        using var outputDevice = new WaveOutEvent();
-        outputDevice.Init(audioFile);
-        outputDevice.Play();
-        while (outputDevice.PlaybackState == PlaybackState.Playing)
-            await Task.Delay(100);
-
-        //none of the below appear to work - either due to lack of a PC speaker or 'No Sounds' scheme
-        //Console.Beep();
-        //SystemSounds.Beep.Play();
-        //SystemSounds.Asterisk.Play();
-        //SystemSounds.Beep.Play();
-        //SystemSounds.Exclamation.Play();
-        //SystemSounds.Hand.Play();
-        //SystemSounds.Question.Play();
-    }
-
-    async Task CreateWAV(string soundbyte, string path)
+    public async Task CreateWAV(string soundbyte, string path)
     {
         using var fileOutput = AudioConfig.FromWavFileOutput(path);
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);

@@ -13,8 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- do not upgrade NAudio greater than 1.10.0, need to target net7.0-windows... -->
-    <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.26.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
