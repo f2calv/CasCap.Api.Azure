@@ -49,7 +49,8 @@ jobs:
     # env:
     #   PublishPreview: ${{ inputs.PublishPreview }}
     steps:
-      - uses: f2calv/gha-dotnet-nuget@v1
+      #- uses: f2calv/gha-dotnet-nuget@v1
+      - uses: f2calv/gha-dotnet-nuget@f2calv/2023-03-multi-checkout-test
         id: dotnet
         with:
           BuildConfiguration: ${{ github.event.inputs.BuildConfiguration }}
