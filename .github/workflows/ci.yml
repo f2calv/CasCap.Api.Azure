@@ -46,8 +46,6 @@ jobs:
       # SemVer: ${{ steps.dotnet.outputs.SemVer }}
       # FullSemVer: ${{ steps.dotnet.outputs.FullSemVer }}
       BuildConfiguration: ${{ steps.dotnet.outputs.BuildConfiguration }}
-      #Note: 'dotnet restore; doesn't support BuildCOnfiguration so due to Debug development dependencies we skip restoring from the SLN file
-      OverrideDotNetRestore: for p in $(find . -name *.csproj); do dotnet restore $p; done
     # env:
     #   PublishPreview: ${{ inputs.PublishPreview }}
     steps:
@@ -59,6 +57,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           PublishPreview: ${{ github.event.inputs.PublishPreview }}
+          #Note: 'dotnet restore; doesn't support BuildCOnfiguration so due to Debug development dependencies we skip restoring from the SLN file
+          OverrideDotNetRestore: for p in $(find . -name *.csproj); do dotnet restore $p; done
 
   SonarQube:
     if: false #Note: disabled as SonarQube not yet available for .NET 7.0
