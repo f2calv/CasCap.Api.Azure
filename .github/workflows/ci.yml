@@ -46,7 +46,7 @@ jobs:
       # SemVer: ${{ steps.dotnet.outputs.SemVer }}
       # FullSemVer: ${{ steps.dotnet.outputs.FullSemVer }}
       BuildConfiguration: ${{ steps.dotnet.outputs.BuildConfiguration }}
-      #Note: due to Debug development dependencies we skip restoring from the SLN file
+      #Note: 'dotnet restore; doesn't support BuildCOnfiguration so due to Debug development dependencies we skip restoring from the SLN file
       OverrideDotNetRestore: for p in $(find . -name *.csproj); do dotnet restore $p; done
     # env:
     #   PublishPreview: ${{ inputs.PublishPreview }}
