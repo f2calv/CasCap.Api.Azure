@@ -3,7 +3,7 @@ namespace CasCap.Services;
 
 public interface IEventHubSubscriberService<T>
 {
-    Task InititateReceive(CancellationToken cancellationToken);
+    Task InitiateReceive(CancellationToken cancellationToken);
 }
 
 //https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md
@@ -43,7 +43,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
 
     ConcurrentDictionary<string, int> partitionEventCount = new();
 
-    public async Task InititateReceive(CancellationToken cancellationToken)
+    public async Task InitiateReceive(CancellationToken cancellationToken)
     {
 
         try
