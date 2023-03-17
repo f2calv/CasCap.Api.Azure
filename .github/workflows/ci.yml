@@ -50,15 +50,14 @@ jobs:
     #   PublishPreview: ${{ inputs.PublishPreview }}
     steps:
       #- uses: f2calv/gha-dotnet-nuget@v1
-      - uses: f2calv/gha-dotnet-nuget@f2calv/2023-03-multi-checkout-test
+      - uses: f2calv/gha-dotnet-nuget@f2calv/2023-03-sln-override
         id: dotnet
         with:
           BuildConfiguration: ${{ github.event.inputs.BuildConfiguration }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           PublishPreview: ${{ github.event.inputs.PublishPreview }}
-          #Note: 'dotnet restore; doesn't support BuildCOnfiguration so due to Debug development dependencies we skip restoring from the SLN file
-          SkipDotNetRestore: true
+          SolutionNameOverride: CasCap.Apis.Azure.Release
 
   SonarQube:
     if: false #Note: disabled as SonarQube not yet available for .NET 7.0
