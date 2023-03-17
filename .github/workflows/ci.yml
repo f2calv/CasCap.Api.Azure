@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           PublishPreview: ${{ github.event.inputs.PublishPreview }}
-          SolutionNameOverride: CasCap.Apis.Azure.Release
+          SolutionNameOverride: CasCap.Apis.Azure.Release.sln
 
   SonarQube:
     if: false #Note: disabled as SonarQube not yet available for .NET 7.0
