@@ -1,6 +1,4 @@
-﻿
-
-namespace CasCap.Tests;
+﻿namespace CasCap.Tests;
 
 public class AzBlobStorageTests : TestBase {
 
@@ -21,44 +19,41 @@ public class AzBlobStorageTests : TestBase {
            0x04, 0x68, 0x4F, 0x4F, 0x68, 0x08, 0x00, 0x72, 0x72, 0x16, 0x41, 0x00
         };
 
-    BlobServiceClient _blobServiceClient;
-    BlobContainerClient _containerClient;
-
     [Fact]
-    public async Task RunThrough()
+    public async Task TestVanillaFunctionality()
     {
         // Create a BlobServiceClient object which will be used to create a container client
-        _blobServiceClient = new BlobServiceClient(_connectionString);
+        var blobServiceClient = new BlobServiceClient(_connectionString);
 
         //Create a unique name for the container
         //var containerName = $"quickstartblobs{Guid.NewGuid()}";
         var containerName = $"wibble2";
 
-        await foreach (var container in _blobServiceClient.GetBlobContainersAsync())
+        await foreach (var container in blobServiceClient.GetBlobContainersAsync())
             Debug.WriteLine($"{container.Name} ({container.Properties.PublicAccess})");
 
-        await foreach (var container in _blobServiceClient.GetBlobContainersAsync(prefix: containerName))
+        await foreach (var container in blobServiceClient.GetBlobContainersAsync(prefix: containerName))
             Debug.WriteLine($"{container.Name} ({container.Properties.PublicAccess})");
 
         /*
         //if we *know* the container already exists, generate the container client
-        _containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+        _containerClient = blobServiceClient.GetBlobContainerClient(containerName);
         // if we *know* the container doesnt exist, create the container and return a container client
-        var test = await _blobServiceClient.CreateBlobContainerAsync(containerName);
+        var test = await blobServiceClient.CreateBlobContainerAsync(containerName);
         _containerClient = test.Value;
         */
         //if we *don't know* if the container already exists, generate the container client and attempt a create
-        _containerClient = new BlobContainerClient(_connectionString, containerName);
-        _ = await _containerClient.CreateIfNotExistsAsync();
+        var containerClient = new BlobContainerClient(_connectionString, containerName);
+        _ = await containerClient.CreateIfNotExistsAsync();
 
-        await foreach (var item in _containerClient.GetBlobsByHierarchyAsync())
+        await foreach (var item in containerClient.GetBlobsByHierarchyAsync())
         {
             Debug.WriteLine(item.Blob.Name);
         }
 
         // Get a reference to a blob
         var filename = $"subfolder/test{Guid.NewGuid()}.bin";
-        var _blobClient = _containerClient.GetBlobClient(filename);
+        var _blobClient = containerClient.GetBlobClient(filename);
 
         Debug.WriteLine("Uploading to Blob storage as blob:\n\t {0}\n", _blobClient.Uri);
 
@@ -72,7 +67,7 @@ public class AzBlobStorageTests : TestBase {
         }
 
         // List all blobs in the container
-        await foreach (var blobItem in _containerClient.GetBlobsAsync())
+        await foreach (var blobItem in containerClient.GetBlobsAsync())
         {
             Debug.WriteLine("\t" + blobItem.Name);
         }
@@ -83,7 +78,7 @@ public class AzBlobStorageTests : TestBase {
         var downloadInfo = await _blobClient.DownloadAsync();
 
         var dir = Path.GetDirectoryName(downloadFilePath);
-        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        if (dir is not null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
         using (var fs = File.OpenWrite(downloadFilePath))
         {
             await downloadInfo.Value.Content.CopyToAsync(fs);
@@ -93,7 +88,7 @@ public class AzBlobStorageTests : TestBase {
     }
 
     [Fact]
-    public async Task AzBlob()
+    public async Task TestBlobService()
     {
         var blobName = $"{Guid.NewGuid()}.bin";
 

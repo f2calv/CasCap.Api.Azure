@@ -32,5 +32,5 @@ public class AzQueueStorageTests : TestBase {
 public class TestMessage {
     public Guid id { get; set; } = Guid.NewGuid();
     public DateTime dt { get; set; } = DateTime.UtcNow;
-    public string testString { get; set; }
+    public string? testString { get; set; }
 }

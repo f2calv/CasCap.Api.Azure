@@ -1,13 +1,14 @@
 ﻿namespace CasCap.Tests;
 
-public abstract class TestBase {
-
+public abstract class TestBase
+{
     protected string _connectionString;
 
     protected IAzBlobService _blobSvc;
     protected IAzQueueService _queueSvc;
 
-    public TestBase(ITestOutputHelper output) {
+    public TestBase(ITestOutputHelper output)
+    {
         var configuration = new ConfigurationBuilder()
             //.AddCasCapConfiguration()
             .AddJsonFile($"appsettings.Test.json", optional: false, reloadOnChange: false)
@@ -20,7 +21,9 @@ public abstract class TestBase {
 
         var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
 
-        _connectionString = configuration["ConnectionStrings:storage"];
+        var _connectionString = configuration["ConnectionStrings:storage"];
+        if (_connectionString is null) throw new ArgumentNullException(nameof(_connectionString));
+        
         //add services
         services.AddTransient<IAzBlobService>(s => new AzBlobService(loggerFactory.CreateLogger<AzBlobService>(), _connectionString));
         services.AddTransient<IAzQueueService>(s => new AzQueueService(loggerFactory.CreateLogger<AzQueueService>(), _connectionString));
