@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Event Hub.</Description>
+    <Description>Helper library for Azure Log Analytics.</Description>
     <PackageTags>azure,log,analytics</PackageTags>
   </PropertyGroup>
 
@@ -26,8 +26,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.5" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.5" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.7" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.7" />
       </ItemGroup>
     </Otherwise>
   </Choose>
