@@ -49,8 +49,7 @@ jobs:
     # env:
     #   PublishPreview: ${{ inputs.PublishPreview }}
     steps:
-      #- uses: f2calv/gha-dotnet-nuget@v1
-      - uses: f2calv/gha-dotnet-nuget@f2calv/2023-03-sln-override
+      - uses: f2calv/gha-dotnet-nuget@v1
         id: dotnet
         with:
           BuildConfiguration: ${{ github.event.inputs.BuildConfiguration }}
