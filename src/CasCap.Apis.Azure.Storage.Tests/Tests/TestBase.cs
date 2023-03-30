@@ -21,9 +21,9 @@ public abstract class TestBase
 
         var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
 
-        var _connectionString = configuration["ConnectionStrings:storage"];
-        if (_connectionString is null) throw new ArgumentNullException(nameof(_connectionString));
-        
+        var connectionString = configuration["ConnectionStrings:storage"];
+        _connectionString = connectionString ?? throw new NullReferenceException(nameof(_connectionString));
+
         //add services
         services.AddTransient<IAzBlobService>(s => new AzBlobService(loggerFactory.CreateLogger<AzBlobService>(), _connectionString));
         services.AddTransient<IAzQueueService>(s => new AzQueueService(loggerFactory.CreateLogger<AzQueueService>(), _connectionString));
