@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Event Hub.</Description>
+    <Description>Helper library for Azure Log Analytics.</Description>
     <PackageTags>azure,log,analytics</PackageTags>
   </PropertyGroup>
 

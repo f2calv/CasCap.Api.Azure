@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Service Bus.</Description>
+    <Description>Helper library for Azure Storage Services.</Description>
     <PackageTags>azure,service,bus</PackageTags>
   </PropertyGroup>
 
