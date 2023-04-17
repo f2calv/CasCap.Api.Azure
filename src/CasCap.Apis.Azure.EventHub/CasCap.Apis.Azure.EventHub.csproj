@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.EventHubs" Version="5.8.1" />
-    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.8.1" />
+    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.9.0" />
   </ItemGroup>
 
   <Choose>
