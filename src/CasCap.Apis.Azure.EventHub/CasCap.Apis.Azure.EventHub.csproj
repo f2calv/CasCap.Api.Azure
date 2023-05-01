@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -28,7 +28,7 @@
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="CasCap.Common.Logging" Version="2.0.7" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.7" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.8" />
         <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="2.0.7" />
       </ItemGroup>
     </Otherwise>
