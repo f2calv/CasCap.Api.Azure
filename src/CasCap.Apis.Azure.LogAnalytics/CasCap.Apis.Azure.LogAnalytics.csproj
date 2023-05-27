@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.8.2" />
-    <PackageReference Include="Azure.Monitor.Query" Version="1.1.0" />
+    <PackageReference Include="Azure.Identity" Version="1.9.0" />
+    <PackageReference Include="Azure.Monitor.Query" Version="1.2.0" />
   </ItemGroup>
 
   <Choose>
@@ -26,8 +26,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.7" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.7" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.9" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.9" />
       </ItemGroup>
     </Otherwise>
   </Choose>

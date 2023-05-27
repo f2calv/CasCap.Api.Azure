@@ -74,7 +74,7 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
         var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsOptions.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
-        var l = new List<aiObject>(queryResults.Value.Table.Rows.Count());
+        var l = new List<aiObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {
             var obj = new aiObject();
