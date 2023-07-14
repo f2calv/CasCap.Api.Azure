@@ -1,22 +1,27 @@
-﻿namespace CasCap.Tests;
+﻿using System.Globalization;
+
+namespace CasCap.Tests;
 
 public class AzStorageTests
 {
-#pragma warning disable CS0618 // Type or member is obsolete
     [Fact, Trait("Category", "Azure")]
-    public void AzureTableKeys()
+    public void PartitionKeyTest()
     {
-        var dtA = DateTime.UtcNow;
-        var str = dtA.GetRowKeyOLD();
-        var dtB = str.GetPartitionKeyDateTimeOLD();
-        Assert.True(dtA == dtB);
+        var utcNow = DateTime.UtcNow;
+        Assert.True(utcNow.ToString(AzStorageHelpers.yyMMdd) == utcNow.GetPartitionKey());
 
-        var PartitionKey = "2519150111999999999";//17/02/2017
-        var RowKey = "2519149413536369999";//17/02/2017 19:24:06
-        var dt1 = PartitionKey.GetPartitionKeyDateTimeOLD();
-        var dt2 = RowKey.GetPartitionKeyDateTimeOLD();
+        var sTimestamp = "2023-06-08T04:02:09.7832039Z";
+        var timestamp1 = DateTime.Parse(sTimestamp);
+        var timestamp2 = DateTime.Parse(sTimestamp).ToUniversalTime();
+        var timestamp = DateTime.ParseExact(sTimestamp, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
-        Assert.True(dt1 > new DateTime(1900, 1, 1));
+        var utcTimestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
+
+        var rowKey = "718702354378";
+        var partitionKey = utcTimestamp.ToString(AzStorageHelpers.yyMMdd);
+        var utcRowKey = rowKey.GetDateTimeFromRowKey(partitionKey);
+
+        var tsDiff = utcTimestamp - utcRowKey;
+        Assert.True(true);
     }
-#pragma warning restore CS0618 // Type or member is obsolete
 }

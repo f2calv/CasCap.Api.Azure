@@ -34,78 +34,71 @@ public static class AzStorageHelpers
             throw new ArgumentException("unable to parse {path} to retrieve date", path);
     }
 
-    /// <summary>
-    /// Used primarily for PartitionKey
-    /// </summary>
-    /// <param name="thisDate"></param>
-    /// <returns></returns>
-    [Obsolete("replaced with GetPartitionKeyNEW")]
-    public static string GetPartitionKeyOLD(this DateTime thisDate)
-    {
-        return (DateTime.MaxValue.Ticks - new DateTime(thisDate.Year, thisDate.Month, thisDate.Day).Ticks).ToString("d19");
-    }
-
     public static readonly DateTime newMaxDate = new(2050, 1, 1);
 
-    const string yyMMdd = "yyMMdd";
-
-    public static string GetPartitionKeyNEW(this DateTime thisDate)
-    {
-        //partitonKey limitation always assumes ticks are from 2000 onwards - which is something we can live with!
-        return thisDate.ToString(yyMMdd);
-    }
-    [Obsolete("half-replaced with GetPartitionKeyDateNEW")]
-    public static DateTime GetPartitionKeyDateTimeOLD(this string thisString)
-    {
-        long.TryParse(thisString, out long tickCount);
-        return new DateTime(DateTime.MaxValue.Ticks - tickCount, DateTimeKind.Utc);
-    }
-    public static DateTime GetPartitionKeyDateNEW(this string partitionKey)
-    {
-        return DateTime.ParseExact(partitionKey, yyMMdd, CultureInfo.InvariantCulture);
-    }
+    public const string yyMMdd = nameof(yyMMdd);
 
     /// <summary>
-    /// Used primarily for RowKey
+    /// Returns a partition key suitable for Azure Table Storage in the default format 'yyMMdd'.
     /// </summary>
     /// <param name="thisDate"></param>
     /// <returns></returns>
-    [Obsolete("replaced with GetRowKeyNEW")]
-    public static string GetRowKeyOLD(this DateTime thisDate)
+    /// <exception cref="ArgumentException"></exception>
+    public static string GetPartitionKey(this DateTime thisDate, string format = yyMMdd)
     {
-        return (DateTime.MaxValue.Ticks - thisDate.Ticks).ToString("d19");
+        if (thisDate.Year < 2000) throw new ArgumentException("partitionKey only supports > year 2000");
+        return thisDate.ToString(format);
     }
 
-    //public static string GetAzureRowKey(this TimeSpan ts)
-    //{
-    //    var str = (DateTime.MaxValue.Ticks - ts.Ticks).ToString("d19");
-    //    return str[^12];
-    //}
+    public static DateTime GetDateFromPartitionKey(this string thisPartitionKey, string format = yyMMdd)
+        => DateTime.ParseExact(thisPartitionKey, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
     const long ticksInADay = 863999999999;
 
-    public static string GetRowKeyNEW(this DateTime thisDate, bool lexical = true)
+    /// <summary>
+    /// This method returns only the Time portion of a DateTime with or without dictionary/lexicographical order.
+    /// 
+    /// Why?
+    /// 
+    /// When storing huge quantities of data with tick-level accuracy the storage space required for every field
+    /// is both large in terms of cost and crucially data retrieval speed is slow (less data = faster!).
+    /// 
+    /// Best practise is to split the DateTime up into two parts, storing the Date in either the PartitionKey or event
+    /// the table name and the (hopefully unique!) Time portion in the RowKey.
+    /// 
+    /// Plus now if you use lexicographical order you are able to retrieve *only* the TOP n records from the table.
+    /// </summary>
+    /// <param name="thisDate"></param>
+    /// <param name="lexicalOrder"></param>
+    /// <returns></returns>
+    public static string GetRowKey(this DateTime thisDate, bool lexicalOrder = true)
     {
         var dayTicks = new DateTime(thisDate.Year, thisDate.Month, thisDate.Day).Ticks;
         var todayTicks = thisDate.Ticks - dayTicks;
-        if (lexical) todayTicks = ticksInADay - todayTicks;
+        if (lexicalOrder) todayTicks = ticksInADay - todayTicks;
         var output = todayTicks.ToString("d12");
         return output;
     }
 
-    public static DateTime GetRowKeyDateTimeOLD(this string thisRowKey)
+    public static DateTime GetDateTimeFromRowKey(this string thisRowKey, string PartitionKey, bool lexicalOrder = true)
     {
-        if (!long.TryParse(thisRowKey, out long _tickCount))
-            throw new ArgumentException("unable to parse {rowKey} to retrieve tick count", thisRowKey);
-        return new DateTime(DateTime.MaxValue.Ticks - _tickCount, DateTimeKind.Utc);
+        thisRowKey = thisRowKey ?? throw new ArgumentNullException(nameof(thisRowKey));
+        PartitionKey = PartitionKey ?? throw new ArgumentNullException(nameof(PartitionKey));
+        var dt = PartitionKey.GetDateFromPartitionKey();
+        return GetDateTimeFromRowKey(thisRowKey, dt, lexicalOrder);
     }
 
-    public static DateTime GetRowKeyDateTimeNEW(this string thisRowKey, string PartitionKey, bool lexical = true)
+    public static DateTime GetDateTimeFromRowKey(this string thisRowKey, DateTime dt, bool lexicalOrder = true)
     {
-        var dt = PartitionKey.GetPartitionKeyDateNEW();
-        if (!long.TryParse(thisRowKey, out long _tickCount))
+        thisRowKey = thisRowKey ?? throw new ArgumentNullException(nameof(thisRowKey));
+        if (!long.TryParse(thisRowKey, out long rowKeyValue))
             throw new ArgumentException("unable to parse {rowKey} to retrieve tick count", thisRowKey);
-        var ticks = lexical ? ticksInADay - _tickCount : _tickCount;
+        return GetDateTimeFromRowKey(rowKeyValue, dt, lexicalOrder);
+    }
+
+    static DateTime GetDateTimeFromRowKey(long rowKeyValue, DateTime dt, bool lexicalOrder = true)
+    {
+        var ticks = lexicalOrder ? ticksInADay - rowKeyValue : rowKeyValue;
         return DateTime.SpecifyKind(dt.AddTicks(ticks), DateTimeKind.Utc);
     }
 }

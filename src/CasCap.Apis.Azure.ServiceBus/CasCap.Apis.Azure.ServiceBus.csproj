@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.14.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.15.0" />
   </ItemGroup>
 
   <Choose>
@@ -25,8 +25,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.9" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.9" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.10" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.10" />
       </ItemGroup>
     </Otherwise>
   </Choose>
