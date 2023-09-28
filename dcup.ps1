@@ -2,4 +2,4 @@
 $env:ASPNETCORE_ENVIRONMENT = "Development"
 $env:DOTNET_RUNNING_IN_COMPOSE = $true
 
-docker-compose up --build --remove-orphans
+docker-compose up --pull --build --remove-orphans

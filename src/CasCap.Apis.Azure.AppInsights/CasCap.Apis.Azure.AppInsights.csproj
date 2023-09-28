@@ -21,8 +21,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.10" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.10" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.12" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.12" />
       </ItemGroup>
     </Otherwise>
   </Choose>
