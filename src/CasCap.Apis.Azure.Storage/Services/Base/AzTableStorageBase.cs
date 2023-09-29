@@ -96,7 +96,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             }).ToList();
 
         var retval = new List<T>(entities.Count);
-        var batch = new List<TableTransactionAction>();
+        //var batch = new List<TableTransactionAction>();
 
         await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
             async (p, ct) =>
@@ -142,11 +142,11 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.UpsertReplace, p));
             else
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.Delete, p));
-            batch.AddRange(tableTxnRows);
+            //batch.AddRange(tableTxnRows);
             try
             {
-                var response = await tbl.SubmitTransactionAsync(batch).ConfigureAwait(false);
-                for (var i = 0; i < batch.Count; i++)
+                var response = await tbl.SubmitTransactionAsync(tableTxnRows).ConfigureAwait(false);
+                for (var i = 0; i < tableTxnRows.Count(); i++)
                 {
                     var etag = response.Value[i].Headers.ETag;
                     if (etag.HasValue)
