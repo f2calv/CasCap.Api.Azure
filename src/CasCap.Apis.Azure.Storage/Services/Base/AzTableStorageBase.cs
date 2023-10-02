@@ -126,8 +126,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 }
                 else
                 {
-                    _logger.LogWarning("Exiting early due to data issue...");
-                    return;
+                    _logger.LogWarning("table {tableName}, partition {partition} no changes affected...", tbl.Name, _partitionKey);
+                    //return;
                 }
             }
         }
@@ -153,8 +153,6 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 }
                 if (newTableTxnRows.Any())
                     tableTxnRows = newTableTxnRows;
-                else
-                    return retval;
             }
             //batch.AddRange(tableTxnRows);
             try
