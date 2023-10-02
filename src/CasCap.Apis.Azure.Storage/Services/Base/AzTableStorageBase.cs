@@ -97,7 +97,6 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
         var retval = new List<T>(entities.Count);
         //var batch = new List<TableTransactionAction>();
-        useParallelism = false;
         await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
             async (p, ct) =>
             {
