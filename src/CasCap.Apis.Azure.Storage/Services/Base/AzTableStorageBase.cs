@@ -97,7 +97,6 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
         var retval = new List<T>(entities.Count);
         //var batch = new List<TableTransactionAction>();
-
         await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
             async (p, ct) =>
             {
@@ -126,8 +125,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 }
                 else
                 {
-                    _logger.LogWarning("Exiting early due to data issue...");
-                    return;
+                    _logger.LogWarning("table {tableName}, partition {partition} no changes affected...", tbl.Name, _partitionKey);
+                    //return;
                 }
             }
         }
@@ -141,7 +140,19 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             if (InsertOrReplace)
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.UpsertReplace, p));
             else
+            {
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.Delete, p));
+
+                var newTableTxnRows = new List<TableTransactionAction>();
+                foreach (var ent in tableTxnRows)
+                {
+                    var exists = await tbl.GetEntityIfExistsAsync<T>(ent.Entity.PartitionKey, ent.Entity.RowKey);
+                    if (exists.HasValue)
+                        newTableTxnRows.Add(ent);
+                }
+                if (newTableTxnRows.Any())
+                    tableTxnRows = newTableTxnRows;
+            }
             //batch.AddRange(tableTxnRows);
             try
             {
@@ -174,8 +185,10 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     {
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
-        var result = await table.GetEntityAsync<T>(partitionKey, rowKey);
-        return result.Value;
+        var result = await table.GetEntityIfExistsAsync<T>(partitionKey, rowKey);
+        if (result.HasValue)
+            return result.Value;
+        return null;
     }
 
     //get everything
