@@ -23,13 +23,13 @@ public static class AzStorageHelpers
         //string sanitizedKey = DisallowedCharsInTableKeys.Replace(tableKey, disallowedCharReplacement);
     }
 
-    public static DateTime GetDateFromFileName(this string path)
+    public static DateTime GetDateFromFileName(this string path, DateTimeKind kind = DateTimeKind.Utc)
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
         //someDirectory/2016-05-17-some-suffix.log.gz -> 2016-05-17
         var strDt = fileName.Substring(0, 10);
         if (DateTime.TryParse(strDt, out var date))
-            return date;
+            return DateTime.SpecifyKind(date, kind);
         else
             throw new ArgumentException("unable to parse {path} to retrieve date", path);
     }

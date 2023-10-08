@@ -55,7 +55,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             {
                 _logger.LogDebug("_eventProcessorClient.StartProcessingAsync... for {EventHubName}", _eventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken);
-                await Task.Delay(Timeout.Infinite, CancellationToken.None);
+                await Task.Delay(Timeout.Infinite, cancellationToken);
             }
             catch (TaskCanceledException)
             {
