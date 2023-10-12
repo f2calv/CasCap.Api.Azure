@@ -12,7 +12,7 @@ public class AzStorageTests
 
         var sTimestamp = "2023-06-08T04:02:09.7832039Z";
         var timestamp1 = DateTime.Parse(sTimestamp);
-        var timestamp2 = DateTime.Parse(sTimestamp).ToUniversalTime();
+        var timestamp2 = DateTime.SpecifyKind(DateTime.Parse(sTimestamp), DateTimeKind.Utc);
         var timestamp = DateTime.ParseExact(sTimestamp, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
         var utcTimestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);

@@ -44,7 +44,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Testing" Version="2.0.12" />
+        <PackageReference Include="CasCap.Common.Testing" Version="2.0.13" />
       </ItemGroup>
     </Otherwise>
   </Choose>
