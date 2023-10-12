@@ -30,10 +30,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.12" />
-        <PackageReference Include="CasCap.Common.Threading" Version="2.0.12" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.12" />
-        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="2.0.12" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.13" />
+        <PackageReference Include="CasCap.Common.Threading" Version="2.0.13" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.13" />
+        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="2.0.13" />
       </ItemGroup>
     </Otherwise>
   </Choose>
