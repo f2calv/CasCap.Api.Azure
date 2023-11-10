@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.20.0" />
+    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.21.0" />
   </ItemGroup>
 
   <Choose>
@@ -25,8 +25,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.13" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.13" />
+        <PackageReference Include="CasCap.Common.Logging" Version="2.0.14" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.14" />
       </ItemGroup>
     </Otherwise>
   </Choose>
