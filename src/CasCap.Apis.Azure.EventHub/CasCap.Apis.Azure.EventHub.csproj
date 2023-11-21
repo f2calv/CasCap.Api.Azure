@@ -26,9 +26,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="2.0.14" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="2.0.14" />
-        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="2.0.14" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.1" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.1" />
+        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="3.0.1" />
       </ItemGroup>
     </Otherwise>
   </Choose>

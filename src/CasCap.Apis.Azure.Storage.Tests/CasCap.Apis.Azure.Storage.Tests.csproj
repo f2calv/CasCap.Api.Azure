@@ -43,7 +43,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Testing" Version="2.0.14" />
+        <PackageReference Include="CasCap.Common.Testing" Version="3.0.1" />
       </ItemGroup>
     </Otherwise>
   </Choose>
