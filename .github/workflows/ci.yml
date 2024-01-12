@@ -59,7 +59,7 @@ jobs:
           SolutionNameOverride: CasCap.Apis.Azure.Release.sln
 
   SonarQube:
-    if: false #Note: disabled as SonarQube not yet available for .NET 7.0
+    if: false #Note: disabled as SonarQube not yet available for .NET 8.0
     runs-on: windows-latest
     needs: build
     steps:
