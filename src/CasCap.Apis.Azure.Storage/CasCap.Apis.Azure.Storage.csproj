@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.17.1" />
-    <PackageReference Include="Azure.Data.Tables" Version="12.8.2" />
+    <PackageReference Include="Azure.Data.Tables" Version="12.8.3" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
@@ -29,10 +29,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.3" />
-        <PackageReference Include="CasCap.Common.Threading" Version="3.0.3" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.3" />
-        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="3.0.3" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Threading" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="3.0.4" />
       </ItemGroup>
     </Otherwise>
   </Choose>
