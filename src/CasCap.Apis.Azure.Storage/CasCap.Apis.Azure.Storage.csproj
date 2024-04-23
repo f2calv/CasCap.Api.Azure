@@ -28,10 +28,10 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.5" />
         <PackageReference Include="CasCap.Common.Threading" Version="3.0.4" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.4" />
-        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.5" />
+        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="3.0.5" />
       </ItemGroup>
     </Otherwise>
   </Choose>
