@@ -22,7 +22,6 @@
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
-        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Threading\CasCap.Common.Threading.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialisation.Json\CasCap.Common.Serialisation.Json.csproj" />
       </ItemGroup>
