@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.36.0" />
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.37.0" />
   </ItemGroup>
 
   <Choose>
@@ -24,8 +24,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.4" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.4" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.5" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.5" />
       </ItemGroup>
     </Otherwise>
   </Choose>

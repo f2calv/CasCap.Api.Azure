@@ -27,13 +27,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CasCap.Common", "CasCap.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Common.Serialisation.MessagePack", "..\CasCap.Common\src\CasCap.Common.Serialisation.MessagePack\CasCap.Common.Serialisation.MessagePack.csproj", "{99FC7246-69F5-4477-9A31-7CF8B41C752A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Common.Threading", "..\CasCap.Common\src\CasCap.Common.Threading\CasCap.Common.Threading.csproj", "{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Common.Serialisation.Json", "..\CasCap.Common\src\CasCap.Common.Serialisation.Json\CasCap.Common.Serialisation.Json.csproj", "{A383303C-14E8-4713-9B78-004B61D10CE8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.ContainerRegistry", "src\CasCap.Apis.Azure.ContainerRegistry\CasCap.Apis.Azure.ContainerRegistry.csproj", "{9FE51911-5B84-4207-89B8-0E2076394E59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasCap.Apis.Azure.EventGrid", "src\CasCap.Apis.Azure.EventGrid\CasCap.Apis.Azure.EventGrid.csproj", "{31D418A2-95F5-49DC-8985-B0B8C28CF437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.EventGrid", "src\CasCap.Apis.Azure.EventGrid\CasCap.Apis.Azure.EventGrid.csproj", "{31D418A2-95F5-49DC-8985-B0B8C28CF437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -177,18 +175,6 @@ Global
 		{99FC7246-69F5-4477-9A31-7CF8B41C752A}.Release|x64.Build.0 = Release|Any CPU
 		{99FC7246-69F5-4477-9A31-7CF8B41C752A}.Release|x86.ActiveCfg = Release|Any CPU
 		{99FC7246-69F5-4477-9A31-7CF8B41C752A}.Release|x86.Build.0 = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|x64.Build.0 = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Debug|x86.Build.0 = Debug|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|x64.ActiveCfg = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|x64.Build.0 = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|x86.ActiveCfg = Release|Any CPU
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309}.Release|x86.Build.0 = Release|Any CPU
 		{A383303C-14E8-4713-9B78-004B61D10CE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A383303C-14E8-4713-9B78-004B61D10CE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A383303C-14E8-4713-9B78-004B61D10CE8}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -234,7 +220,6 @@ Global
 		{E4A5643E-9FA7-4F25-9DD4-F67070A398A6} = {60B87030-7AC4-4DCF-8746-32D73D0678AD}
 		{9CD376E8-E722-4B64-94FF-0DDAF852E170} = {60B87030-7AC4-4DCF-8746-32D73D0678AD}
 		{99FC7246-69F5-4477-9A31-7CF8B41C752A} = {60B87030-7AC4-4DCF-8746-32D73D0678AD}
-		{4AA5F074-8FB2-4A97-A19B-45F26D3A1309} = {60B87030-7AC4-4DCF-8746-32D73D0678AD}
 		{A383303C-14E8-4713-9B78-004B61D10CE8} = {60B87030-7AC4-4DCF-8746-32D73D0678AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
