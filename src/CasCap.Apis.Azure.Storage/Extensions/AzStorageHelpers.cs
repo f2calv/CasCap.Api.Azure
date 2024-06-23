@@ -57,15 +57,15 @@ public static class AzStorageHelpers
 
     /// <summary>
     /// This method returns only the Time portion of a DateTime with or without dictionary/lexicographical order.
-    /// 
+    ///
     /// Why?
-    /// 
+    ///
     /// When storing huge quantities of data with tick-level accuracy the storage space required for every field
     /// is both large in terms of cost and crucially data retrieval speed is slow (less data = faster!).
-    /// 
+    ///
     /// Best practise is to split the DateTime up into two parts, storing the Date in either the PartitionKey or event
     /// the table name and the (hopefully unique!) Time portion in the RowKey.
-    /// 
+    ///
     /// Plus now if you use lexicographical order you are able to retrieve *only* the TOP n records from the table.
     /// </summary>
     /// <param name="thisDate"></param>

@@ -33,7 +33,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
     {
         await using (var client = new ServiceBusClient(_connectionString))
         {
-            // create a sender for the topic 
+            // create a sender for the topic
             var sender = client.CreateSender(_topicName);
 
             // total number of messages to be sent to the Service Bus topic
@@ -42,7 +42,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
             // while all messages are not sent to the Service Bus topic
             while (messages.Count > 0)
             {
-                // start a new batch 
+                // start a new batch
                 using (var messageBatch = await sender.CreateMessageBatchAsync(cancellationToken))
                 {
                     // add the first message to the batch
@@ -67,7 +67,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
                     // now, send the batch
                     await sender.SendMessagesAsync(messageBatch);
 
-                    // if there are any remaining messages in the .NET queue, the while loop repeats 
+                    // if there are any remaining messages in the .NET queue, the while loop repeats
                 }
             }
 
@@ -88,10 +88,10 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
             // add handler to process any errors
             processor.ProcessErrorAsync += ErrorHandler;
 
-            // start processing 
+            // start processing
             await processor.StartProcessingAsync(cancellationToken);
 
-            // stop processing 
+            // stop processing
             _logger.LogInformation("Stopping the receiver...");
             await processor.StopProcessingAsync(cancellationToken);
             _logger.LogInformation("Stopped receiving messages");

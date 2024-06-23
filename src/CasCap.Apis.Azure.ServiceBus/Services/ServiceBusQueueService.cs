@@ -34,7 +34,7 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
     {
         await using (var client = new ServiceBusClient(_connectionString))
         {
-            // create a sender for the queue 
+            // create a sender for the queue
             var sender = client.CreateSender(_queueName);
 
             // total number of messages to be sent to the Service Bus queue
@@ -88,10 +88,10 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
             // add handler to process any errors
             processor.ProcessErrorAsync += ErrorHandler;
 
-            // start processing 
+            // start processing
             await processor.StartProcessingAsync(cancellationToken);
 
-            // stop processing 
+            // stop processing
             _logger.LogInformation("Stopping the receiver...");
             await processor.StopProcessingAsync(cancellationToken);
             _logger.LogInformation("Stopped receiving messages");
