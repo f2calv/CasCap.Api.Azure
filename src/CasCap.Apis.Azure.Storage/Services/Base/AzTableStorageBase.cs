@@ -100,7 +100,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
             async (p, ct) =>
             {
-                //TODO: use CancellationToken (ct) where appropriate 
+                //TODO: use CancellationToken (ct) where appropriate
                 await RunBatches(p.PartitionKey, p.Entities);
             });
 

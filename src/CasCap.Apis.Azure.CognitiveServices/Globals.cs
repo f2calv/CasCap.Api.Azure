@@ -34,7 +34,7 @@ public class SoundBytes
     public const string all_positions_closed = "all positions closed";
 
     /*
-    
+
     bullish pattern detected
     bullish pattern opportunity
     range breakout opportunity
