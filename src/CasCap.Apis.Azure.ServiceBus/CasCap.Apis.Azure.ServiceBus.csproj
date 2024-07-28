@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.5" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.0" />
   </ItemGroup>
 
   <Choose>
@@ -24,8 +24,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.7" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.7" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.8" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.8" />
       </ItemGroup>
     </Otherwise>
   </Choose>

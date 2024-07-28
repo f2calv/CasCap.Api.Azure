@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.11.3" />
-    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.11.3" />
+    <PackageReference Include="Azure.Messaging.EventHubs" Version="5.11.4" />
+    <PackageReference Include="Azure.Messaging.EventHubs.Processor" Version="5.11.4" />
   </ItemGroup>
 
   <Choose>
@@ -26,9 +26,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.7" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.7" />
-        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="3.0.7" />
+        <PackageReference Include="CasCap.Common.Logging" Version="3.0.8" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.8" />
+        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="3.0.8" />
       </ItemGroup>
     </Otherwise>
   </Choose>
