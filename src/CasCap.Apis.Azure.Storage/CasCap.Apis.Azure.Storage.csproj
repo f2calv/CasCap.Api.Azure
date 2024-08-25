@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.2" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.19.1" />
     <PackageReference Include="Azure.Data.Tables" Version="12.9.0" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
@@ -23,14 +23,14 @@
       <ItemGroup>
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
-        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialisation.Json\CasCap.Common.Serialisation.Json.csproj" />
+		<ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialization.Json\CasCap.Common.Serialization.Json.csproj" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="3.0.8" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="3.0.8" />
-        <PackageReference Include="CasCap.Common.Serialisation.Json" Version="3.0.8" />
+        <PackageReference Include="CasCap.Common.Logging" Version="4.0.2" />
+        <PackageReference Include="CasCap.Common.Extensions" Version="4.0.2" />
+        <PackageReference Include="CasCap.Common.Serialization.Json" Version="4.0.2" />
       </ItemGroup>
     </Otherwise>
   </Choose>
