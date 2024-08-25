@@ -21,14 +21,14 @@
       <ItemGroup>
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
-        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialisation.MessagePack\CasCap.Common.Serialisation.MessagePack.csproj" />
-      </ItemGroup>
+		<ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Serialization.MessagePack\CasCap.Common.Serialization.MessagePack.csproj" />
+	  </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="CasCap.Common.Logging" Version="3.0.8" />
         <PackageReference Include="CasCap.Common.Extensions" Version="3.0.8" />
-        <PackageReference Include="CasCap.Common.Serialisation.MessagePack" Version="3.0.8" />
+        <PackageReference Include="CasCap.Common.Serialization.MessagePack" Version="3.0.8" />
       </ItemGroup>
     </Otherwise>
   </Choose>

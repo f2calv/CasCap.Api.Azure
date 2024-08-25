@@ -63,7 +63,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex);
+            _logger.LogError(ex, $"{nameof(Push)} failure");
             throw;
         }
     }
