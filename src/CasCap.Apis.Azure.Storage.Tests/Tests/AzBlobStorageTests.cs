@@ -1,10 +1,7 @@
 ﻿namespace CasCap.Tests;
 
-public class AzBlobStorageTests : TestBase
+public class AzBlobStorageTests(ITestOutputHelper output) : TestBase(output)
 {
-
-    public AzBlobStorageTests(ITestOutputHelper output) : base(output) { }
-
     static readonly byte[] fileBytes =
     {
            0x1E, 0x00, 0x00, 0x00, 0x0E, 0x04, 0x47, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -39,7 +36,7 @@ public class AzBlobStorageTests : TestBase
         /*
         //if we *know* the container already exists, generate the container client
         _containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-        // if we *know* the container doesnt exist, create the container and return a container client
+        // if we *know* the container does not exist, create the container and return a container client
         var test = await blobServiceClient.CreateBlobContainerAsync(containerName);
         _containerClient = test.Value;
         */

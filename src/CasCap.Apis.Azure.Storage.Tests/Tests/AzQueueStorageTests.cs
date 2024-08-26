@@ -1,16 +1,13 @@
 namespace CasCap.Tests;
 
-public class AzQueueStorageTests : TestBase
+public class AzQueueStorageTests(ITestOutputHelper output) : TestBase(output)
 {
-
-    public AzQueueStorageTests(ITestOutputHelper output) : base(output) { }
-
     [Fact]
     public async Task AzQueue()
     {
         string inputTestString = nameof(inputTestString);
 
-        var testObj = new TestMessage { testString = inputTestString };
+        var testObj = new TestMessage { TestString = inputTestString };
 
         var result1 = await _queueSvc.Enqueue(testObj);
         Assert.True(result1);
@@ -20,7 +17,7 @@ public class AzQueueStorageTests : TestBase
 
         var result3 = await _queueSvc.DequeueSingle<TestMessage>();
         Assert.NotNull(result3.obj);
-        Assert.Equal(result3.obj.testString, inputTestString);
+        Assert.Equal(result3.obj.TestString, inputTestString);
 
         var result4 = await _queueSvc.Enqueue(testObj);
         Assert.True(result4);
@@ -33,7 +30,7 @@ public class AzQueueStorageTests : TestBase
 
 public class TestMessage
 {
-    public Guid id { get; set; } = Guid.NewGuid();
-    public DateTime dt { get; set; } = DateTime.UtcNow;
-    public string? testString { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public DateTime Dt { get; set; } = DateTime.UtcNow;
+    public string? TestString { get; set; }
 }

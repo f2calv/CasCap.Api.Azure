@@ -1,14 +1,10 @@
-﻿
-namespace CasCap.Tests;
+﻿namespace CasCap.Tests;
 
 public interface IAzBlobService : IAzBlobStorageBase
 {
 }
 
-public class AzBlobService : AzBlobStorageBase, IAzBlobService
+public class AzBlobService(ILogger<AzBlobService> logger, string connectionString)
+    : AzBlobStorageBase(logger, connectionString, containerName: "wibble"), IAzBlobService
 {
-    public AzBlobService(ILogger<AzBlobService> logger, string connectionString)
-        : base(logger, connectionString, containerName: "wibble")
-    {
-    }
 }

@@ -4,10 +4,7 @@ public interface IAzQueueService : IAzQueueStorageBase
 {
 }
 
-public class AzQueueService : AzQueueStorageBase, IAzQueueService
+public class AzQueueService(ILogger<AzQueueService> logger, string connectionString)
+    : AzQueueStorageBase(logger, connectionString, queueName: "wibble"), IAzQueueService
 {
-    public AzQueueService(ILogger<AzQueueService> logger, string connectionString)
-        : base(logger, connectionString, queueName: "wibble")
-    {
-    }
 }
