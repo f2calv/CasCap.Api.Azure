@@ -56,6 +56,18 @@ jobs:
           version: ${{ needs.versioning.outputs.version }}
           solution-name: CasCap.Apis.Azure.Release.sln
 
+  release:
+    needs: [versioning, build]
+    if: needs.versioning.outputs.release-exists == 'false'
+      && (github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || inputs.push-preview == 'true')
+    uses: f2calv/gha-workflows/.github/workflows/gha-release-versioning.yml@v1
+    permissions:
+      contents: write
+    with:
+      semVer: ${{ needs.versioning.outputs.version }}
+      tag-prefix: ''
+      move-major-tag: false
+
   # SonarQube:
   #   runs-on: windows-latest
   #   needs: build
