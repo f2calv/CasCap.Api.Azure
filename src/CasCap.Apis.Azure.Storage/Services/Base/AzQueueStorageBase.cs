@@ -53,7 +53,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
                 _logger.LogWarning("obj is null?");
                 continue;
             }
-            var json = obj.ToJSON();
+            var json = obj.ToJson();
             var message = new BinaryData(json);
             Azure.Response<SendReceipt>? result = null;
             try
@@ -88,7 +88,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             var IsCorrupted = false;
             try
             {
-                obj = json.FromJSON<T>();
+                obj = json.FromJson<T>();
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         foreach (var retrievedMessage in messages)
         {
             var json = retrievedMessage.Body.ToString();
-            var obj = json.FromJSON<T>();
+            var obj = json.FromJson<T>();
             l.Add(obj!);
             //delete each message after processing
             await _queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt);
