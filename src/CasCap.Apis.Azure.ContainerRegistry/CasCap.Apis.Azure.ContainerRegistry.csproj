@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
-	<PackageReference Include="Azure.Identity" Version="1.12.1" />
+	<PackageReference Include="Azure.Identity" Version="1.13.1" />
   </ItemGroup>
 
   <Choose>
