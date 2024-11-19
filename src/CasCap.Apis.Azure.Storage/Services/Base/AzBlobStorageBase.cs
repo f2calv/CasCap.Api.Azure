@@ -169,7 +169,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
             await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/"))
                 hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
-        _logger.LogInformation("Symbols/prefixes return from blob storage are; {symbols}", prefixes);
+        _logger.LogInformation("{className} Symbols/prefixes return from blob storage are; {symbols}", nameof(AzBlobStorageBase), prefixes);
         return prefixes;
     }
 

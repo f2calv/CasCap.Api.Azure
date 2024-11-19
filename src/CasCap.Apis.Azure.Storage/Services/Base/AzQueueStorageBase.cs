@@ -36,7 +36,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
-            _logger.LogDebug("storage queue didn't exist so have now created '{queueName}'", _queueName);
+            _logger.LogDebug("{className} storage queue didn't exist so have now created '{queueName}'", nameof(AzQueueStorageBase), _queueName);
         _haveCheckedIfQueueExists = true;
     }
 
@@ -99,9 +99,11 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             {
                 _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt);
                 if (IsCorrupted)
-                    _logger.LogWarning("removed message id {id} from queue as it failed deserialisation, '{json}'", retrievedMessage.Value.MessageId, json);
+                    _logger.LogWarning("{className} removed message id {id} from queue as it failed deserialization, '{json}'",
+                        nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, json);
                 else
-                    _logger.LogInformation("removed message id {id} from queue as it passed deserialisation!", retrievedMessage.Value.MessageId);
+                    _logger.LogInformation("{className} removed message id {id} from queue as it passed deserialization!",
+                        nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId);
             }
             return (obj, retrievedMessage.Value);
         }
