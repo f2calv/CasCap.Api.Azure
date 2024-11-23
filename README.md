@@ -1,4 +1,4 @@
-# CasCap.Apis.Azure
+# CasCap.Api.Azure
 
 A collection of helper class libraries used when interacting with Azure PaaS.
 

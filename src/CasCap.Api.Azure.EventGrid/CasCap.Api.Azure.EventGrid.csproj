@@ -1,15 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Application Insights.</Description>
-    <PackageTags>azure,application,insights</PackageTags>
+    <Description>Helper library for Azure EventGrid.</Description>
+    <PackageTags>azure,eventgrid</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Messaging.EventGrid" />
+  </ItemGroup>
 
   <Choose>
     <When Condition="'$(Configuration)'=='Debug'">
@@ -20,8 +24,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="4.2.2" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="4.2.2" />
+        <PackageReference Include="CasCap.Common.Logging" />
+        <PackageReference Include="CasCap.Common.Extensions" />
       </ItemGroup>
     </Otherwise>
   </Choose>

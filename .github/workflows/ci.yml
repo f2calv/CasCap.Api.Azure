@@ -54,7 +54,7 @@ jobs:
           configuration: ${{ inputs.configuration }}
           push-preview: ${{ inputs.push-preview }}
           version: ${{ needs.versioning.outputs.version }}
-          solution-name: CasCap.Apis.Azure.Release.sln
+          solution-name: CasCap.Api.Azure.Release.sln
 
   release:
     needs: [versioning, build]

@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32317.152
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.Storage", "src\CasCap.Apis.Azure.Storage\CasCap.Apis.Azure.Storage.csproj", "{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.Storage", "src\CasCap.Api.Azure.Storage\CasCap.Api.Azure.Storage.csproj", "{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.Storage.Tests", "src\CasCap.Apis.Azure.Storage.Tests\CasCap.Apis.Azure.Storage.Tests.csproj", "{E189E42B-31E1-4F25-9644-17DE8483C086}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.Storage.Tests", "src\CasCap.Api.Azure.Storage.Tests\CasCap.Api.Azure.Storage.Tests.csproj", "{E189E42B-31E1-4F25-9644-17DE8483C086}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.AppInsights", "src\CasCap.Apis.Azure.AppInsights\CasCap.Apis.Azure.AppInsights.csproj", "{D2293EBE-69D8-4ECD-8719-D2F163E255C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.AppInsights", "src\CasCap.Api.Azure.AppInsights\CasCap.Api.Azure.AppInsights.csproj", "{D2293EBE-69D8-4ECD-8719-D2F163E255C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.CognitiveServices", "src\CasCap.Apis.Azure.CognitiveServices\CasCap.Apis.Azure.CognitiveServices.csproj", "{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.CognitiveServices", "src\CasCap.Api.Azure.CognitiveServices\CasCap.Api.Azure.CognitiveServices.csproj", "{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.EventHub", "src\CasCap.Apis.Azure.EventHub\CasCap.Apis.Azure.EventHub.csproj", "{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.EventHub", "src\CasCap.Api.Azure.EventHub\CasCap.Api.Azure.EventHub.csproj", "{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.LogAnalytics", "src\CasCap.Apis.Azure.LogAnalytics\CasCap.Apis.Azure.LogAnalytics.csproj", "{0F63E16A-E8E4-470E-A810-7539249B1F2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.LogAnalytics", "src\CasCap.Api.Azure.LogAnalytics\CasCap.Api.Azure.LogAnalytics.csproj", "{0F63E16A-E8E4-470E-A810-7539249B1F2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.ServiceBus", "src\CasCap.Apis.Azure.ServiceBus\CasCap.Apis.Azure.ServiceBus.csproj", "{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.ServiceBus", "src\CasCap.Api.Azure.ServiceBus\CasCap.Api.Azure.ServiceBus.csproj", "{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Common.Logging", "..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj", "{6A875338-A67E-49D7-B0AF-C4B7B72AF441}"
 EndProject
@@ -25,9 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Common.Extensions", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CasCap.Common", "CasCap.Common", "{60B87030-7AC4-4DCF-8746-32D73D0678AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.ContainerRegistry", "src\CasCap.Apis.Azure.ContainerRegistry\CasCap.Apis.Azure.ContainerRegistry.csproj", "{9FE51911-5B84-4207-89B8-0E2076394E59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.ContainerRegistry", "src\CasCap.Api.Azure.ContainerRegistry\CasCap.Api.Azure.ContainerRegistry.csproj", "{9FE51911-5B84-4207-89B8-0E2076394E59}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Apis.Azure.EventGrid", "src\CasCap.Apis.Azure.EventGrid\CasCap.Apis.Azure.EventGrid.csproj", "{31D418A2-95F5-49DC-8985-B0B8C28CF437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.EventGrid", "src\CasCap.Api.Azure.EventGrid\CasCap.Api.Azure.EventGrid.csproj", "{31D418A2-95F5-49DC-8985-B0B8C28CF437}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CasCap.Common.Serialization.Json", "..\CasCap.Common\src\CasCap.Common.Serialization.Json\CasCap.Common.Serialization.Json.csproj", "{0B6E7D72-2849-4185-9307-D40B0237933F}"
 EndProject
