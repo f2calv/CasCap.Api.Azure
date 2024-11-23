@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -20,8 +20,8 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="CasCap.Common.Logging" Version="4.2.2" />
-        <PackageReference Include="CasCap.Common.Extensions" Version="4.2.2" />
+        <PackageReference Include="CasCap.Common.Logging" />
+        <PackageReference Include="CasCap.Common.Extensions" />
       </ItemGroup>
     </Otherwise>
   </Choose>
