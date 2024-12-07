@@ -12,11 +12,11 @@ public interface IAzQueueStorageBase
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
-    readonly ILogger _logger;
-    readonly string _connectionString;
-    readonly string _queueName;
+    private readonly ILogger _logger;
+    private readonly string _connectionString;
+    private readonly string _queueName;
 
-    readonly QueueClient _queueClient;
+    private readonly QueueClient _queueClient;
 
     public AzQueueStorageBase(ILogger<AzQueueStorageBase> logger, string connectionString, string queueName)
     {

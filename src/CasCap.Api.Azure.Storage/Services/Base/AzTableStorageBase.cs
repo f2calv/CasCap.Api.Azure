@@ -33,7 +33,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public event EventHandler<AzTableStorageArgs>? BatchCompletedEvent;
     protected virtual void OnRaiseBatchCompletedEvent(AzTableStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
 
-    readonly string _connectionString;
+    private readonly string _connectionString;
 
     protected TableServiceClient _tableSvcClient { get; set; }
 
