@@ -86,7 +86,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true) where T : class, ITableEntity => BatchOperation(tbl, entities, useParallelism);
     #endregion
 
-    async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true) where T : class, ITableEntity
+    private async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true) where T : class, ITableEntity
     {
         var partitions = entities.GroupBy(l => l.PartitionKey)
             .Select(g => new

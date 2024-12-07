@@ -32,8 +32,9 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
 
-    bool _haveCheckedIfQueueExists = false;
-    async ValueTask CreateQueueIfNotExistsAsync()
+    private bool _haveCheckedIfQueueExists = false;
+    
+    private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
             _logger.LogDebug("{className} storage queue didn't exist so have now created '{queueName}'", nameof(AzQueueStorageBase), _queueName);
@@ -127,7 +128,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         return l;
     }
 
-    async Task<List<QueueMessage>> Dequeue(int limit = 1)
+    private async Task<List<QueueMessage>> Dequeue(int limit = 1)
     {
         var properties = await _queueClient.GetPropertiesAsync();
         if (properties.Value.ApproximateMessagesCount > 1) limit = properties.Value.ApproximateMessagesCount;
