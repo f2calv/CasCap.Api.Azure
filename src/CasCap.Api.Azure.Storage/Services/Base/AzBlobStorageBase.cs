@@ -16,11 +16,11 @@ public interface IAzBlobStorageBase
 
 public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
-    readonly ILogger _logger;
-    readonly string _connectionString;
-    readonly string _containerName;
+    private readonly ILogger _logger;
+    private readonly string _connectionString;
+    private readonly string _containerName;
 
-    readonly BlobContainerClient _containerClient;
+    private readonly BlobContainerClient _containerClient;
 
     public AzBlobStorageBase(ILogger<AzBlobStorageBase> logger, string connectionString, string containerName)
     {
