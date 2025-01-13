@@ -14,9 +14,9 @@
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.21.0" />
     <PackageVersion Include="CasCap.Common.Extensions" Version="4.2.5" />
-    <PackageVersion Include="CasCap.Common.Logging" Version="4.2.5" />
+    <PackageVersion Include="CasCap.Common.Logging" Version="4.2.6" />
     <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.2.5" />
-    <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.2.5" />
+    <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.2.6" />
     <PackageVersion Include="CasCap.Common.Testing" Version="4.2.5" />
     <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.41.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
