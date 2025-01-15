@@ -1,13 +1,4 @@
-﻿using Azure.Identity;
-using Azure.Monitor.Query;
-namespace CasCap.Services;
-
-public interface ILogAnalyticsQueryService
-{
-    //Task Query(string timespan = null);
-    //Task GetCustomEvents(string timespan = null);
-    Task<List<aiObject>> GetExceptions(int limit = 50);
-}
+﻿namespace CasCap.Services;
 
 //https://gist.github.com/alexeldeib/7bfa6e671904cd33aaaac5c3d3ff8e09
 //https://dev.applicationinsights.io/documentation/Authorization/AAD-Application-Setup
@@ -18,21 +9,21 @@ public interface ILogAnalyticsQueryService
 //https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet
 public class LogAnalyticsQueryService : ILogAnalyticsQueryService
 {
-    readonly ILogger _logger;
-    readonly LogAnalyticsOptions _logAnalyticsOptions;
+    private readonly ILogger _logger;
+    private readonly LogAnalyticsOptions _logAnalyticsOptions;
 
-    readonly LogsQueryClient _client;
+    private readonly LogsQueryClient _client;
 
     public LogAnalyticsQueryService(ILogger<LogAnalyticsQueryService> logger,
         IOptions<LogAnalyticsOptions> logAnalyticsOptions
         )
     {
         _logger = logger;
-        _logAnalyticsOptions = logAnalyticsOptions?.Value;
+        _logAnalyticsOptions = logAnalyticsOptions.Value;
         _client = Auth();
     }
 
-    LogsQueryClient Auth()
+    private static LogsQueryClient Auth()
     {
         //TODO: need to enable managed identity here or use environment variables...
         //https://learn.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme?view=azure-dotnet
@@ -77,18 +68,20 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
         var l = new List<aiObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {
-            var obj = new aiObject();
-            obj.timestamp = DateTime.Parse(e[nameof(obj.timestamp)].ToString());
-            obj.cloud_RoleInstance = e[nameof(obj.cloud_RoleInstance)].ToString();
-            obj.customDimensions = e[nameof(obj.customDimensions)];
-            obj.appId = new Guid(e[nameof(obj.appId)].ToString());
-            obj.iKey = new Guid(e[nameof(obj.iKey)].ToString());
-            obj.problemId = e[nameof(obj.problemId)].ToString();
-            obj.message = e[nameof(obj.message)].ToString();
-            obj.outerMessage = e[nameof(obj.outerMessage)].ToString();
-            obj.innermostMessage = e[nameof(obj.innermostMessage)].ToString();
-            obj.method = e[nameof(obj.method)].ToString();
-            obj.assembly = e[nameof(obj.assembly)].ToString();
+            var obj = new aiObject
+            {
+                timestamp = DateTime.Parse(e[nameof(aiObject.timestamp)].ToString()!),
+                cloud_RoleInstance = e[nameof(aiObject.cloud_RoleInstance)].ToString()!,
+                customDimensions = e[nameof(aiObject.customDimensions)],
+                appId = new Guid(e[nameof(aiObject.appId)].ToString()!),
+                iKey = new Guid(e[nameof(aiObject.iKey)].ToString()!),
+                problemId = e[nameof(aiObject.problemId)].ToString()!,
+                message = e[nameof(aiObject.message)].ToString()!,
+                outerMessage = e[nameof(aiObject.outerMessage)].ToString()!,
+                innermostMessage = e[nameof(aiObject.innermostMessage)].ToString()!,
+                method = e[nameof(aiObject.method)].ToString()!,
+                assembly = e[nameof(aiObject.assembly)].ToString()!,
+            };
             l.Add(obj);
         }
         return l;
@@ -101,16 +94,16 @@ public class aiObject
     //https://stackoverflow.com/questions/2380467/c-dynamic-parse-from-system-type
     //public Type? type { get; set; }
     public DateTime? timestamp { get; set; }
-    public string cloud_RoleInstance { get; set; }
+    public required string cloud_RoleInstance { get; set; }
     //public string timestamp { get; set; }
     //public Exception exception { get; set; }
-    public object customDimensions { get; set; }
-    public string method { get; set; }
-    public string assembly { get; set; }
-    public string message { get; set; }
-    public string outerMessage { get; set; }
-    public string innermostMessage { get; set; }
-    public string problemId { get; set; }
+    public required object customDimensions { get; set; }
+    public required string method { get; set; }
+    public required string assembly { get; set; }
+    public required string message { get; set; }
+    public required string outerMessage { get; set; }
+    public required string innermostMessage { get; set; }
+    public required string problemId { get; set; }
     public Guid appId { get; set; }
     public Guid iKey { get; set; }
 }

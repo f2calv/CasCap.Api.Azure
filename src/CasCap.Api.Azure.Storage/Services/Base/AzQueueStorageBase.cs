@@ -12,15 +12,14 @@ public interface IAzQueueStorageBase
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
-    private readonly ILogger _logger;
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzQueueStorageBase));
     private readonly string _connectionString;
     private readonly string _queueName;
 
     private readonly QueueClient _queueClient;
 
-    public AzQueueStorageBase(ILogger<AzQueueStorageBase> logger, string connectionString, string queueName)
+    public AzQueueStorageBase(string connectionString, string queueName)
     {
-        _logger = logger;
         _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
         _queueName = queueName ?? throw new ArgumentException("not supplied!", nameof(queueName));
 
@@ -33,7 +32,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     }
 
     private bool _haveCheckedIfQueueExists = false;
-    
+
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
@@ -41,7 +40,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         _haveCheckedIfQueueExists = true;
     }
 
-    public async Task<bool> Enqueue<T>(T obj) where T : class => await Enqueue(new List<T> { obj });
+    public async Task<bool> Enqueue<T>(T obj) where T : class => await Enqueue([obj]);
 
     public async Task<bool> Enqueue<T>(List<T> objs) where T : class
     {

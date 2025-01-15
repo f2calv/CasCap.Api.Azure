@@ -15,8 +15,8 @@ public interface IAzTableStorageBase
     Task<int> UpsertEntity<T>(string tableName, T entity) where T : class, ITableEntity, new();
     Task<int> UpsertEntity<T>(TableClient tbl, T entity) where T : class, ITableEntity, new();
 
-    Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
-    Task<T> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
+    Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
+    Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
 
     Task<List<T>> GetEntities<T>(string tableName) where T : class, ITableEntity, new();
     Task<List<T>> GetEntities<T>(TableClient tbl) where T : class, ITableEntity, new();
@@ -28,7 +28,7 @@ public interface IAzTableStorageBase
 
 public abstract class AzTableStorageBase : IAzTableStorageBase
 {
-    protected readonly ILogger _logger;
+    protected static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzTableStorageBase));
 
     public event EventHandler<AzTableStorageArgs>? BatchCompletedEvent;
     protected virtual void OnRaiseBatchCompletedEvent(AzTableStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
@@ -37,9 +37,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     protected TableServiceClient _tableSvcClient { get; set; }
 
-    public AzTableStorageBase(ILogger<AzTableStorageBase> logger, string connectionString)
+    public AzTableStorageBase(string connectionString)
     {
-        _logger = logger;
         _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
 
         _tableSvcClient = new TableServiceClient(_connectionString);
@@ -133,7 +132,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
         async Task<List<T>> ExecuteBatchOperation(List<T> entityRows)
         {
-            if (tbl is null) throw new ArgumentNullException(nameof(tbl));
+            ArgumentNullException.ThrowIfNull(tbl);
             if (entityRows.IsNullOrEmpty()) throw new ArgumentNullException(nameof(entityRows));
             var retval = new List<T>();
             IEnumerable<TableTransactionAction> tableTxnRows;
@@ -150,7 +149,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     if (exists.HasValue)
                         newTableTxnRows.Add(ent);
                 }
-                if (newTableTxnRows.Any())
+                if (newTableTxnRows.Count != 0)
                     tableTxnRows = newTableTxnRows;
             }
             //batch.AddRange(tableTxnRows);
@@ -176,12 +175,12 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     #region R - Read
     //single record
-    public async Task<T> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
+    public async Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
     {
         var table = await GetTableClient(tableName);
         return await GetEntity<T>(table, partitionKey, rowKey);
     }
-    public async Task<T> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
+    public async Task<T?> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
     {
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
@@ -222,7 +221,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName);
         return await GetEntities<T>(table, partitionKey, rowKeyFrom);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
+    public static async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom}");
         var entities = await table.QueryAsync<T>(filter).ToListAsync();

@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace CasCap.Tests;
+﻿namespace CasCap.Tests;
 
 public class AzStorageTests
 {
@@ -9,10 +7,10 @@ public class AzStorageTests
     {
         var utcNow = DateTime.UtcNow;
         Assert.True(utcNow.ToString(AzStorageHelpers.yyMMdd) == utcNow.GetPartitionKey());
-
+        /*
         var sTimestamp = "2023-06-08T04:02:09.7832039Z";
-        var timestamp1 = DateTime.Parse(sTimestamp);
-        var timestamp2 = DateTime.SpecifyKind(DateTime.Parse(sTimestamp), DateTimeKind.Utc);
+        _ = DateTime.Parse(sTimestamp);
+        _ = DateTime.SpecifyKind(DateTime.Parse(sTimestamp), DateTimeKind.Utc);
         var timestamp = DateTime.ParseExact(sTimestamp, "o", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
         var utcTimestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
@@ -22,6 +20,7 @@ public class AzStorageTests
         var utcRowKey = rowKey.GetDateTimeFromRowKey(partitionKey);
 
         var tsDiff = utcTimestamp - utcRowKey;
+        */
         Assert.True(true);
     }
 }

@@ -3,5 +3,8 @@ global using Azure.Messaging.EventHubs.Consumer;
 global using Azure.Messaging.EventHubs.Processor;
 global using Azure.Messaging.EventHubs.Producer;
 global using Azure.Storage.Blobs;
+global using CasCap.Abstractions;
 global using CasCap.Common.Extensions;
 global using Microsoft.Extensions.Logging;
+global using System.Collections.Concurrent;
+global using System.Text;
