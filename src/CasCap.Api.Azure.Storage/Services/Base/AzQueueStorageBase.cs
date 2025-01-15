@@ -32,7 +32,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     }
 
     private bool _haveCheckedIfQueueExists = false;
-    
+
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
