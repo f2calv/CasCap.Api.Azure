@@ -16,15 +16,14 @@ public interface IAzBlobStorageBase
 
 public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
-    private readonly ILogger _logger;
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzBlobStorageBase));
     private readonly string _connectionString;
     private readonly string _containerName;
 
     private readonly BlobContainerClient _containerClient;
 
-    public AzBlobStorageBase(ILogger<AzBlobStorageBase> logger, string connectionString, string containerName)
+    public AzBlobStorageBase(string connectionString, string containerName)
     {
-        _logger = logger;
         _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
         _containerName = containerName ?? throw new ArgumentException("not supplied!", nameof(containerName));
 
@@ -57,7 +56,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         //pageBlobClient.Resize(32 * OneGigabyteAsBytes);
 
         //Writing pages to a page blob
-        var array = new byte[512];
+        //var array = new byte[512];
 
         var bytes = await File.ReadAllBytesAsync("c:/temp/test.zip");//200kb
 
@@ -75,10 +74,10 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 
         foreach (var range in pageRanges)
         {
-            var pageBlob = pageBlobClient.Download(range);
+            _ = pageBlobClient.Download(range);
         }
 
-        var pageBlob2 = pageBlobClient.Download(new HttpRange(0, 1000));
+        _ = pageBlobClient.Download(new HttpRange(0, 1000));
         //Debugger.Break();
     }
 

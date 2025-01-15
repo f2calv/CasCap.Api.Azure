@@ -1,10 +1,8 @@
-﻿using System.Globalization;
-using System.Text.RegularExpressions;
-namespace CasCap.Common.Extensions;
+﻿namespace CasCap.Common.Extensions;
 
 public static class AzStorageHelpers
 {
-    static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzStorageHelpers));
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzStorageHelpers));
 
     public static async Task<bool> ExistsAsync(this TableServiceClient client, string tableName)
     {
@@ -13,9 +11,9 @@ public static class AzStorageHelpers
         return false;
     }
 
-    //static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
-    static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
-    //static readonly Regex DisallowedCharsInTableKeys = new("[#]", RegexOptions.Compiled);
+    //private static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
+    private static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
+    //private static readonly Regex DisallowedCharsInTableKeys = new("[#]", RegexOptions.Compiled);
     //https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns
     public static bool IsKeyValid(this string tableKey)
     {

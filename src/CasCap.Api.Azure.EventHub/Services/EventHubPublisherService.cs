@@ -1,24 +1,13 @@
-﻿using System.Text;
-namespace CasCap.Services;
-
-public interface IEventHubPublisherService<T>// where T : IEventHubEvent
-{
-    Task Push(T obj);
-    Task Push(byte[] bytes);
-    Task Push(List<T> objs);
-    Task Push(List<byte[]> bytesCollection);
-    Task SendTestMessages(int numMessagesToSend = 10);
-}
+﻿namespace CasCap.Services;
 
 public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>// where T : IEventHubEvent
 {
-    readonly ILogger _logger;
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubPublisherService<T>));
 
-    readonly string _connectionString;
+    private readonly string _connectionString;
 
-    public EventHubPublisherService(ILogger<EventHubPublisherService<T>> logger, string connectionString, string EntityPath)
+    public EventHubPublisherService(string connectionString, string EntityPath)
     {
-        _logger = logger;
         _connectionString = connectionString ?? throw new ArgumentException("required!", nameof(connectionString));
 
         _producerClient = new EventHubProducerClient(_connectionString, new EventHubProducerClientOptions
@@ -36,9 +25,9 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
 
     EventHubProducerClient _producerClient { get; }
 
-    public async Task Push(T obj) => await Push(new List<byte[]>(1) { obj.ToMessagePack() });
+    public async Task Push(T obj) => await Push([obj.ToMessagePack()]);
 
-    public async Task Push(byte[] bytes) => await Push(new List<byte[]>(1) { bytes });
+    public async Task Push(byte[] bytes) => await Push([bytes]);
 
     public async Task Push(List<T> objs)
     {

@@ -1,26 +1,14 @@
-﻿using Microsoft.CognitiveServices.Speech;
-using Microsoft.CognitiveServices.Speech.Audio;
-using Microsoft.Extensions.Logging;
-namespace CasCap.Services;
-
-/// <summary>
-/// https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/csharp/sharedcontent/console/speech_synthesis_samples.cs
-/// </summary>
-public interface IText2SpeechService
-{
-    Task CreateWAV(string soundbyte, string path);
-}
+﻿namespace CasCap.Services;
 
 public class Text2SpeechService : IText2SpeechService
 {
-    readonly ILogger _logger;
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(Text2SpeechService));
 
-    readonly string _localPath;
-    readonly SpeechConfig _speechConfig;
+    private readonly string _localPath;
+    private readonly SpeechConfig _speechConfig;
 
-    public Text2SpeechService(ILogger<Text2SpeechService> logger, string localPath, string subscriptionKey, string region = "westeurope")
+    public Text2SpeechService(string localPath, string subscriptionKey, string region = "westeurope")
     {
-        _logger = logger;
         _localPath = localPath ?? throw new FileNotFoundException("not found!", nameof(localPath));//but doesn't handle string.Empty
         if (string.IsNullOrWhiteSpace(localPath)) throw new ArgumentException("not supplied!", nameof(localPath));
         if (string.IsNullOrWhiteSpace(subscriptionKey)) throw new ArgumentException("not supplied!", nameof(subscriptionKey));

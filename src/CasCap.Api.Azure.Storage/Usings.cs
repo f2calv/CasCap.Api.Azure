@@ -9,3 +9,5 @@ global using Azure.Storage.Queues.Models;
 global using CasCap.Common.Extensions;
 global using CasCap.Messages;
 global using Microsoft.Extensions.Logging;
+global using System.Globalization;
+global using System.Text.RegularExpressions;

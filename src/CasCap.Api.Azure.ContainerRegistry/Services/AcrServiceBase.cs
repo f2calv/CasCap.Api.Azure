@@ -15,7 +15,7 @@ public class AcrServiceBase
         _client = new ContainerRegistryClient(endpoint, new DefaultAzureCredential());
     }
 
-    ContainerRegistryClient _client;
+    private readonly ContainerRegistryClient _client;
 
     //https://docs.microsoft.com/en-us/dotnet/api/overview/azure/containers.containerregistry-readme-pre
     //https://azuresdkdocs.blob.core.windows.net/$web/dotnet/Azure.Containers.ContainerRegistry/1.0.0-beta.2/index.html#list-repositories-asynchronously
