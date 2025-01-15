@@ -1,6 +1,6 @@
 ﻿namespace CasCap.Services;
 
-public class AcrServiceBase
+public abstract class AcrServiceBase
 {
     protected /*readonly*/ ILogger _logger;
 
