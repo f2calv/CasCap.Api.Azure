@@ -4,7 +4,7 @@ public abstract class ServiceBusServiceBase
 {
     protected ILogger _logger;
 
-    public ServiceBusServiceBase(ILogger<ServiceBusServiceBase> logger) => _logger = logger;
+    protected ServiceBusServiceBase(ILogger<ServiceBusServiceBase> logger) => _logger = logger;
 
     public event EventHandler<ProcessMessageEventArgs>? MessageReceivedEvent;
     protected virtual void OnRaiseMessageReceivedEvent(ProcessMessageEventArgs args) { MessageReceivedEvent?.Invoke(this, args); }
