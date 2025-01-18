@@ -22,7 +22,7 @@ public abstract class ServiceBusServiceBase
 
     protected Task ErrorHandler(ProcessErrorEventArgs args)
     {
-        _logger.LogError(args.Exception, nameof(ErrorHandler));
+        _logger.LogError(args.Exception, "{className} error args {@args}", nameof(ErrorHandler), args);
         OnRaiseErrorReceivedEvent(args);
         return Task.CompletedTask;
     }

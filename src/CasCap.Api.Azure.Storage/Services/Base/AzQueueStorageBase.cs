@@ -62,8 +62,8 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "failed to insert {messageType} into storage queue '{queueName}' JSON content is '{bytes}' bytes",
-                    typeof(T).Name, _queueName, message.ToArray().Length);
+                _logger.LogError(ex, "{className} failed to insert {messageType} into storage queue '{queueName}' JSON content is '{bytes}' bytes",
+                    nameof(AzQueueStorageBase), typeof(T).Name, _queueName, message.ToArray().Length);
             }
             if (result is not null && result.Value is not null)
             {
@@ -92,7 +92,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "failed to deserialize JSON, '{json}'", json);
+                _logger.LogError(ex, "{className} failed to deserialize JSON, '{json}'", nameof(AzQueueStorageBase), json);
                 IsCorrupted = true;
             }
             finally

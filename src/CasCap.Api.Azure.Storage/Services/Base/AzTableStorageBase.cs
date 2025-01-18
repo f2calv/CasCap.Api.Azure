@@ -166,7 +166,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "tableName={tableName}, entities.Count={count}", tbl.Name, entityRows.Count);
+                _logger.LogError(ex, "{className} tableName={tableName}, entities.Count={count}",
+                    nameof(AzTableStorageBase), tbl.Name, entityRows.Count);
                 throw;
             }
             return retval;
