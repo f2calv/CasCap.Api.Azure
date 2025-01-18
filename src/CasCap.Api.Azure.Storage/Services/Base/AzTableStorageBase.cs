@@ -150,7 +150,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     if (exists.HasValue)
                         newTableTxnRows.Add(ent);
                 }
-                if (newTableTxnRows.Count != 0)
+                if (newTableTxnRows.Count > 0)
                     tableTxnRows = newTableTxnRows;
             }
             //batch.AddRange(tableTxnRows);
