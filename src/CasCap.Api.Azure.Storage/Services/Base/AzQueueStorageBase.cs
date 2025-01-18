@@ -50,7 +50,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         {
             if (obj is null)
             {
-                _logger.LogWarning("obj is null?");
+                _logger.LogWarning("{className} obj is null?", nameof(AzQueueStorageBase));
                 continue;
             }
             var json = obj.ToJson();

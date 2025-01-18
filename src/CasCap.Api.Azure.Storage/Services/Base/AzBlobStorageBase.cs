@@ -112,7 +112,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 
         if (!await blobClient.ExistsAsync())
         {
-            _logger.LogWarning("blob {blobName} does not exist", blobName);
+            _logger.LogWarning("{className} blob {blobName} does not exist", nameof(AzBlobStorageBase), blobName);
             return null;
         }
         var downloadInfo = await blobClient.DownloadAsync();

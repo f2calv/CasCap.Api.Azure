@@ -94,10 +94,12 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             if (bytes is not null)
             {
                 var obj = bytes.FromMessagePack<T>();
-                _logger.LogInformation("Message received. Partition: '{partitionId}', Data: '{obj}'", partitionId, obj);
+                _logger.LogInformation("{className} Message received. Partition: '{partitionId}', Data: '{obj}'",
+                    nameof(EventHubSubscriberService<T>), partitionId, obj);
             }
             else
-                _logger.LogWarning("Message received. Partition: '{partitionId}', Data: null", partitionId);
+                _logger.LogWarning("{className} Message received. Partition: '{partitionId}', Data: null",
+                    nameof(EventHubSubscriberService<T>), partitionId);
 
             var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(
                 key: partitionId,

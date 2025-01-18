@@ -124,7 +124,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 }
                 else
                 {
-                    _logger.LogWarning("table {tableName}, partition {partition} no changes affected...", tbl.Name, _partitionKey);
+                    _logger.LogWarning("{className} table {tableName}, partition {partition} no changes affected...",
+                        nameof(AzTableStorageBase), tbl.Name, _partitionKey);
                     //return;
                 }
             }
