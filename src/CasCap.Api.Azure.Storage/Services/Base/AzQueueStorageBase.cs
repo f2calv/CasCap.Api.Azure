@@ -92,7 +92,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "failed to deserilise JSON, '{json}'", json);
+                _logger.LogError(ex, "failed to deserialize JSON, '{json}'", json);
                 IsCorrupted = true;
             }
             finally
