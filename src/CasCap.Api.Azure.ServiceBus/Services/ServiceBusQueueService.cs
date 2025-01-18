@@ -19,7 +19,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
 
         // send the message
         await sender.SendMessageAsync(message);
-        _logger.LogInformation("Sent a single message to the queue: {queueName}", _queueName);
+        _logger.LogInformation("{className} Sent a single message to the queue: {queueName}",
+            nameof(ServiceBusQueueService), _queueName);
     }
 
     public async Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
@@ -60,7 +61,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
 
-        _logger.LogInformation("Sent a batch of {messageCount} messages to the topic: {queueName}", messageCount, _queueName);
+        _logger.LogInformation("{className} Sent a batch of {messageCount} messages to the topic: {queueName}",
+            nameof(ServiceBusQueueService), messageCount, _queueName);
     }
 
     public async Task ReceiveMessagesAsync(CancellationToken cancellationToken = default)
@@ -79,8 +81,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         await processor.StartProcessingAsync(cancellationToken);
 
         // stop processing
-        _logger.LogInformation("Stopping the receiver...");
+        _logger.LogInformation("{className} Stopping the receiver...", nameof(ServiceBusQueueService));
         await processor.StopProcessingAsync(cancellationToken);
-        _logger.LogInformation("Stopped receiving messages");
+        _logger.LogInformation("{className} Stopped receiving messages", nameof(ServiceBusQueueService));
     }
 }
