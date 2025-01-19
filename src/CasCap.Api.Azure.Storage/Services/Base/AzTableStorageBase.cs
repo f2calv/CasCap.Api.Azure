@@ -118,8 +118,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 {
                     _entities.RemoveRange(0, batchSize);
                     retval!.AddRange(_retval);
-                    _logger.LogDebug("account {storageAccountName}, table {tableName}, partition {partition}, (1 of {partitionCount}), {entityCount} entities handled, {remainingCount} entities remaining",
-                        _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
+                    _logger.LogDebug("{className} account {storageAccountName}, table {tableName}, partition {partition}, (1 of {partitionCount}), {entityCount} entities handled, {remainingCount} entities remaining",
+                        nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
                 }
                 else
@@ -254,7 +254,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         if (await _tableSvcClient.ExistsAsync(tableName))
         {
             var response = await _tableSvcClient.DeleteTableAsync(tableName);
-            _logger.LogDebug("{tableName} {ReasonPhrase}", tableName, response.ReasonPhrase);
+            _logger.LogDebug("{className} {tableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
         }
     }
 

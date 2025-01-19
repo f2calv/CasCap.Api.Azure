@@ -67,8 +67,8 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             if (result is not null && result.Value is not null)
             {
-                _logger.LogDebug("{messageType} {i} of {messageCount} inserted into storage queue '{queueName}', MessageId={MessageId}",
-                    typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
+                _logger.LogDebug("{className} {messageType} {i} of {messageCount} inserted into storage queue '{queueName}', MessageId={MessageId}",
+                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
                 i++;
             }
         }

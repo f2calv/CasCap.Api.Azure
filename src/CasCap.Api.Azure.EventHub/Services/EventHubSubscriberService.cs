@@ -44,7 +44,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             _eventProcessorClient.ProcessErrorAsync += processErrorHandler;
             try
             {
-                _logger.LogDebug("_eventProcessorClient.StartProcessingAsync... for {EventHubName}", _eventHubName);
+                _logger.LogDebug("{className} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken);
                 await Task.Delay(Timeout.Infinite, cancellationToken);
             }

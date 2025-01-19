@@ -27,7 +27,7 @@ public class Text2SpeechService : IText2SpeechService
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);
         using var result = await synthesizer.SpeakTextAsync(soundbyte);
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
-            _logger.LogDebug("Speech synthesized to speaker for text {soundbyte}", soundbyte);
+            _logger.LogDebug("{className} Speech synthesized to speaker for text {soundbyte}", nameof(Text2SpeechService), soundbyte);
         else if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);

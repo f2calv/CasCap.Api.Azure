@@ -62,9 +62,9 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         for (var i = 0; i < numMessagesToSend; i++)
         {
             var message = $"Message {i}";
-            //_logger.LogDebug("Sending message: {message}", message);
+            //_logger.LogDebug("{className} Sending message: {message}", nameof(EventHubPublisherService<T>), message);
             await Push(Encoding.UTF8.GetBytes(message));
         }
-        _logger.LogDebug("{numMessagesToSend} messages sent.", numMessagesToSend);
+        _logger.LogDebug("{className} {numMessagesToSend} messages sent.", nameof(EventHubPublisherService<T>), numMessagesToSend);
     }
 }
