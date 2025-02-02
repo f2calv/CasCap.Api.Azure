@@ -35,7 +35,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
-        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
+        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
             _logger.LogDebug("{className} storage queue didn't exist so have now created '{queueName}'", nameof(AzQueueStorageBase), _queueName);
         _haveCheckedIfQueueExists = true;
     }
