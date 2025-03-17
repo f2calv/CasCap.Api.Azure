@@ -4,26 +4,26 @@ public interface IAzTableStorageBase
 {
     event EventHandler<AzTableStorageArgs> BatchCompletedEvent;
 
-    Task<List<TableItem>> GetTables();
-    Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true);
-    Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true) where T : class, ITableEntity;
-    Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true) where T : class, ITableEntity;
+    Task<List<TableItem>> GetTables(CancellationToken cancellationToken);
+    Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default);
+    Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
+    Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
 
-    Task DeleteData<T>(string tableName, List<T> entities) where T : class, ITableEntity, new();
-    Task DeleteData<T>(TableClient tbl, List<T> entities) where T : class, ITableEntity, new();
+    Task DeleteData<T>(string tableName, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task DeleteData<T>(TableClient tbl, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    Task<int> UpsertEntity<T>(string tableName, T entity) where T : class, ITableEntity, new();
-    Task<int> UpsertEntity<T>(TableClient tbl, T entity) where T : class, ITableEntity, new();
+    Task<int> UpsertEntity<T>(string tableName, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<int> UpsertEntity<T>(TableClient tbl, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
-    Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new();
+    Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
+    Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
 
-    Task<List<T>> GetEntities<T>(string tableName) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 }
 
 public abstract class AzTableStorageBase : IAzTableStorageBase
@@ -44,48 +44,51 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         _tableSvcClient = new TableServiceClient(_connectionString);
     }
 
-    public async Task<List<TableItem>> GetTables() => await _tableSvcClient.QueryAsync().ToListAsync();
+    public async Task<List<TableItem>> GetTables(CancellationToken cancellationToken)
+        => await _tableSvcClient.QueryAsync(cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
 
-    public async Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true)
+    public async Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default)
     {
         var table = _tableSvcClient.GetTableClient(tableName);
         if (!await _tableSvcClient.ExistsAsync(tableName) && CreateIfNotExists)
-            await table.CreateIfNotExistsAsync();
+            await table.CreateIfNotExistsAsync(cancellationToken);
         return table;
     }
 
-    protected async Task<TableClient> SetActiveTable(string tableName, bool CreateIfNotExists = true)
+    protected async Task<TableClient> SetActiveTable(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentNullException(nameof(tableName), "expected!");
         var table = _tableSvcClient.GetTableClient(tableName);
-        if (!await _tableSvcClient.ExistsAsync(table.Name) && CreateIfNotExists) await table.CreateIfNotExistsAsync();
+        if (!await _tableSvcClient.ExistsAsync(table.Name) && CreateIfNotExists)
+            await table.CreateIfNotExistsAsync(cancellationToken);
         return table;
     }
 
     #region C - Create
     //upsert single record
-    public async Task<int> UpsertEntity<T>(string tableName, T entity) where T : class, ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(string tableName, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var table = await GetTableClient(tableName);
-        return await UpsertEntity<T>(table, entity);
+        var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await UpsertEntity<T>(table, entity, cancellationToken);
     }
-    public async Task<int> UpsertEntity<T>(TableClient table, T tableEntity) where T : class, ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(TableClient table, T tableEntity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var result = await table.UpsertEntityAsync(tableEntity);
+        var result = await table.UpsertEntityAsync(tableEntity, cancellationToken: cancellationToken);
         return result.Status;
     }
 
     //upsert batch
-    public async Task<List<T>> UploadData<T>(string tableName, List<T> tableEntities, bool useParallelism = true) where T : class, ITableEntity
+    public async Task<List<T>> UploadData<T>(string tableName, List<T> tableEntities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
     {
-        var tbl = await GetTableClient(tableName);
-        return await BatchOperation(tbl, tableEntities, useParallelism);
+        var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await BatchOperation(tbl, tableEntities, useParallelism, cancellationToken: cancellationToken);
     }
 
-    public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true) where T : class, ITableEntity => BatchOperation(tbl, entities, useParallelism);
+    public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
+        => BatchOperation(tbl, entities, useParallelism, cancellationToken: cancellationToken);
     #endregion
 
-    private async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true) where T : class, ITableEntity
+    private async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
     {
         var partitions = entities.GroupBy(l => l.PartitionKey)
             .Select(g => new
@@ -96,16 +99,15 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
         var retval = new List<T>(entities.Count);
         //var batch = new List<TableTransactionAction>();
-        await Parallel.ForEachAsync(partitions, new ParallelOptions { MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 },
-            async (p, ct) =>
-            {
-                //TODO: use CancellationToken (ct) where appropriate
-                await RunBatches(p.PartitionKey, p.Entities);
-            });
+        var po = new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 };
+        await Parallel.ForEachAsync(partitions, po, async (p, ct) =>
+        {
+            await RunBatches(p.PartitionKey, p.Entities, ct);
+        });
 
         return retval;
 
-        async Task RunBatches(string _partitionKey, List<T> _entities)
+        async Task RunBatches(string _partitionKey, List<T> _entities, CancellationToken cancellationToken)
         {
             while (_entities.Count > 0)
             {
@@ -113,7 +115,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 var count = _entities.Count;
                 var batchSize = Math.Min(100, count);
                 var top100 = _entities.Take(batchSize).ToList();
-                var _retval = await ExecuteBatchOperation(top100);
+                var _retval = await ExecuteBatchOperation(top100, cancellationToken);
                 if (_retval.Count > 0)
                 {
                     _entities.RemoveRange(0, batchSize);
@@ -131,7 +133,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             }
         }
 
-        async Task<List<T>> ExecuteBatchOperation(List<T> entityRows)
+        async Task<List<T>> ExecuteBatchOperation(List<T> entityRows, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tbl);
             if (entityRows.IsNullOrEmpty()) throw new ArgumentNullException(nameof(entityRows));
@@ -146,7 +148,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 var newTableTxnRows = new List<TableTransactionAction>();
                 foreach (var ent in tableTxnRows)
                 {
-                    var exists = await tbl.GetEntityIfExistsAsync<T>(ent.Entity.PartitionKey, ent.Entity.RowKey);
+                    var exists = await tbl.GetEntityIfExistsAsync<T>(ent.Entity.PartitionKey, ent.Entity.RowKey, cancellationToken: cancellationToken);
                     if (exists.HasValue)
                         newTableTxnRows.Add(ent);
                 }
@@ -156,7 +158,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             //batch.AddRange(tableTxnRows);
             try
             {
-                var response = await tbl.SubmitTransactionAsync(tableTxnRows).ConfigureAwait(false);
+                var response = await tbl.SubmitTransactionAsync(tableTxnRows, cancellationToken).ConfigureAwait(false);
                 for (var i = 0; i < tableTxnRows.Count(); i++)
                 {
                     var etag = response.Value[i].Headers.ETag;
@@ -177,69 +179,69 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     #region R - Read
     //single record
-    public async Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
+    public async Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
     {
-        var table = await GetTableClient(tableName);
-        return await GetEntity<T>(table, partitionKey, rowKey);
+        var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await GetEntity<T>(table, partitionKey, rowKey, cancellationToken);
     }
-    public async Task<T?> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null) where T : class, ITableEntity, new()
+    public async Task<T?> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
     {
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
-        var result = await table.GetEntityIfExistsAsync<T>(partitionKey, rowKey);
+        var result = await table.GetEntityIfExistsAsync<T>(partitionKey, rowKey, cancellationToken: cancellationToken);
         if (result.HasValue)
             return result.Value;
         return null;
     }
 
     //get everything
-    public async Task<List<T>> GetEntities<T>(string tableName) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var table = await GetTableClient(tableName);
-        return await GetEntities<T>(table);
+        var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await GetEntities<T>(table, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tableEntities = await table.QueryAsync<T>().ToListAsync();
+        var tableEntities = await table.QueryAsync<T>(cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return tableEntities;
     }
 
     //get just the partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var table = await GetTableClient(tableName);
-        return await GetEntities<T>(table, partitionKey);
+        var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await GetEntities<T>(table, partitionKey, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tableEntities = await table.QueryAsync<T>(p => p.PartitionKey == partitionKey).ToListAsync();
+        var tableEntities = await table.QueryAsync<T>(p => p.PartitionKey == partitionKey, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return tableEntities;
     }
     //https://learn.microsoft.com/en-gb/rest/api/storageservices/querying-tables-and-entities
 
     //get just the partition AND newer rowkeys within that partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var table = await GetTableClient(tableName);
-        return await GetEntities<T>(table, partitionKey, rowKeyFrom);
+        var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await GetEntities<T>(table, partitionKey, rowKeyFrom, cancellationToken);
     }
-    public static async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom) where T : class, ITableEntity, new()
+    public static async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom}");
-        var entities = await table.QueryAsync<T>(filter).ToListAsync();
+        var entities = await table.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return entities.ToList();
     }
 
     //get a range within a partition
-    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTableClient(tableName);
-        return await GetEntities<T>(tbl, partitionKey, rowKeyFrom, rowKeyTo);
+        var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        return await GetEntities<T>(tbl, partitionKey, rowKeyFrom, rowKeyTo, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, string rowKeyTo) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom} and RowKey ge {rowKeyTo}");
-        var entities = await table.QueryAsync<T>(filter).ToListAsync();
+        var entities = await table.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return entities.ToList();
     }
     #endregion
@@ -249,21 +251,22 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     #endregion
 
     #region D - Delete
-    public async Task DeleteTable(string tableName)
+    public async Task DeleteTable(string tableName, CancellationToken cancellationToken)
     {
         if (await _tableSvcClient.ExistsAsync(tableName))
         {
-            var response = await _tableSvcClient.DeleteTableAsync(tableName);
+            var response = await _tableSvcClient.DeleteTableAsync(tableName, cancellationToken);
             _logger.LogDebug("{className} {tableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
         }
     }
 
-    public async Task DeleteData<T>(string tableName, List<T> entities) where T : class, ITableEntity, new()
+    public async Task DeleteData<T>(string tableName, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tbl = await GetTableClient(tableName);
-        await BatchOperation(tbl, entities, useParallelism: true, InsertOrReplace: false);
+        var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
+        await BatchOperation(tbl, entities, useParallelism: true, InsertOrReplace: false, cancellationToken: cancellationToken);
     }
 
-    public Task DeleteData<T>(TableClient tbl, List<T> entities) where T : class, ITableEntity, new() => BatchOperation(tbl, entities, InsertOrReplace: false);
+    public Task DeleteData<T>(TableClient tbl, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+        => BatchOperation(tbl, entities, InsertOrReplace: false, cancellationToken: cancellationToken);
     #endregion
 }

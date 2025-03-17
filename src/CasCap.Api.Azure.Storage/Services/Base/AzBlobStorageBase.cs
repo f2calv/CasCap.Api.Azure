@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 public interface IAzBlobStorageBase
 {
@@ -60,7 +58,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         //Writing pages to a page blob
         //var array = new byte[512];
 
-        var bytes = await File.ReadAllBytesAsync("c:/temp/test.zip");//200kb
+        var bytes = await File.ReadAllBytesAsync("c:/temp/test.zip", cancellationToken);//200kb
 
         if (bytes.Length > 4 * 1024 * 1024)
             throw new Exception("bigger than 4mb");
@@ -120,7 +118,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var downloadInfo = await blobClient.DownloadAsync(cancellationToken);
         using (var ms = new MemoryStream())
         {
-            await downloadInfo.Value.Content.CopyToAsync(ms);
+            await downloadInfo.Value.Content.CopyToAsync(ms, cancellationToken);
             bytes = ms.ToArray();
         }
         return bytes;
