@@ -35,7 +35,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
-        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() != null))
+        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
             _logger.LogDebug("{className} storage queue didn't exist so have now created '{queueName}'", nameof(AzQueueStorageBase), _queueName);
         _haveCheckedIfQueueExists = true;
     }
@@ -50,7 +50,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         {
             if (obj is null)
             {
-                _logger.LogWarning("obj is null?");
+                _logger.LogWarning("{className} obj is null?", nameof(AzQueueStorageBase));
                 continue;
             }
             var json = obj.ToJson();
@@ -62,13 +62,13 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "failed to insert {messageType} into storage queue '{queueName}' JSON content is '{bytes}' bytes",
-                    typeof(T).Name, _queueName, message.ToArray().Length);
+                _logger.LogError(ex, "{className} failed to insert {messageType} into storage queue '{queueName}' JSON content is '{bytes}' bytes",
+                    nameof(AzQueueStorageBase), typeof(T).Name, _queueName, message.ToArray().Length);
             }
             if (result is not null && result.Value is not null)
             {
-                _logger.LogDebug("{messageType} {i} of {messageCount} inserted into storage queue '{queueName}', MessageId={MessageId}",
-                    typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
+                _logger.LogDebug("{className} {messageType} {i} of {messageCount} inserted into storage queue '{queueName}', MessageId={MessageId}",
+                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
                 i++;
             }
         }
@@ -77,7 +77,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
     {
-        //_logger.LogTrace("Trying account {accountName}...", _queueClient.AccountName);
+        //_logger.LogTrace("{className} trying account {accountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
         await CreateQueueIfNotExistsAsync();
         // Get the next message
         var retrievedMessage = await _queueClient.ReceiveMessageAsync();
@@ -92,7 +92,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "failed to deserilise JSON, '{json}'", json);
+                _logger.LogError(ex, "{className} failed to deserialize JSON, '{json}'", nameof(AzQueueStorageBase), json);
                 IsCorrupted = true;
             }
             finally

@@ -27,14 +27,15 @@ public class Text2SpeechService : IText2SpeechService
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);
         using var result = await synthesizer.SpeakTextAsync(soundbyte);
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
-            _logger.LogDebug("Speech synthesized to speaker for text {soundbyte}", soundbyte);
+            _logger.LogDebug("{className} Speech synthesized to speaker for text {soundbyte}", nameof(Text2SpeechService), soundbyte);
         else if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
-            _logger.LogWarning("CANCELED: Reason={reason}", cancellation.Reason);
+            _logger.LogWarning("{className} CANCELED: Reason={reason}", nameof(Text2SpeechService), cancellation.Reason);
             if (cancellation.Reason == CancellationReason.Error)
             {
-                _logger.LogError("CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?", cancellation.ErrorCode, cancellation.ErrorDetails);
+                _logger.LogError("{className} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
+                    nameof(Text2SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
             }
         }
     }
