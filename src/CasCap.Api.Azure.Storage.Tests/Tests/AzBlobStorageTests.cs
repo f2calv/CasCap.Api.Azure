@@ -88,13 +88,15 @@ public class AzBlobStorageTests(ITestOutputHelper output) : TestBase(output)
     [Fact]
     public async Task TestBlobService()
     {
+        using var cts = new CancellationTokenSource();
+
         var blobName = $"{Guid.NewGuid()}.bin";
 
-        await _blobSvc.CreateContainerIfNotExists("wibble");
+        await _blobSvc.CreateContainerIfNotExists("wibble", cts.Token);
 
-        await _blobSvc.UploadBlob($"{Guid.NewGuid()}.bin", fileBytes);
+        await _blobSvc.UploadBlob($"{Guid.NewGuid()}.bin", fileBytes, cts.Token);
 
-        await _blobSvc.UploadBlob(blobName, fileBytes);
+        await _blobSvc.UploadBlob(blobName, fileBytes, cts.Token);
 
         var downloadedBytes = await _blobSvc.DownloadBlobAsync(blobName);
         Assert.NotNull(downloadedBytes);

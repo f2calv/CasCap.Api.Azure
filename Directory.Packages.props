@@ -7,19 +7,19 @@
     <PackageVersion Include="Azure.Data.Tables" Version="12.10.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.2" />
     <PackageVersion Include="Azure.Messaging.EventGrid" Version="4.30.0" />
-    <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.11.6" />
-    <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.11.6" />
-    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
+    <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.12.1" />
+    <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.12.1" />
+    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.19.0" />
     <PackageVersion Include="Azure.Monitor.Query" Version="1.6.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.22.0" />
-    <PackageVersion Include="CasCap.Common.Extensions" Version="4.3.1" />
-    <PackageVersion Include="CasCap.Common.Logging" Version="4.3.1" />
-    <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.3.1" />
-    <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.3.1" />
-    <PackageVersion Include="CasCap.Common.Testing" Version="4.3.1" />
+    <PackageVersion Include="CasCap.Common.Extensions" Version="4.3.3" />
+    <PackageVersion Include="CasCap.Common.Logging" Version="4.3.3" />
+    <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.3.3" />
+    <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.3.3" />
+    <PackageVersion Include="CasCap.Common.Testing" Version="4.3.3" />
     <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.43.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
