@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.2.0" />
     <PackageVersion Include="Azure.Data.Tables" Version="12.11.0" />
-    <PackageVersion Include="Azure.Identity" Version="1.15.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.16.0" />
     <PackageVersion Include="Azure.Messaging.EventGrid" Version="5.0.0" />
     <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.12.2" />
     <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.12.2" />
@@ -18,8 +18,8 @@
     <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.3.7" />
     <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.3.7" />
     <PackageVersion Include="CasCap.Common.Testing" Version="4.3.7" />
-    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.45.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.46.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.3" />
