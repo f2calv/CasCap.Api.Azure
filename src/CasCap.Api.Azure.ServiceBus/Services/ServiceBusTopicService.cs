@@ -46,7 +46,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
             else
             {
                 // if the first message can't fit, then it is too large for the batch
-                throw new Exception($"Message {messageCount - messages.Count} is too large and cannot be sent.");
+                throw new GenericException($"Message {messageCount - messages.Count} is too large and cannot be sent.");
             }
 
             // add as many messages as possible to the current batch

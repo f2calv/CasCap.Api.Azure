@@ -46,7 +46,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
             {
                 var data = new EventData(bytes);
                 if (!eventBatch.TryAdd(data))
-                    throw new Exception($"EventHubName={typeof(T).Name}, batch size too big!");
+                    throw new GenericException($"EventHubName={typeof(T).Name}, batch size too big!");
             }
             await _producerClient.SendAsync(eventBatch);
         }

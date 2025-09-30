@@ -61,7 +61,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var bytes = await File.ReadAllBytesAsync("c:/temp/test.zip", cancellationToken);//200kb
 
         if (bytes.Length > 4 * 1024 * 1024)
-            throw new Exception("bigger than 4mb");
+            throw new GenericException("bigger than 4mb");
 
         using (var stream = new MemoryStream(bytes))
         {
