@@ -1,7 +1,11 @@
-﻿namespace CasCap.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class LogAnalyticsOptions
+namespace CasCap.Models;
+
+public record LogAnalyticsOptions
 {
     public const string SectionKey = $"{nameof(CasCap)}:{nameof(LogAnalyticsOptions)}";
-    public string WorkspaceId { get; set; } = string.Empty!;
+
+    [Required]
+    public required string WorkspaceId { get; init; }
 }

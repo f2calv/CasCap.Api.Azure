@@ -1,7 +1,11 @@
-﻿namespace CasCap.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class AppInsightsOptions
+namespace CasCap.Models;
+
+public record AppInsightsOptions
 {
     public const string SectionKey = $"{nameof(CasCap)}:{nameof(AppInsightsOptions)}";
-    public string InstrumentationKey { get; set; } = default!;
+
+    [Required]
+    public required string InstrumentationKey { get; init; }
 }
