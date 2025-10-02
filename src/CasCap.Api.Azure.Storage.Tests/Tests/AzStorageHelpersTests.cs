@@ -6,7 +6,7 @@ public class AzStorageTests
     public void PartitionKeyTest()
     {
         var utcNow = DateTime.UtcNow;
-        Assert.True(utcNow.ToString(AzStorageHelpers.yyMMdd) == utcNow.GetPartitionKey());
+        Assert.True(utcNow.ToString(LocalExtensions.yyMMdd) == utcNow.GetPartitionKey());
         /*
         var sTimestamp = "2023-06-08T04:02:09.7832039Z";
         _ = DateTime.Parse(sTimestamp);

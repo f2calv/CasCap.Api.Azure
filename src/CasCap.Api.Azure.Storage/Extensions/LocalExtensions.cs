@@ -1,9 +1,7 @@
 ﻿namespace CasCap.Common.Extensions;
 
-public static class AzStorageHelpers
+public static class LocalExtensions
 {
-    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzStorageHelpers));
-
     public static async Task<bool> ExistsAsync(this TableServiceClient client, string tableName)
     {
         await foreach (var tbl in client.QueryAsync(t => t.Name == tableName))

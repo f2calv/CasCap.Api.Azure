@@ -1,7 +1,11 @@
-﻿namespace CasCap.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CognitiveServicesOptions
+namespace CasCap.Models;
+
+public record CognitiveServicesOptions
 {
     public const string SectionKey = $"{nameof(CasCap)}:{nameof(CognitiveServicesOptions)}";
-    public string SubscriptionKey { get; set; } = string.Empty!;
+
+    [Required]
+    public required string SubscriptionKey { get; init; }
 }

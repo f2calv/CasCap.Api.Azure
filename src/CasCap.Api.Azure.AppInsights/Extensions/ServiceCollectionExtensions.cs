@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection;
 
-public static class DI
+public static class ServiceCollectionExtensions
 {
     //public static void AddCasCapAppInsightsServices(this IServiceCollection services)
     //    => services.AddCasCapAppInsightsServices(_ => { });
