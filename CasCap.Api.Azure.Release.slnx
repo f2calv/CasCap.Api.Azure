@@ -1,16 +1,21 @@
 ﻿<Solution>
-  <Folder Name="/Solution Items/">
+  <Configurations>
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="CasCap.Api.Azure/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
-  <Project Path="src/CasCap.Api.Azure.AppInsights/CasCap.Api.Azure.AppInsights.csproj" />
-  <Project Path="src/CasCap.Api.Azure.CognitiveServices/CasCap.Api.Azure.CognitiveServices.csproj" />
-  <Project Path="src/CasCap.Api.Azure.ContainerRegistry/CasCap.Api.Azure.ContainerRegistry.csproj" />
-  <Project Path="src/CasCap.Api.Azure.EventGrid/CasCap.Api.Azure.EventGrid.csproj" />
-  <Project Path="src/CasCap.Api.Azure.EventHub/CasCap.Api.Azure.EventHub.csproj" />
-  <Project Path="src/CasCap.Api.Azure.LogAnalytics/CasCap.Api.Azure.LogAnalytics.csproj" />
-  <Project Path="src/CasCap.Api.Azure.ServiceBus/CasCap.Api.Azure.ServiceBus.csproj" />
-  <Project Path="src/CasCap.Api.Azure.Storage.Tests/CasCap.Api.Azure.Storage.Tests.csproj" />
-  <Project Path="src/CasCap.Api.Azure.Storage/CasCap.Api.Azure.Storage.csproj" />
+  <Folder Name="/CasCap.Api.Azure/">
+    <Project Path="src/CasCap.Api.Azure.AppInsights/CasCap.Api.Azure.AppInsights.csproj" />
+    <Project Path="src/CasCap.Api.Azure.CognitiveServices/CasCap.Api.Azure.CognitiveServices.csproj" />
+    <Project Path="src/CasCap.Api.Azure.ContainerRegistry/CasCap.Api.Azure.ContainerRegistry.csproj" />
+    <Project Path="src/CasCap.Api.Azure.EventGrid/CasCap.Api.Azure.EventGrid.csproj" />
+    <Project Path="src/CasCap.Api.Azure.EventHub/CasCap.Api.Azure.EventHub.csproj" />
+    <Project Path="src/CasCap.Api.Azure.LogAnalytics/CasCap.Api.Azure.LogAnalytics.csproj" />
+    <Project Path="src/CasCap.Api.Azure.ServiceBus/CasCap.Api.Azure.ServiceBus.csproj" />
+    <Project Path="src/CasCap.Api.Azure.Storage.Tests/CasCap.Api.Azure.Storage.Tests.csproj" />
+    <Project Path="src/CasCap.Api.Azure.Storage/CasCap.Api.Azure.Storage.csproj" />
+  </Folder>
 </Solution>
