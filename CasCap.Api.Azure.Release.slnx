@@ -1,99 +1,22 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.2.32317.152
-MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.Storage", "src\CasCap.Api.Azure.Storage\CasCap.Api.Azure.Storage.csproj", "{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.Storage.Tests", "src\CasCap.Api.Azure.Storage.Tests\CasCap.Api.Azure.Storage.Tests.csproj", "{E189E42B-31E1-4F25-9644-17DE8483C086}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.AppInsights", "src\CasCap.Api.Azure.AppInsights\CasCap.Api.Azure.AppInsights.csproj", "{D2293EBE-69D8-4ECD-8719-D2F163E255C7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.CognitiveServices", "src\CasCap.Api.Azure.CognitiveServices\CasCap.Api.Azure.CognitiveServices.csproj", "{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.EventHub", "src\CasCap.Api.Azure.EventHub\CasCap.Api.Azure.EventHub.csproj", "{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.LogAnalytics", "src\CasCap.Api.Azure.LogAnalytics\CasCap.Api.Azure.LogAnalytics.csproj", "{0F63E16A-E8E4-470E-A810-7539249B1F2D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.ServiceBus", "src\CasCap.Api.Azure.ServiceBus\CasCap.Api.Azure.ServiceBus.csproj", "{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.ContainerRegistry", "src\CasCap.Api.Azure.ContainerRegistry\CasCap.Api.Azure.ContainerRegistry.csproj", "{6220D2C3-8972-41CD-B5B6-3079B972FAB0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CasCap.Api.Azure.EventGrid", "src\CasCap.Api.Azure.EventGrid\CasCap.Api.Azure.EventGrid.csproj", "{41D0DF8C-3069-4489-9081-468CE73253C7}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		Directory.Build.props = Directory.Build.props
-		Directory.Packages.props = Directory.Packages.props
-	EndProjectSection
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|x64.ActiveCfg = Release|Any CPU
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|x64.Build.0 = Release|Any CPU
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|x86.ActiveCfg = Release|Any CPU
-		{42B43F10-E6A0-45E9-B4F7-8FDD3DF910EE}.Release|x86.Build.0 = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|x64.ActiveCfg = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|x64.Build.0 = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|x86.ActiveCfg = Release|Any CPU
-		{E189E42B-31E1-4F25-9644-17DE8483C086}.Release|x86.Build.0 = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|x64.ActiveCfg = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|x64.Build.0 = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|x86.ActiveCfg = Release|Any CPU
-		{D2293EBE-69D8-4ECD-8719-D2F163E255C7}.Release|x86.Build.0 = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|x64.ActiveCfg = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|x64.Build.0 = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|x86.ActiveCfg = Release|Any CPU
-		{CBA7B754-B15B-4C96-AF3D-FCA0F2AAE572}.Release|x86.Build.0 = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|x64.ActiveCfg = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|x64.Build.0 = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|x86.ActiveCfg = Release|Any CPU
-		{44A47B1F-ED5E-4588-A1D0-A387E2ABC7DC}.Release|x86.Build.0 = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|x64.ActiveCfg = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|x64.Build.0 = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|x86.ActiveCfg = Release|Any CPU
-		{0F63E16A-E8E4-470E-A810-7539249B1F2D}.Release|x86.Build.0 = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|x64.ActiveCfg = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|x64.Build.0 = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|x86.ActiveCfg = Release|Any CPU
-		{D6709A4D-D06F-442E-AF65-7A1A28AB20E2}.Release|x86.Build.0 = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|x64.ActiveCfg = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|x64.Build.0 = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|x86.ActiveCfg = Release|Any CPU
-		{6220D2C3-8972-41CD-B5B6-3079B972FAB0}.Release|x86.Build.0 = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|x64.ActiveCfg = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|x64.Build.0 = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|x86.ActiveCfg = Release|Any CPU
-		{41D0DF8C-3069-4489-9081-468CE73253C7}.Release|x86.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1FEBE003-98C3-46C0-9C87-DDD66DF82E92}
-	EndGlobalSection
-EndGlobal
+﻿<Solution>
+  <Configurations>
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="src/CasCap.Api.Azure.AppInsights/CasCap.Api.Azure.AppInsights.csproj" />
+  <Project Path="src/CasCap.Api.Azure.CognitiveServices/CasCap.Api.Azure.CognitiveServices.csproj" />
+  <Project Path="src/CasCap.Api.Azure.ContainerRegistry/CasCap.Api.Azure.ContainerRegistry.csproj" />
+  <Project Path="src/CasCap.Api.Azure.EventGrid/CasCap.Api.Azure.EventGrid.csproj" />
+  <Project Path="src/CasCap.Api.Azure.EventHub/CasCap.Api.Azure.EventHub.csproj" />
+  <Project Path="src/CasCap.Api.Azure.LogAnalytics/CasCap.Api.Azure.LogAnalytics.csproj" />
+  <Project Path="src/CasCap.Api.Azure.ServiceBus/CasCap.Api.Azure.ServiceBus.csproj" />
+  <Project Path="src/CasCap.Api.Azure.Storage.Tests/CasCap.Api.Azure.Storage.Tests.csproj" />
+  <Project Path="src/CasCap.Api.Azure.Storage/CasCap.Api.Azure.Storage.csproj" />
+</Solution>
