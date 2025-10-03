@@ -1,10 +1,4 @@
 ﻿<Solution>
-  <Configurations>
-    <BuildType Name="Release" />
-    <Platform Name="Any CPU" />
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
