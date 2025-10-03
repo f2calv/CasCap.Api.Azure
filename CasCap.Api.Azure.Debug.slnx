@@ -1,15 +1,15 @@
 ﻿<Solution>
+  <Folder Name="/CasCap.Api.Azure/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
   <Folder Name="/CasCap.Common/">
     <Project Path="../CasCap.Common/src/CasCap.Common.Extensions/CasCap.Common.Extensions.csproj" />
     <Project Path="../CasCap.Common/src/CasCap.Common.Logging/CasCap.Common.Logging.csproj" />
     <Project Path="../CasCap.Common/src/CasCap.Common.Serialization.Json/CasCap.Common.Serialization.Json.csproj" />
     <Project Path="../CasCap.Common/src/CasCap.Common.Serialization.MessagePack/CasCap.Common.Serialization.MessagePack.csproj" />
     <Project Path="../CasCap.Common/src/CasCap.Common.Testing/CasCap.Common.Testing.csproj" />
-  </Folder>
-  <Folder Name="/CasCap.Api.Azure/Solution Items/">
-    <File Path=".editorconfig" />
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/CasCap.Api.Azure/">
     <Project Path="src/CasCap.Api.Azure.AppInsights/CasCap.Api.Azure.AppInsights.csproj" />
