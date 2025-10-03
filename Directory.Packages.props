@@ -20,7 +20,7 @@
     <PackageVersion Include="CasCap.Common.Testing" Version="4.3.9" />
     <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.46.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.3" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
