@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureOptions<AppInsightsOptions>>(s =>
         {
             var configuration = s.GetRequiredService<IConfiguration>();
-            return new ConfigureOptions<AppInsightsOptions>(options => configuration?.Bind(AppInsightsOptions.SectionKey, options));
+            return new ConfigureOptions<AppInsightsOptions>(options => configuration?.Bind(AppInsightsOptions.ConfigurationSectionName, options));
         });
     }
 }

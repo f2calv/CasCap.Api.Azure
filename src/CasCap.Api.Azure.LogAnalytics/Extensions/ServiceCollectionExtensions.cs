@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IConfigureOptions<LogAnalyticsOptions>>(s =>
         {
             var configuration = s.GetRequiredService<IConfiguration>();
-            return new ConfigureOptions<LogAnalyticsOptions>(options => configuration?.Bind(LogAnalyticsOptions.SectionKey, options));
+            return new ConfigureOptions<LogAnalyticsOptions>(options => configuration?.Bind(LogAnalyticsOptions.ConfigurationSectionName, options));
         });
         services.AddSingleton<ILogAnalyticsQueryService, LogAnalyticsQueryService>();
         //services.AddSingleton<ILogAnalyticsService, LogAnalyticsService>()
