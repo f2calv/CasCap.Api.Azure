@@ -5,7 +5,6 @@
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzQueueStorageBase));
-    private readonly string _queueName;
 
     private readonly QueueClient _queueClient;
 
@@ -13,8 +12,16 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
-        _queueName = queueName;
-        _queueClient = new QueueClient(connectionString, _queueName,
+        _queueClient = new QueueClient(connectionString, queueName,
+            //https://github.com/Azure/azure-sdk-for-net/issues/10242
+            new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
+    }
+
+    protected AzQueueStorageBase(string connectionString, TokenCredential credential)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentNullException.ThrowIfNull(credential);
+        _queueClient = new QueueClient(new Uri(connectionString), credential,
             //https://github.com/Azure/azure-sdk-for-net/issues/10242
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
@@ -24,7 +31,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
-            _logger.LogDebug("{ClassName} storage queue didn't exist so have now created '{QueueName}'", nameof(AzQueueStorageBase), _queueName);
+            _logger.LogDebug("{ClassName} storage queue didn't exist so have now created '{QueueName}'", nameof(AzQueueStorageBase), _queueClient.Name);
         _haveCheckedIfQueueExists = true;
     }
 
@@ -51,12 +58,12 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             catch (Exception ex)
             {
                 _logger.LogError(ex, "{ClassName} failed to insert {MessageType} into storage queue '{QueueName}' JSON content is '{Bytes}' bytes",
-                    nameof(AzQueueStorageBase), typeof(T).Name, _queueName, message.ToArray().Length);
+                    nameof(AzQueueStorageBase), typeof(T).Name, _queueClient.Name, message.ToArray().Length);
             }
             if (result is not null && result.Value is not null)
             {
                 _logger.LogDebug("{ClassName} {MessageType} {Iteration} of {MessageCount} inserted into storage queue '{QueueName}', MessageId={MessageId}",
-                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
+                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueClient.Name, result.Value.MessageId);
                 i++;
             }
         }
