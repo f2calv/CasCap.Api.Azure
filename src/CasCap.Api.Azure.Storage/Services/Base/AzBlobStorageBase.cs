@@ -4,7 +4,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzBlobStorageBase));
 
-    private string _connectionString;
+    private readonly string _connectionString;
     private readonly BlobContainerClient _containerClient;
 
     protected AzBlobStorageBase(string connectionString, string containerName)

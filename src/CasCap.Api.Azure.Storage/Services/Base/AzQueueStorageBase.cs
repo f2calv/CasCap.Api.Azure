@@ -1,7 +1,5 @@
 ﻿namespace CasCap.Services;
 
-
-
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-tutorial-queues
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
