@@ -8,9 +8,12 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string connectionString, string topicName, string subscriptionName) : base(logger)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _topicName = topicName ?? throw new ArgumentException("not supplied!", nameof(topicName));
-        _subscriptionName = subscriptionName ?? throw new ArgumentException("not supplied!", nameof(subscriptionName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _connectionString = connectionString;
+        ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
+        _topicName = topicName;
+        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionName);
+        _subscriptionName = subscriptionName;
     }
 
     public async Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default)
@@ -19,7 +22,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken);
-        _logger.LogInformation("{className} Sent a single message to the topic: {topicName}",
+        _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
             nameof(ServiceBusTopicService), _topicName);
     }
 

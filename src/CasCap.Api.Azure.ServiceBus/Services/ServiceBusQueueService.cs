@@ -7,8 +7,10 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string connectionString, string queueName) : base(logger)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _queueName = queueName ?? throw new ArgumentException("not supplied!", nameof(queueName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _connectionString = connectionString;
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        _queueName = queueName;
     }
 
     public async Task SendMessageAsync(ServiceBusMessage message)

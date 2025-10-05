@@ -1,14 +1,12 @@
-﻿namespace CasCap.Services;
+﻿using Azure.Messaging.EventHubs;
+
+namespace CasCap.Services;
 
 //https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md
 public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<T>
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubSubscriberService<T>));
 
-    private readonly string _eventHubName;
-    private readonly string _eventHubConnectionString;
-    private readonly string _storageConnectionString;
-    private readonly string _leaseContainerName;
     private readonly BlobContainerClient _checkpointStore;
     private readonly EventProcessorClient _eventProcessorClient;
 
@@ -18,19 +16,18 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         string storageConnectionString,
         string leaseContainerName)
     {
-        _eventHubName = eventHubName ?? throw new ArgumentException("required!", nameof(eventHubName));
-        _eventHubConnectionString = eventHubConnectionString ?? throw new ArgumentException($"required!", nameof(eventHubConnectionString));
-        _storageConnectionString = storageConnectionString ?? throw new ArgumentException("required!", nameof(storageConnectionString));
-        _leaseContainerName = leaseContainerName ?? throw new ArgumentException("required!", nameof(leaseContainerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storageConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseContainerName);
 
-        _checkpointStore = new BlobContainerClient(
-            _storageConnectionString, blobContainerName: _leaseContainerName);
+        _checkpointStore = new BlobContainerClient(storageConnectionString, blobContainerName: leaseContainerName);
 
         _eventProcessorClient = new EventProcessorClient(
             _checkpointStore,
             EventHubConsumerClient.DefaultConsumerGroupName,
-            _eventHubConnectionString,
-            _eventHubName);
+            eventHubConnectionString,
+            eventHubName);
     }
 
     private readonly ConcurrentDictionary<string, int> partitionEventCount = new();
@@ -44,7 +41,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             _eventProcessorClient.ProcessErrorAsync += processErrorHandler;
             try
             {
-                _logger.LogDebug("{className} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventHubName);
+                _logger.LogDebug("{className} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventProcessorClient.EventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken);
                 await Task.Delay(Timeout.Infinite, cancellationToken);
             }

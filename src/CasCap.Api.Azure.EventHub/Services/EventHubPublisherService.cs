@@ -4,13 +4,10 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubPublisherService<T>));
 
-    private readonly string _connectionString;
-
     protected EventHubPublisherService(string connectionString, string EntityPath)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("required!", nameof(connectionString));
-
-        _producerClient = new EventHubProducerClient(_connectionString, new EventHubProducerClientOptions
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _producerClient = new EventHubProducerClient(connectionString, new EventHubProducerClientOptions
         {
             ConnectionOptions = new EventHubConnectionOptions
             {
