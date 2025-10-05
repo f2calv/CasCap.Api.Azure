@@ -11,5 +11,5 @@ public interface IAzBlobStorageBase
     //Task<List<CloudPageBlob>> ListContainerPageBlobs(string? containerName = null, string? prefix = null);
     //Task<List<string>> ListContainers();
     Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken);
-    Task PageBlobTest(CancellationToken cancellationToken = default);
+    Task PageBlobTest(string path, CancellationToken cancellationToken = default);
 }

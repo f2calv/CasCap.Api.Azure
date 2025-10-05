@@ -3,25 +3,21 @@
 public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzBlobStorageBase));
-    private readonly string _connectionString;
-    private readonly string _containerName;
 
+    private string _connectionString;
     private readonly BlobContainerClient _containerClient;
 
     protected AzBlobStorageBase(string connectionString, string containerName)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _containerName = containerName ?? throw new ArgumentException("not supplied!", nameof(containerName));
-
-        if (string.IsNullOrWhiteSpace(_connectionString) || string.IsNullOrWhiteSpace(_containerName))
-            throw new ArgumentException("connectionString and/or _queueName not set!");
-
-        _containerClient = new BlobContainerClient(_connectionString, _containerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _connectionString = connectionString;
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        _containerClient = new BlobContainerClient(_connectionString, containerName);
     }
 
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-pageblob-overview?tabs=dotnet
-    public async Task PageBlobTest(CancellationToken cancellationToken = default)
+    public async Task PageBlobTest(string path, CancellationToken cancellationToken = default)
     {
         //https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs?WT.mc_id=AZ-MVP-5003203
 
@@ -36,7 +32,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         //pageBlobClient.Create(16 * OneGigabyteAsBytes);
 
         var pageBlobClient = _containerClient.GetPageBlobClient("test.bin");
-        pageBlobClient.Create(1 * OneGigabyteAsBytes, cancellationToken: cancellationToken);
+        await pageBlobClient.CreateAsync(1 * OneGigabyteAsBytes, cancellationToken: cancellationToken);
 
         //Resizing a page blob
         //pageBlobClient.Resize(32 * OneGigabyteAsBytes, cancellationToken: cancellationToken);
@@ -44,26 +40,25 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         //Writing pages to a page blob
         //var array = new byte[512];
 
-        var bytes = await File.ReadAllBytesAsync("c:/temp/test.zip", cancellationToken);//200kb
+        var bytes = await File.ReadAllBytesAsync(path, cancellationToken);//200kb
 
         if (bytes.Length > 4 * 1024 * 1024)
             throw new GenericException("bigger than 4mb");
 
         using (var stream = new MemoryStream(bytes))
         {
-            var res = pageBlobClient.UploadPages(stream, 0, cancellationToken: cancellationToken);
+            _ = await pageBlobClient.UploadPagesAsync(stream, 0, cancellationToken: cancellationToken);
             //Debugger.Break();
             //await blockBlob.UploadFromStreamAsync(stream);
         }
 
-        IEnumerable<HttpRange> pageRanges = pageBlobClient.GetPageRanges(cancellationToken: cancellationToken).Value.PageRanges;
-
+        IEnumerable<HttpRange> pageRanges = (await pageBlobClient.GetPageRangesAsync(cancellationToken: cancellationToken)).Value.PageRanges;
         foreach (var range in pageRanges)
         {
-            _ = pageBlobClient.Download(range, cancellationToken: cancellationToken);
+            _ = await pageBlobClient.DownloadAsync(range, cancellationToken: cancellationToken);
         }
 
-        _ = pageBlobClient.Download(new HttpRange(0, 1000), cancellationToken: cancellationToken);
+        _ = await pageBlobClient.DownloadAsync(new HttpRange(0, 1000), cancellationToken: cancellationToken);
         //Debugger.Break();
     }
 
@@ -80,8 +75,8 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 
     public async Task DeleteBlob(string containerName, string blobName, CancellationToken cancellationToken)
     {
-        var _containerClient = new BlobContainerClient(_connectionString, containerName);
-        _ = await _containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken);
+        var containerClient = new BlobContainerClient(_connectionString, containerName);
+        _ = await containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken);
     }
 
     public async Task<byte[]?> DownloadBlobAsync(string blobName, string? containerName = null, CancellationToken cancellationToken = default)
@@ -90,15 +85,15 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         byte[] bytes;
         if (!string.IsNullOrWhiteSpace(containerName))
         {
-            var _containerClient = new BlobContainerClient(_connectionString, containerName);
-            blobClient = _containerClient.GetBlobClient(blobName);
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
+            blobClient = containerClient.GetBlobClient(blobName);
         }
         else
             blobClient = _containerClient.GetBlobClient(blobName);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
         {
-            _logger.LogWarning("{className} blob {blobName} does not exist", nameof(AzBlobStorageBase), blobName);
+            _logger.LogWarning("{ClassName} blob {BlobName} does not exist", nameof(AzBlobStorageBase), blobName);
             return null;
         }
         var downloadInfo = await blobClient.DownloadAsync(cancellationToken);
@@ -115,8 +110,8 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var l = new List<BlobItem>();
         if (!string.IsNullOrWhiteSpace(containerName))
         {
-            var _containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
+            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
                 l.Add(blobItem);
         }
         else
@@ -130,8 +125,8 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var l = new List<BlobItem>();
         if (!string.IsNullOrWhiteSpace(containerName))
         {
-            var _containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
+            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
                 l.Add(blobItem);
         }
         else
@@ -146,23 +141,23 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var hs = new HashSet<string>();
         if (!string.IsNullOrWhiteSpace(containerName))
         {
-            var _containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
+            var containerClient = new BlobContainerClient(_connectionString, containerName);
+            await foreach (var hierarchyItem in containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
                 hs.Add(hierarchyItem.Prefix);
         }
         else
             await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
                 hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
-        _logger.LogInformation("{className} Symbols/prefixes return from blob storage are; {symbols}",
+        _logger.LogInformation("{ClassName} Symbols/prefixes returned from blob storage are; {Symbols}",
             nameof(AzBlobStorageBase), prefixes);
         return prefixes;
     }
 
-    public async Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken = default)
+    public async Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken)
     {
         var _blobClient = _containerClient.GetBlobClient(blobName);
         using var stream = new MemoryStream(bytes, writable: false);
-        var res = await _blobClient.UploadAsync(stream, true, cancellationToken);
+        _ = await _blobClient.UploadAsync(stream, true, cancellationToken);
     }
 }

@@ -7,15 +7,12 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public event EventHandler<AzTableStorageArgs>? BatchCompletedEvent;
     protected virtual void OnRaiseBatchCompletedEvent(AzTableStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
 
-    private readonly string _connectionString;
-
     protected TableServiceClient _tableSvcClient { get; set; }
 
     protected AzTableStorageBase(string connectionString)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-
-        _tableSvcClient = new TableServiceClient(_connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _tableSvcClient = new TableServiceClient(connectionString);
     }
 
     public async Task<List<TableItem>> GetTables(CancellationToken cancellationToken)
@@ -45,17 +42,17 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await UpsertEntity<T>(table, entity, cancellationToken);
     }
-    public async Task<int> UpsertEntity<T>(TableClient table, T tableEntity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(TableClient tbl, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var result = await table.UpsertEntityAsync(tableEntity, cancellationToken: cancellationToken);
+        var result = await tbl.UpsertEntityAsync(entity, cancellationToken: cancellationToken);
         return result.Status;
     }
 
     //upsert batch
-    public async Task<List<T>> UploadData<T>(string tableName, List<T> tableEntities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
+    public async Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
     {
         var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
-        return await BatchOperation(tbl, tableEntities, useParallelism, cancellationToken: cancellationToken);
+        return await BatchOperation(tbl, entities, useParallelism, cancellationToken: cancellationToken);
     }
 
     public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
@@ -94,13 +91,13 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 {
                     _entities.RemoveRange(0, batchSize);
                     retval!.AddRange(_retval);
-                    _logger.LogDebug("{className} account {storageAccountName}, table {tableName}, partition {partition}, (1 of {partitionCount}), {entityCount} entities handled, {remainingCount} entities remaining",
+                    _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition}, (1 of {PartitionCount}), {EntityCount} entities handled, {RemainingCount} entities remaining",
                         nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
                 }
                 else
                 {
-                    _logger.LogWarning("{className} table {tableName}, partition {partition} no changes affected...",
+                    _logger.LogWarning("{ClassName} table {TableName}, partition {Partition} no changes affected...",
                         nameof(AzTableStorageBase), tbl.Name, _partitionKey);
                     //return;
                 }
@@ -143,7 +140,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{className} tableName={tableName}, entities.Count={count}",
+                _logger.LogError(ex, "{ClassName} tableName={TableName}, entities.Count={Count}",
                     nameof(AzTableStorageBase), tbl.Name, entityRows.Count);
                 throw;
             }
@@ -230,7 +227,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         if (await _tableSvcClient.ExistsAsync(tableName))
         {
             var response = await _tableSvcClient.DeleteTableAsync(tableName, cancellationToken);
-            _logger.LogDebug("{className} {tableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
+            _logger.LogDebug("{ClassName} {TableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
         }
     }
 
