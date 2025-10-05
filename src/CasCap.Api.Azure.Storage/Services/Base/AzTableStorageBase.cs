@@ -15,6 +15,13 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         _tableSvcClient = new TableServiceClient(connectionString);
     }
 
+    protected AzTableStorageBase(string connectionString, TokenCredential credential)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentNullException.ThrowIfNull(credential);
+        _tableSvcClient = new TableServiceClient(new Uri(connectionString), credential);
+    }
+
     public async Task<List<TableItem>> GetTables(CancellationToken cancellationToken)
         => await _tableSvcClient.QueryAsync(cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
 

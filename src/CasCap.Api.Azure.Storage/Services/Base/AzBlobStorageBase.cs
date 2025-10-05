@@ -15,6 +15,15 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         _containerClient = new BlobContainerClient(_connectionString, containerName);
     }
 
+    protected AzBlobStorageBase(string connectionString, string containerName, TokenCredential credential)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _connectionString = connectionString;
+        ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        ArgumentNullException.ThrowIfNull(credential);
+        _containerClient = new BlobContainerClient(new Uri(_connectionString.UrlCombine(containerName)), credential);
+    }
+
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-pageblob-overview?tabs=dotnet
     public async Task PageBlobTest(string path, CancellationToken cancellationToken = default)

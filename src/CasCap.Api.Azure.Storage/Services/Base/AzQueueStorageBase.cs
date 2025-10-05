@@ -17,11 +17,12 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
 
-    protected AzQueueStorageBase(string connectionString, TokenCredential credential)
+    protected AzQueueStorageBase(string connectionString, string queueName, TokenCredential credential)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
         ArgumentNullException.ThrowIfNull(credential);
-        _queueClient = new QueueClient(new Uri(connectionString), credential,
+        _queueClient = new QueueClient(new Uri(connectionString.UrlCombine(queueName)), credential,
             //https://github.com/Azure/azure-sdk-for-net/issues/10242
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
