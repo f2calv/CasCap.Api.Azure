@@ -6,7 +6,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
 
     private readonly string _connectionString;
 
-    public EventHubPublisherService(string connectionString, string EntityPath)
+    protected EventHubPublisherService(string connectionString, string EntityPath)
     {
         _connectionString = connectionString ?? throw new ArgumentException("required!", nameof(connectionString));
 

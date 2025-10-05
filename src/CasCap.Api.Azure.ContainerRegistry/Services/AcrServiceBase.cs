@@ -4,7 +4,7 @@ public abstract class AcrServiceBase
 {
     protected /*readonly*/ ILogger _logger;
 
-    public AcrServiceBase(ILogger<AcrServiceBase> logger, string Endpoint)
+    protected AcrServiceBase(ILogger<AcrServiceBase> logger, string Endpoint)
     {
         _logger = logger;
 

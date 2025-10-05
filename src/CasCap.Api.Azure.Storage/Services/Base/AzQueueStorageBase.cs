@@ -1,12 +1,6 @@
 ﻿namespace CasCap.Services;
 
-public interface IAzQueueStorageBase
-{
-    Task<(T? obj, QueueMessage message)> DequeueSingle<T>() where T : class;
-    Task<List<T>> DequeueMany<T>(int limit = 1) where T : class;
-    Task<bool> Enqueue<T>(T obj) where T : class;
-    Task<bool> Enqueue<T>(List<T> objs) where T : class;
-}
+
 
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-tutorial-queues
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
@@ -18,7 +12,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     private readonly QueueClient _queueClient;
 
-    public AzQueueStorageBase(string connectionString, string queueName)
+    protected AzQueueStorageBase(string connectionString, string queueName)
     {
         _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
         _queueName = queueName ?? throw new ArgumentException("not supplied!", nameof(queueName));

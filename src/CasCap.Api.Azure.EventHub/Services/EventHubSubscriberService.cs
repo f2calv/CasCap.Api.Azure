@@ -12,7 +12,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
     private readonly BlobContainerClient _checkpointStore;
     private readonly EventProcessorClient _eventProcessorClient;
 
-    public EventHubSubscriberService(
+    protected EventHubSubscriberService(
         string eventHubName,
         string eventHubConnectionString,
         string storageConnectionString,
