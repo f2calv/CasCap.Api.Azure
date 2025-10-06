@@ -6,10 +6,13 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 
     private readonly BlobContainerClient _containerClient;
 
+    public string ContainerName { get; private set; }
+
     protected AzBlobStorageBase(string connectionString, string containerName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        ContainerName = containerName;
         _containerClient = new BlobContainerClient(connectionString, containerName);
     }
 
@@ -17,6 +20,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     {
         ArgumentNullException.ThrowIfNull(blobContainerUri);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
+        ContainerName = containerName;
         ArgumentNullException.ThrowIfNull(credential);
         _containerClient = new BlobContainerClient(new Uri(blobContainerUri, containerName), credential);
     }

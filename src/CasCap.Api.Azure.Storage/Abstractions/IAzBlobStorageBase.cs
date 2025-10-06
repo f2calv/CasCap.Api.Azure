@@ -2,6 +2,7 @@
 
 public interface IAzBlobStorageBase
 {
+    string ContainerName { get; }
     Task<bool> CreateContainerIfNotExists(CancellationToken cancellationToken);
     //Task DeleteBlob(CloudBlobContainer container, string blobName);
     Task DeleteBlob(string blobName, CancellationToken cancellationToken);
