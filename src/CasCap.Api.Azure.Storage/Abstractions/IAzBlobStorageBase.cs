@@ -2,13 +2,13 @@
 
 public interface IAzBlobStorageBase
 {
-    Task<bool> CreateContainerIfNotExists(string containerName, CancellationToken cancellationToken);
+    Task<bool> CreateContainerIfNotExists(CancellationToken cancellationToken);
     //Task DeleteBlob(CloudBlobContainer container, string blobName);
-    Task DeleteBlob(string containerName, string blobName, CancellationToken cancellationToken);
-    Task<byte[]?> DownloadBlobAsync(string blobName, string? containerName = null, CancellationToken cancellationToken = default);
-    Task<List<BlobItem>> ListContainerBlobs(string? containerName = null, string? prefix = null, CancellationToken cancellationToken = default);
-    Task<List<string>> GetBlobPrefixes(string? containerName = null, string? prefix = null, CancellationToken cancellationToken = default);
-    //Task<List<CloudPageBlob>> ListContainerPageBlobs(string? containerName = null, string? prefix = null);
+    Task DeleteBlob(string blobName, CancellationToken cancellationToken);
+    Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default);
+    Task<List<BlobItem>> ListContainerBlobs(string? prefix = null, CancellationToken cancellationToken = default);
+    Task<List<string>> GetBlobPrefixes(string? prefix = null, CancellationToken cancellationToken = default);
+    //Task<List<CloudPageBlob>> ListContainerPageBlobs(string? prefix = null);
     //Task<List<string>> ListContainers();
     Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken);
     Task PageBlobTest(string path, CancellationToken cancellationToken = default);

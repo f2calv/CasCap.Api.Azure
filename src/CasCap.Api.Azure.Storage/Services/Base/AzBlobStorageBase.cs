@@ -4,24 +4,21 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzBlobStorageBase));
 
-    private readonly string _connectionString;
     private readonly BlobContainerClient _containerClient;
 
     protected AzBlobStorageBase(string connectionString, string containerName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
-        _containerClient = new BlobContainerClient(_connectionString, containerName);
+        _containerClient = new BlobContainerClient(connectionString, containerName);
     }
 
-    protected AzBlobStorageBase(string connectionString, string containerName, TokenCredential credential)
+    protected AzBlobStorageBase(Uri blobContainerUri, string containerName, TokenCredential credential)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
+        ArgumentNullException.ThrowIfNull(blobContainerUri);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ArgumentNullException.ThrowIfNull(credential);
-        _containerClient = new BlobContainerClient(new Uri(_connectionString.UrlCombine(containerName)), credential);
+        _containerClient = new BlobContainerClient(new Uri(blobContainerUri, containerName), credential);
     }
 
     //https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet
@@ -71,7 +68,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         //Debugger.Break();
     }
 
-    public async Task<bool> CreateContainerIfNotExists(string containerName, CancellationToken cancellationToken)
+    public async Task<bool> CreateContainerIfNotExists(CancellationToken cancellationToken)
     {
         if (!await _containerClient.ExistsAsync(cancellationToken))
         {
@@ -82,23 +79,15 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
             return false;
     }
 
-    public async Task DeleteBlob(string containerName, string blobName, CancellationToken cancellationToken)
+    public async Task DeleteBlob(string blobName, CancellationToken cancellationToken)
     {
-        var containerClient = new BlobContainerClient(_connectionString, containerName);
-        _ = await containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken);
+        _ = await _containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken);
     }
 
-    public async Task<byte[]?> DownloadBlobAsync(string blobName, string? containerName = null, CancellationToken cancellationToken = default)
+    public async Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default)
     {
-        BlobClient blobClient;
         byte[] bytes;
-        if (!string.IsNullOrWhiteSpace(containerName))
-        {
-            var containerClient = new BlobContainerClient(_connectionString, containerName);
-            blobClient = containerClient.GetBlobClient(blobName);
-        }
-        else
-            blobClient = _containerClient.GetBlobClient(blobName);
+        var blobClient = _containerClient.GetBlobClient(blobName);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
         {
@@ -114,49 +103,27 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         return bytes;
     }
 
-    public async Task<List<BlobItem>> ListContainerBlobs(string? containerName = null, string? prefix = null, CancellationToken cancellationToken = default)
+    public async Task<List<BlobItem>> ListContainerBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var l = new List<BlobItem>();
-        if (!string.IsNullOrWhiteSpace(containerName))
-        {
-            var containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
-                l.Add(blobItem);
-        }
-        else
-            await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
-                l.Add(blobItem);
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+            l.Add(blobItem);
         return l;
     }
 
-    public async Task<List<BlobItem>> ListBlobs(string? containerName = null, string? prefix = null, CancellationToken cancellationToken = default)
+    public async Task<List<BlobItem>> ListBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var l = new List<BlobItem>();
-        if (!string.IsNullOrWhiteSpace(containerName))
-        {
-            var containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
-                l.Add(blobItem);
-        }
-        else
-            await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
-                l.Add(blobItem);
-
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+            l.Add(blobItem);
         return l;
     }
 
-    public async Task<List<string>> GetBlobPrefixes(string? containerName = null, string? prefix = null, CancellationToken cancellationToken = default)
+    public async Task<List<string>> GetBlobPrefixes(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var hs = new HashSet<string>();
-        if (!string.IsNullOrWhiteSpace(containerName))
-        {
-            var containerClient = new BlobContainerClient(_connectionString, containerName);
-            await foreach (var hierarchyItem in containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
-                hs.Add(hierarchyItem.Prefix);
-        }
-        else
-            await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
-                hs.Add(hierarchyItem.Prefix);
+        await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
+            hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
         _logger.LogInformation("{ClassName} Symbols/prefixes returned from blob storage are; {Symbols}",
             nameof(AzBlobStorageBase), prefixes);
