@@ -1,4 +1,4 @@
-﻿global using Azure.Identity;
+﻿global using Azure.Core;
 global using Azure.Monitor.Query;
 global using CasCap.Abstractions;
 global using CasCap.Models;

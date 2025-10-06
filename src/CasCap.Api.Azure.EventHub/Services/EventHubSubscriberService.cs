@@ -1,6 +1,4 @@
-﻿using Azure.Messaging.EventHubs;
-
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 //https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md
 public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<T>
@@ -28,6 +26,31 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             EventHubConsumerClient.DefaultConsumerGroupName,
             eventHubConnectionString,
             eventHubName);
+    }
+
+    protected EventHubSubscriberService(
+        string eventHubName,
+        string eventHubConnectionString,
+        string storageConnectionString,
+        string leaseContainerName,
+        string fullyQualifiedNamespace,
+        TokenCredential credential)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storageConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseContainerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentNullException.ThrowIfNull(credential);
+
+        _checkpointStore = new BlobContainerClient(storageConnectionString, blobContainerName: leaseContainerName);
+
+        _eventProcessorClient = new EventProcessorClient(
+            _checkpointStore,
+            EventHubConsumerClient.DefaultConsumerGroupName,
+            fullyQualifiedNamespace,
+            eventHubName,
+            credential);
     }
 
     private readonly ConcurrentDictionary<string, int> partitionEventCount = new();
@@ -71,7 +94,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         }
     }
 
-    async Task processEventHandler(ProcessEventArgs args)
+    private async Task processEventHandler(ProcessEventArgs args)
     {
         try
         {

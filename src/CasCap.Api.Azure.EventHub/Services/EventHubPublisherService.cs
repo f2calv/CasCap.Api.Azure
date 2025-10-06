@@ -4,7 +4,9 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubPublisherService<T>));
 
-    protected EventHubPublisherService(string connectionString, string EntityPath)
+    private readonly EventHubProducerClient _producerClient;
+
+    protected EventHubPublisherService(string connectionString, string entityPath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         _producerClient = new EventHubProducerClient(connectionString, new EventHubProducerClientOptions
@@ -20,7 +22,13 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         });
     }
 
-    EventHubProducerClient _producerClient { get; }
+    protected EventHubPublisherService(string fullyQualifiedNamespace, string eventHubName, TokenCredential credential,
+        EventHubProducerClientOptions? options = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        _producerClient = new EventHubProducerClient(fullyQualifiedNamespace, eventHubName, credential, options);
+    }
 
     public async Task Push(T obj) => await Push([obj.ToMessagePack()]);
 

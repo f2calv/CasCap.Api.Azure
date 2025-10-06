@@ -15,20 +15,13 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
     private readonly LogsQueryClient _client;
 
     public LogAnalyticsQueryService(ILogger<LogAnalyticsQueryService> logger,
-        IOptions<LogAnalyticsOptions> logAnalyticsOptions
+        IOptions<LogAnalyticsOptions> logAnalyticsOptions,
+        TokenCredential credential
         )
     {
         _logger = logger;
         _logAnalyticsOptions = logAnalyticsOptions.Value;
-        _client = Auth();
-    }
-
-    private static LogsQueryClient Auth()
-    {
-        //TODO: need to enable managed identity here or use environment variables...
-        //https://learn.microsoft.com/en-us/dotnet/api/overview/azure/identity-readme?view=azure-dotnet
-        return new LogsQueryClient(new DefaultAzureCredential());
-        //return new LogsQueryClient(new EnvironmentCredential());
+        _client = new LogsQueryClient(credential);
     }
 
     public async Task Query(QueryTimeRange timeRange)
@@ -61,49 +54,29 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
     //    //}
     //}
 
-    public async Task<List<aiObject>> GetExceptions(int limit = 50)
+    public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
         var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsOptions.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
-        var l = new List<aiObject>(queryResults.Value.Table.Rows.Count);
+        var l = new List<AppInsightsObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {
-            var obj = new aiObject
+            var obj = new AppInsightsObject
             {
-                timestamp = DateTime.Parse(e[nameof(aiObject.timestamp)].ToString()!),
-                cloud_RoleInstance = e[nameof(aiObject.cloud_RoleInstance)].ToString()!,
-                customDimensions = e[nameof(aiObject.customDimensions)],
-                appId = new Guid(e[nameof(aiObject.appId)].ToString()!),
-                iKey = new Guid(e[nameof(aiObject.iKey)].ToString()!),
-                problemId = e[nameof(aiObject.problemId)].ToString()!,
-                message = e[nameof(aiObject.message)].ToString()!,
-                outerMessage = e[nameof(aiObject.outerMessage)].ToString()!,
-                innermostMessage = e[nameof(aiObject.innermostMessage)].ToString()!,
-                method = e[nameof(aiObject.method)].ToString()!,
-                assembly = e[nameof(aiObject.assembly)].ToString()!,
+                timestamp = DateTime.Parse(e[nameof(AppInsightsObject.timestamp)].ToString()!),
+                cloud_RoleInstance = e[nameof(AppInsightsObject.cloud_RoleInstance)].ToString()!,
+                customDimensions = e[nameof(AppInsightsObject.customDimensions)],
+                appId = new Guid(e[nameof(AppInsightsObject.appId)].ToString()!),
+                iKey = new Guid(e[nameof(AppInsightsObject.iKey)].ToString()!),
+                problemId = e[nameof(AppInsightsObject.problemId)].ToString()!,
+                message = e[nameof(AppInsightsObject.message)].ToString()!,
+                outerMessage = e[nameof(AppInsightsObject.outerMessage)].ToString()!,
+                innermostMessage = e[nameof(AppInsightsObject.innermostMessage)].ToString()!,
+                method = e[nameof(AppInsightsObject.method)].ToString()!,
+                assembly = e[nameof(AppInsightsObject.assembly)].ToString()!,
             };
             l.Add(obj);
         }
         return l;
     }
-}
-
-public class aiObject
-{
-    //timestamp, problemId, handledAt, type, message, assembly, method, outerType, outerMessage, outerAssembly, outerMethod, innermostType, innermostMessage, innermostAssembly, innermostMethod, severityLevel, details, itemType, customDimensions, customMeasurements, operation_Name, operation_Id, operation_ParentId, operation_SyntheticSource, session_Id, user_Id, user_AuthenticatedId, user_AccountId, application_Version, client_Type, client_Model, client_OS, client_IP, client_City, client_StateOrProvince, client_CountryOrRegion, client_Browser, cloud_RoleName, cloud_RoleInstance, appId, appName, iKey, sdkVersion, itemId, itemCount
-    //https://stackoverflow.com/questions/2380467/c-dynamic-parse-from-system-type
-    //public Type? type { get; set; }
-    public DateTime? timestamp { get; set; }
-    public required string cloud_RoleInstance { get; set; }
-    //public string timestamp { get; set; }
-    //public Exception exception { get; set; }
-    public required object customDimensions { get; set; }
-    public required string method { get; set; }
-    public required string assembly { get; set; }
-    public required string message { get; set; }
-    public required string outerMessage { get; set; }
-    public required string innermostMessage { get; set; }
-    public required string problemId { get; set; }
-    public Guid appId { get; set; }
-    public Guid iKey { get; set; }
 }
