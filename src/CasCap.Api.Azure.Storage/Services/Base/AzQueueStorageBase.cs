@@ -73,7 +73,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
     {
-        //_logger.LogTrace("{className} trying account {accountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
+        //_logger.LogTrace("{ClassName} trying account {AccountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
         await CreateQueueIfNotExistsAsync();
         // Get the next message
         var retrievedMessage = await _queueClient.ReceiveMessageAsync();

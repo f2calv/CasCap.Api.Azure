@@ -25,14 +25,14 @@ public abstract class AcrServiceBase
         AsyncPageable<string> repositories = _client.GetRepositoryNamesAsync();
         await foreach (var repositoryName in repositories)
         {
-            _logger.LogInformation("{className} starting {RepositoryName}", nameof(AcrServiceBase), repositoryName);
+            _logger.LogInformation("{ClassName} starting {RepositoryName}", nameof(AcrServiceBase), repositoryName);
 
             var repo = _client.GetRepository(repositoryName);
 
             var manifests = repo.GetAllManifestPropertiesAsync(ArtifactManifestOrder.LastUpdatedOnDescending);
             await foreach (var manifest in manifests)
             {
-                _logger.LogInformation("{className} {RepositoryName} tags={tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
+                _logger.LogInformation("{ClassName} {RepositoryName} tags={Tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
             }
         }
     }

@@ -49,7 +49,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{className} {methodName} failure", nameof(EventHubPublisherService<T>), nameof(Push));
+            _logger.LogError(ex, "{ClassName} {MethodName} failure", nameof(EventHubPublisherService<T>), nameof(Push));
             throw;
         }
     }
@@ -59,9 +59,9 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         for (var i = 0; i < numMessagesToSend; i++)
         {
             var message = $"Message {i}";
-            //_logger.LogDebug("{className} Sending message: {message}", nameof(EventHubPublisherService<T>), message);
+            //_logger.LogDebug("{ClassName} Sending message: {Message}", nameof(EventHubPublisherService<T>), message);
             await Push(Encoding.UTF8.GetBytes(message));
         }
-        _logger.LogDebug("{className} {numMessagesToSend} messages sent.", nameof(EventHubPublisherService<T>), numMessagesToSend);
+        _logger.LogDebug("{ClassName} {NumMessagesToSend} messages sent.", nameof(EventHubPublisherService<T>), numMessagesToSend);
     }
 }
