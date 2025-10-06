@@ -1,21 +1,33 @@
-﻿namespace CasCap.Services;
+﻿using Azure.Core;
+
+namespace CasCap.Services;
 
 public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueService
 {
-    private readonly string _connectionString;
     private readonly string _queueName;
+
+    private readonly ServiceBusClient _client;
 
     public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string connectionString, string queueName) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
         _queueName = queueName;
+        _client = new ServiceBusClient(connectionString);
+    }
+
+    public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string fullyQualifiedNamespace, string queueName, TokenCredential credential) : base(logger)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentNullException.ThrowIfNull(credential);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        _queueName = queueName;
+        _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     public async Task SendMessageAsync(ServiceBusMessage message)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the queue
         var sender = client.CreateSender(_queueName);
 
@@ -27,7 +39,7 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public async Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the queue
         var sender = client.CreateSender(_queueName);
 
@@ -69,7 +81,7 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public async Task ReceiveMessagesAsync(CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a processor that we can use to process the messages
         var processor = client.CreateProcessor(_queueName, new ServiceBusProcessorOptions());
 

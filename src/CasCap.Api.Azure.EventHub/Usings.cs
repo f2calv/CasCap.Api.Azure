@@ -9,3 +9,4 @@ global using CasCap.Common.Extensions;
 global using Microsoft.Extensions.Logging;
 global using System.Collections.Concurrent;
 global using System.Text;
+global using Azure.Core;

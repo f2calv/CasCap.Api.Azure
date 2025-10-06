@@ -1,24 +1,38 @@
-﻿namespace CasCap.Services;
+﻿using Azure.Core;
+
+namespace CasCap.Services;
 
 public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueService
 {
-    private readonly string _connectionString;
     private readonly string _topicName;
     private readonly string _subscriptionName;
+
+    private readonly ServiceBusClient _client;
 
     public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string connectionString, string topicName, string subscriptionName) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
         ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
         _topicName = topicName;
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionName);
         _subscriptionName = subscriptionName;
+        _client = new ServiceBusClient(connectionString);
+    }
+
+    public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string fullyQualifiedNamespace, string topicName, string subscriptionName, TokenCredential credential) : base(logger)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
+        _topicName = topicName;
+        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionName);
+        _subscriptionName = subscriptionName;
+        ArgumentNullException.ThrowIfNull(credential);
+        _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     public async Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken);
@@ -28,7 +42,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public async Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
 
@@ -71,7 +85,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
 
     public async Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a processor that we can use to process the messages
         var processor = client.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions());
 

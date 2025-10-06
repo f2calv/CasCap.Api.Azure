@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-
-namespace CasCap.Services;
+﻿namespace CasCap.Services;
 
 public class Text2SpeechService : IText2SpeechService
 {

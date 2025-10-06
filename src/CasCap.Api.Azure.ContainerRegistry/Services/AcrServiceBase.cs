@@ -2,17 +2,14 @@
 
 public abstract class AcrServiceBase
 {
-    protected /*readonly*/ ILogger _logger;
+    protected readonly ILogger _logger;
 
-    protected AcrServiceBase(ILogger<AcrServiceBase> logger, string Endpoint)
+    protected AcrServiceBase(ILogger<AcrServiceBase> logger, Uri endpoint, TokenCredential credential)
     {
+        ArgumentNullException.ThrowIfNull(endpoint);
+        ArgumentNullException.ThrowIfNull(credential);
         _logger = logger;
-
-        // Get the service endpoint from the environment
-        Uri endpoint = new(Endpoint);
-
-        // Create a new ContainerRegistryClient
-        _client = new ContainerRegistryClient(endpoint, new DefaultAzureCredential());
+        _client = new ContainerRegistryClient(endpoint, credential);
     }
 
     private readonly ContainerRegistryClient _client;
