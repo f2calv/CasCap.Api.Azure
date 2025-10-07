@@ -7,7 +7,7 @@ public abstract class TestBase
     protected IAzBlobService _blobSvc;
     protected IAzQueueService _queueSvc;
 
-    public TestBase(ITestOutputHelper output)
+    protected TestBase(ITestOutputHelper output)
     {
         var configuration = new ConfigurationBuilder()
             //.AddCasCapConfiguration()

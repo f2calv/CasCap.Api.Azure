@@ -2,30 +2,45 @@
 
 public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueService
 {
-    private readonly string _connectionString;
     private readonly string _topicName;
     private readonly string _subscriptionName;
 
+    private readonly ServiceBusClient _client;
+
     public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string connectionString, string topicName, string subscriptionName) : base(logger)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _topicName = topicName ?? throw new ArgumentException("not supplied!", nameof(topicName));
-        _subscriptionName = subscriptionName ?? throw new ArgumentException("not supplied!", nameof(subscriptionName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
+        _topicName = topicName;
+        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionName);
+        _subscriptionName = subscriptionName;
+        _client = new ServiceBusClient(connectionString);
+    }
+
+    public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string fullyQualifiedNamespace, string topicName, string subscriptionName, TokenCredential credential) : base(logger)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
+        _topicName = topicName;
+        ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionName);
+        _subscriptionName = subscriptionName;
+        ArgumentNullException.ThrowIfNull(credential);
+        _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     public async Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken);
-        _logger.LogInformation("{className} Sent a single message to the topic: {topicName}",
+        _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
             nameof(ServiceBusTopicService), _topicName);
     }
 
     public async Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
 
@@ -62,13 +77,13 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
 
-        _logger.LogInformation("{className} Sent a batch of {messageCount} messages to the topic: {topicName}",
+        _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {TopicName}",
             nameof(ServiceBusTopicService), messageCount, _topicName);
     }
 
     public async Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a processor that we can use to process the messages
         var processor = client.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions());
 
@@ -82,8 +97,8 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         await processor.StartProcessingAsync(cancellationToken);
 
         // stop processing
-        _logger.LogInformation("{className} Stopping the receiver...", nameof(ServiceBusTopicService));
+        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(ServiceBusTopicService));
         await processor.StopProcessingAsync(cancellationToken);
-        _logger.LogInformation("{className} Stopped receiving messages", nameof(ServiceBusTopicService));
+        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(ServiceBusTopicService));
     }
 }

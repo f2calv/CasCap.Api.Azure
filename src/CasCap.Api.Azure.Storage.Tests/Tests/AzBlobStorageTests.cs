@@ -92,7 +92,7 @@ public class AzBlobStorageTests(ITestOutputHelper output) : TestBase(output)
 
         var blobName = $"{Guid.NewGuid()}.bin";
 
-        await _blobSvc.CreateContainerIfNotExists("wibble", cts.Token);
+        await _blobSvc.CreateContainerIfNotExists(cts.Token);
 
         await _blobSvc.UploadBlob($"{Guid.NewGuid()}.bin", fileBytes, cts.Token);
 

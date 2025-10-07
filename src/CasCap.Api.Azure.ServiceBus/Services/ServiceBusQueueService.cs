@@ -2,30 +2,42 @@
 
 public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueService
 {
-    private readonly string _connectionString;
     private readonly string _queueName;
+
+    private readonly ServiceBusClient _client;
 
     public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string connectionString, string queueName) : base(logger)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _queueName = queueName ?? throw new ArgumentException("not supplied!", nameof(queueName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        _queueName = queueName;
+        _client = new ServiceBusClient(connectionString);
+    }
+
+    public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string fullyQualifiedNamespace, string queueName, TokenCredential credential) : base(logger)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentNullException.ThrowIfNull(credential);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        _queueName = queueName;
+        _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     public async Task SendMessageAsync(ServiceBusMessage message)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the queue
         var sender = client.CreateSender(_queueName);
 
         // send the message
         await sender.SendMessageAsync(message);
-        _logger.LogInformation("{className} Sent a single message to the queue: {queueName}",
+        _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
             nameof(ServiceBusQueueService), _queueName);
     }
 
     public async Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a sender for the queue
         var sender = client.CreateSender(_queueName);
 
@@ -61,13 +73,13 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
 
-        _logger.LogInformation("{className} Sent a batch of {messageCount} messages to the topic: {queueName}",
+        _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {QueueName}",
             nameof(ServiceBusQueueService), messageCount, _queueName);
     }
 
     public async Task ReceiveMessagesAsync(CancellationToken cancellationToken = default)
     {
-        await using var client = new ServiceBusClient(_connectionString);
+        await using var client = _client;
         // create a processor that we can use to process the messages
         var processor = client.CreateProcessor(_queueName, new ServiceBusProcessorOptions());
 
@@ -81,8 +93,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         await processor.StartProcessingAsync(cancellationToken);
 
         // stop processing
-        _logger.LogInformation("{className} Stopping the receiver...", nameof(ServiceBusQueueService));
+        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(ServiceBusQueueService));
         await processor.StopProcessingAsync(cancellationToken);
-        _logger.LogInformation("{className} Stopped receiving messages", nameof(ServiceBusQueueService));
+        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(ServiceBusQueueService));
     }
 }

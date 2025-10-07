@@ -4,13 +4,12 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubPublisherService<T>));
 
-    private readonly string _connectionString;
+    private readonly EventHubProducerClient _producerClient;
 
-    public EventHubPublisherService(string connectionString, string EntityPath)
+    protected EventHubPublisherService(string connectionString, string entityPath)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("required!", nameof(connectionString));
-
-        _producerClient = new EventHubProducerClient(_connectionString, new EventHubProducerClientOptions
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _producerClient = new EventHubProducerClient(connectionString, new EventHubProducerClientOptions
         {
             ConnectionOptions = new EventHubConnectionOptions
             {
@@ -23,7 +22,13 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         });
     }
 
-    EventHubProducerClient _producerClient { get; }
+    protected EventHubPublisherService(string fullyQualifiedNamespace, string eventHubName, TokenCredential credential,
+        EventHubProducerClientOptions? options = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        _producerClient = new EventHubProducerClient(fullyQualifiedNamespace, eventHubName, credential, options);
+    }
 
     public async Task Push(T obj) => await Push([obj.ToMessagePack()]);
 
@@ -52,7 +57,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{className} {methodName} failure", nameof(EventHubPublisherService<T>), nameof(Push));
+            _logger.LogError(ex, "{ClassName} {MethodName} failure", nameof(EventHubPublisherService<T>), nameof(Push));
             throw;
         }
     }
@@ -62,9 +67,9 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         for (var i = 0; i < numMessagesToSend; i++)
         {
             var message = $"Message {i}";
-            //_logger.LogDebug("{className} Sending message: {message}", nameof(EventHubPublisherService<T>), message);
+            //_logger.LogDebug("{ClassName} Sending message: {Message}", nameof(EventHubPublisherService<T>), message);
             await Push(Encoding.UTF8.GetBytes(message));
         }
-        _logger.LogDebug("{className} {numMessagesToSend} messages sent.", nameof(EventHubPublisherService<T>), numMessagesToSend);
+        _logger.LogDebug("{ClassName} {NumMessagesToSend} messages sent.", nameof(EventHubPublisherService<T>), numMessagesToSend);
     }
 }

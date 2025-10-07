@@ -5,32 +5,52 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubSubscriberService<T>));
 
-    private readonly string _eventHubName;
-    private readonly string _eventHubConnectionString;
-    private readonly string _storageConnectionString;
-    private readonly string _leaseContainerName;
     private readonly BlobContainerClient _checkpointStore;
     private readonly EventProcessorClient _eventProcessorClient;
 
-    public EventHubSubscriberService(
+    protected EventHubSubscriberService(
         string eventHubName,
         string eventHubConnectionString,
         string storageConnectionString,
         string leaseContainerName)
     {
-        _eventHubName = eventHubName ?? throw new ArgumentException("required!", nameof(eventHubName));
-        _eventHubConnectionString = eventHubConnectionString ?? throw new ArgumentException($"required!", nameof(eventHubConnectionString));
-        _storageConnectionString = storageConnectionString ?? throw new ArgumentException("required!", nameof(storageConnectionString));
-        _leaseContainerName = leaseContainerName ?? throw new ArgumentException("required!", nameof(leaseContainerName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storageConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseContainerName);
 
-        _checkpointStore = new BlobContainerClient(
-            _storageConnectionString, blobContainerName: _leaseContainerName);
+        _checkpointStore = new BlobContainerClient(storageConnectionString, blobContainerName: leaseContainerName);
 
         _eventProcessorClient = new EventProcessorClient(
             _checkpointStore,
             EventHubConsumerClient.DefaultConsumerGroupName,
-            _eventHubConnectionString,
-            _eventHubName);
+            eventHubConnectionString,
+            eventHubName);
+    }
+
+    protected EventHubSubscriberService(
+        string eventHubName,
+        string eventHubConnectionString,
+        string storageConnectionString,
+        string leaseContainerName,
+        string fullyQualifiedNamespace,
+        TokenCredential credential)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventHubConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(storageConnectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(leaseContainerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentNullException.ThrowIfNull(credential);
+
+        _checkpointStore = new BlobContainerClient(storageConnectionString, blobContainerName: leaseContainerName);
+
+        _eventProcessorClient = new EventProcessorClient(
+            _checkpointStore,
+            EventHubConsumerClient.DefaultConsumerGroupName,
+            fullyQualifiedNamespace,
+            eventHubName,
+            credential);
     }
 
     private readonly ConcurrentDictionary<string, int> partitionEventCount = new();
@@ -41,10 +61,10 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         {
             await _checkpointStore.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
             _eventProcessorClient.ProcessEventAsync += processEventHandler;
-            _eventProcessorClient.ProcessErrorAsync += processErrorHandler;
+            _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
             try
             {
-                _logger.LogDebug("{className} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventHubName);
+                _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventProcessorClient.EventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken);
                 await Task.Delay(Timeout.Infinite, cancellationToken);
             }
@@ -70,11 +90,11 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             // It is encouraged that you unregister your handlers when you have finished using the Event Processor to ensure proper cleanup.
             // This is especially important when using lambda expressions or handlers in any form that may contain closure scopes or hold other references.
             _eventProcessorClient.ProcessEventAsync -= processEventHandler;
-            _eventProcessorClient.ProcessErrorAsync -= processErrorHandler;
+            _eventProcessorClient.ProcessErrorAsync -= ProcessErrorHandler;
         }
     }
 
-    async Task processEventHandler(ProcessEventArgs args)
+    private async Task processEventHandler(ProcessEventArgs args)
     {
         try
         {
@@ -94,11 +114,11 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             if (bytes is not null)
             {
                 var obj = bytes.FromMessagePack<T>();
-                _logger.LogInformation("{className} Message received. Partition: '{partitionId}', Data: '{obj}'",
+                _logger.LogInformation("{ClassName} Message received. Partition: '{PartitionId}', Data: '{Obj}'",
                     nameof(EventHubSubscriberService<T>), partitionId, obj);
             }
             else
-                _logger.LogWarning("{className} Message received. Partition: '{partitionId}', Data: null",
+                _logger.LogWarning("{ClassName} Message received. Partition: '{PartitionId}', Data: null",
                     nameof(EventHubSubscriberService<T>), partitionId);
 
             var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(
@@ -119,11 +139,11 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         }
     }
 
-    Task processErrorHandler(ProcessErrorEventArgs args)
+    private static Task ProcessErrorHandler(ProcessErrorEventArgs args)
     {
         try
         {
-            _logger.LogError(args.Exception, "{className} error detected in operation {operation}",
+            _logger.LogError(args.Exception, "{ClassName} error detected in operation {Operation}",
                 nameof(EventHubSubscriberService<T>), args.Operation);
         }
         catch

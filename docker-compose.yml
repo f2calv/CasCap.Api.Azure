@@ -4,7 +4,7 @@ services:
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite #formerly arafato/azurite
     volumes:
-      - ./.docker-compose/azurite:/data
+      - ./.docker/azurite:/data
     ports:
       #- https://github.com/docker/for-win/issues/3171#issuecomment-554587817
       - 10000:10000 #blob

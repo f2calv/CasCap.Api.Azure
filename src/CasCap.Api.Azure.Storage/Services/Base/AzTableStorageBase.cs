@@ -1,31 +1,5 @@
 ﻿namespace CasCap.Services;
 
-public interface IAzTableStorageBase
-{
-    event EventHandler<AzTableStorageArgs> BatchCompletedEvent;
-
-    Task<List<TableItem>> GetTables(CancellationToken cancellationToken);
-    Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default);
-    Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
-    Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
-
-    Task DeleteData<T>(string tableName, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task DeleteData<T>(TableClient tbl, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-
-    Task<int> UpsertEntity<T>(string tableName, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<int> UpsertEntity<T>(TableClient tbl, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-
-    Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
-    Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
-
-    Task<List<T>> GetEntities<T>(string tableName, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-    Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new();
-}
-
 public abstract class AzTableStorageBase : IAzTableStorageBase
 {
     protected static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzTableStorageBase));
@@ -33,15 +7,19 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public event EventHandler<AzTableStorageArgs>? BatchCompletedEvent;
     protected virtual void OnRaiseBatchCompletedEvent(AzTableStorageArgs args) { BatchCompletedEvent?.Invoke(this, args); }
 
-    private readonly string _connectionString;
-
     protected TableServiceClient _tableSvcClient { get; set; }
 
-    public AzTableStorageBase(string connectionString)
+    protected AzTableStorageBase(string connectionString)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        _tableSvcClient = new TableServiceClient(connectionString);
+    }
 
-        _tableSvcClient = new TableServiceClient(_connectionString);
+    protected AzTableStorageBase(Uri endpoint, TokenCredential credential)
+    {
+        ArgumentNullException.ThrowIfNull(endpoint);
+        ArgumentNullException.ThrowIfNull(credential);
+        _tableSvcClient = new TableServiceClient(endpoint, credential);
     }
 
     public async Task<List<TableItem>> GetTables(CancellationToken cancellationToken)
@@ -71,17 +49,17 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await UpsertEntity<T>(table, entity, cancellationToken);
     }
-    public async Task<int> UpsertEntity<T>(TableClient table, T tableEntity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<int> UpsertEntity<T>(TableClient tbl, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var result = await table.UpsertEntityAsync(tableEntity, cancellationToken: cancellationToken);
+        var result = await tbl.UpsertEntityAsync(entity, cancellationToken: cancellationToken);
         return result.Status;
     }
 
     //upsert batch
-    public async Task<List<T>> UploadData<T>(string tableName, List<T> tableEntities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
+    public async Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
     {
         var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
-        return await BatchOperation(tbl, tableEntities, useParallelism, cancellationToken: cancellationToken);
+        return await BatchOperation(tbl, entities, useParallelism, cancellationToken: cancellationToken);
     }
 
     public Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
@@ -120,13 +98,13 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 {
                     _entities.RemoveRange(0, batchSize);
                     retval!.AddRange(_retval);
-                    _logger.LogDebug("{className} account {storageAccountName}, table {tableName}, partition {partition}, (1 of {partitionCount}), {entityCount} entities handled, {remainingCount} entities remaining",
+                    _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition}, (1 of {PartitionCount}), {EntityCount} entities handled, {RemainingCount} entities remaining",
                         nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
                 }
                 else
                 {
-                    _logger.LogWarning("{className} table {tableName}, partition {partition} no changes affected...",
+                    _logger.LogWarning("{ClassName} table {TableName}, partition {Partition} no changes affected...",
                         nameof(AzTableStorageBase), tbl.Name, _partitionKey);
                     //return;
                 }
@@ -137,7 +115,6 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         {
             ArgumentNullException.ThrowIfNull(tbl);
             if (entityRows.IsNullOrEmpty()) throw new ArgumentNullException(nameof(entityRows));
-            var retval = new List<T>();
             IEnumerable<TableTransactionAction> tableTxnRows;
             if (InsertOrReplace)
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.UpsertReplace, p));
@@ -165,15 +142,14 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     if (etag.HasValue)
                         entityRows[i].ETag = etag.Value;
                 }
-                retval = entityRows;
+                return entityRows;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{className} tableName={tableName}, entities.Count={count}",
+                _logger.LogError(ex, "{ClassName} tableName={TableName}, entities.Count={Count}",
                     nameof(AzTableStorageBase), tbl.Name, entityRows.Count);
                 throw;
             }
-            return retval;
         }
     }
 
@@ -184,11 +160,11 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await GetEntity<T>(table, partitionKey, rowKey, cancellationToken);
     }
-    public async Task<T?> GetEntity<T>(TableClient table, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
+    public async Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
     {
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
-        var result = await table.GetEntityIfExistsAsync<T>(partitionKey, rowKey, cancellationToken: cancellationToken);
+        var result = await tbl.GetEntityIfExistsAsync<T>(partitionKey, rowKey, cancellationToken: cancellationToken);
         if (result.HasValue)
             return result.Value;
         return null;
@@ -200,9 +176,9 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await GetEntities<T>(table, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient tbl, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tableEntities = await table.QueryAsync<T>(cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
+        var tableEntities = await tbl.QueryAsync<T>(cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return tableEntities;
     }
 
@@ -212,9 +188,9 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var table = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await GetEntities<T>(table, partitionKey, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
-        var tableEntities = await table.QueryAsync<T>(p => p.PartitionKey == partitionKey, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
+        var tableEntities = await tbl.QueryAsync<T>(p => p.PartitionKey == partitionKey, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return tableEntities;
     }
     //https://learn.microsoft.com/en-gb/rest/api/storageservices/querying-tables-and-entities
@@ -238,10 +214,10 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         var tbl = await GetTableClient(tableName, cancellationToken: cancellationToken);
         return await GetEntities<T>(tbl, partitionKey, rowKeyFrom, rowKeyTo, cancellationToken);
     }
-    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom} and RowKey ge {rowKeyTo}");
-        var entities = await table.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
+        var entities = await tbl.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
         return entities.ToList();
     }
     #endregion
@@ -256,7 +232,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         if (await _tableSvcClient.ExistsAsync(tableName))
         {
             var response = await _tableSvcClient.DeleteTableAsync(tableName, cancellationToken);
-            _logger.LogDebug("{className} {tableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
+            _logger.LogDebug("{ClassName} {TableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
         }
     }
 

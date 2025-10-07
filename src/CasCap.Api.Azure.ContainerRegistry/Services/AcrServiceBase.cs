@@ -2,17 +2,14 @@
 
 public abstract class AcrServiceBase
 {
-    protected /*readonly*/ ILogger _logger;
+    protected readonly ILogger _logger;
 
-    public AcrServiceBase(ILogger<AcrServiceBase> logger, string Endpoint)
+    protected AcrServiceBase(ILogger<AcrServiceBase> logger, Uri endpoint, TokenCredential credential)
     {
+        ArgumentNullException.ThrowIfNull(endpoint);
+        ArgumentNullException.ThrowIfNull(credential);
         _logger = logger;
-
-        // Get the service endpoint from the environment
-        Uri endpoint = new(Endpoint);
-
-        // Create a new ContainerRegistryClient
-        _client = new ContainerRegistryClient(endpoint, new DefaultAzureCredential());
+        _client = new ContainerRegistryClient(endpoint, credential);
     }
 
     private readonly ContainerRegistryClient _client;
@@ -25,14 +22,14 @@ public abstract class AcrServiceBase
         AsyncPageable<string> repositories = _client.GetRepositoryNamesAsync();
         await foreach (var repositoryName in repositories)
         {
-            _logger.LogInformation("{className} starting {RepositoryName}", nameof(AcrServiceBase), repositoryName);
+            _logger.LogInformation("{ClassName} starting {RepositoryName}", nameof(AcrServiceBase), repositoryName);
 
             var repo = _client.GetRepository(repositoryName);
 
             var manifests = repo.GetAllManifestPropertiesAsync(ArtifactManifestOrder.LastUpdatedOnDescending);
             await foreach (var manifest in manifests)
             {
-                _logger.LogInformation("{className} {RepositoryName} tags={tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
+                _logger.LogInformation("{ClassName} {RepositoryName} tags={Tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
             }
         }
     }

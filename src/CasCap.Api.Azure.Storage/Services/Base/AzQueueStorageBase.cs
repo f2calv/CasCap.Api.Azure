@@ -1,32 +1,28 @@
 ﻿namespace CasCap.Services;
 
-public interface IAzQueueStorageBase
-{
-    Task<(T? obj, QueueMessage message)> DequeueSingle<T>() where T : class;
-    Task<List<T>> DequeueMany<T>(int limit = 1) where T : class;
-    Task<bool> Enqueue<T>(T obj) where T : class;
-    Task<bool> Enqueue<T>(List<T> objs) where T : class;
-}
-
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-tutorial-queues
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzQueueStorageBase));
-    private readonly string _connectionString;
-    private readonly string _queueName;
 
     private readonly QueueClient _queueClient;
 
-    public AzQueueStorageBase(string connectionString, string queueName)
+    protected AzQueueStorageBase(string connectionString, string queueName)
     {
-        _connectionString = connectionString ?? throw new ArgumentException("not supplied!", nameof(connectionString));
-        _queueName = queueName ?? throw new ArgumentException("not supplied!", nameof(queueName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        _queueClient = new QueueClient(connectionString, queueName,
+            //https://github.com/Azure/azure-sdk-for-net/issues/10242
+            new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
+    }
 
-        if (string.IsNullOrWhiteSpace(_connectionString) || string.IsNullOrWhiteSpace(_queueName))
-            throw new ArgumentException("connectionString and/or _queueName not set!");
-
-        _queueClient = new QueueClient(_connectionString, _queueName,
+    protected AzQueueStorageBase(Uri queueUri, string queueName, TokenCredential credential)
+    {
+        ArgumentNullException.ThrowIfNull(queueUri);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+        ArgumentNullException.ThrowIfNull(credential);
+        _queueClient = new QueueClient(new Uri(queueUri, queueName), credential,
             //https://github.com/Azure/azure-sdk-for-net/issues/10242
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
@@ -36,7 +32,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
-            _logger.LogDebug("{className} storage queue didn't exist so have now created '{queueName}'", nameof(AzQueueStorageBase), _queueName);
+            _logger.LogDebug("{ClassName} storage queue didn't exist so have now created '{QueueName}'", nameof(AzQueueStorageBase), _queueClient.Name);
         _haveCheckedIfQueueExists = true;
     }
 
@@ -50,7 +46,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         {
             if (obj is null)
             {
-                _logger.LogWarning("{className} obj is null?", nameof(AzQueueStorageBase));
+                _logger.LogWarning("{ClassName} obj is null?", nameof(AzQueueStorageBase));
                 continue;
             }
             var json = obj.ToJson();
@@ -62,13 +58,13 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{className} failed to insert {messageType} into storage queue '{queueName}' JSON content is '{bytes}' bytes",
-                    nameof(AzQueueStorageBase), typeof(T).Name, _queueName, message.ToArray().Length);
+                _logger.LogError(ex, "{ClassName} failed to insert {MessageType} into storage queue '{QueueName}' JSON content is '{Bytes}' bytes",
+                    nameof(AzQueueStorageBase), typeof(T).Name, _queueClient.Name, message.ToArray().Length);
             }
             if (result is not null && result.Value is not null)
             {
-                _logger.LogDebug("{className} {messageType} {i} of {messageCount} inserted into storage queue '{queueName}', MessageId={MessageId}",
-                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueName, result.Value.MessageId);
+                _logger.LogDebug("{ClassName} {MessageType} {Iteration} of {MessageCount} inserted into storage queue '{QueueName}', MessageId={MessageId}",
+                    nameof(AzQueueStorageBase), typeof(T).Name, i, objs.Count, _queueClient.Name, result.Value.MessageId);
                 i++;
             }
         }
@@ -77,7 +73,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
     {
-        //_logger.LogTrace("{className} trying account {accountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
+        //_logger.LogTrace("{ClassName} trying account {AccountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
         await CreateQueueIfNotExistsAsync();
         // Get the next message
         var retrievedMessage = await _queueClient.ReceiveMessageAsync();
@@ -92,17 +88,17 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{className} failed to deserialize JSON, '{json}'", nameof(AzQueueStorageBase), json);
+                _logger.LogError(ex, "{ClassName} failed to deserialize JSON, '{Json}'", nameof(AzQueueStorageBase), json);
                 IsCorrupted = true;
             }
             finally
             {
                 _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt);
                 if (IsCorrupted)
-                    _logger.LogWarning("{className} removed message id {id} from queue as it failed deserialization, '{json}'",
+                    _logger.LogWarning("{ClassName} removed message id {Id} from queue as it failed deserialization, '{Json}'",
                         nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, json);
                 else
-                    _logger.LogInformation("{className} removed message id {id} from queue as it passed deserialization!",
+                    _logger.LogInformation("{ClassName} removed message id {Id} from queue as it passed deserialization!",
                         nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId);
             }
             return (obj, retrievedMessage.Value);

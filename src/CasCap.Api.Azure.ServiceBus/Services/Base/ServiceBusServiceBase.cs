@@ -15,14 +15,14 @@ public abstract class ServiceBusServiceBase
     protected async Task MessageHandler(ProcessMessageEventArgs args)
     {
         var messageBody = args.Message.Body.ToString();
-        _logger.LogInformation("{className} Received: {messageBody}", nameof(ServiceBusServiceBase), messageBody);
+        _logger.LogInformation("{ClassName} Received: {MessageBody}", nameof(ServiceBusServiceBase), messageBody);
         OnRaiseMessageReceivedEvent(args);
         await args.CompleteMessageAsync(args.Message);
     }
 
     protected Task ErrorHandler(ProcessErrorEventArgs args)
     {
-        _logger.LogError(args.Exception, "{className} error args {@args}", nameof(ServiceBusServiceBase), args);
+        _logger.LogError(args.Exception, "{ClassName} error args {@Args}", nameof(ServiceBusServiceBase), args);
         OnRaiseErrorReceivedEvent(args);
         return Task.CompletedTask;
     }
