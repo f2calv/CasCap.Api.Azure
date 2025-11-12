@@ -7,7 +7,7 @@ public abstract class TestBase
     protected IAzBlobService _blobSvc;
     protected IAzQueueService _queueSvc;
 
-    protected TestBase(ITestOutputHelper output)
+    protected TestBase(/*ITestOutputHelper output*/)
     {
         var configuration = new ConfigurationBuilder()
             //.AddCasCapConfiguration()
@@ -17,9 +17,9 @@ public abstract class TestBase
         //initiate ServiceCollection w/logging
         var services = new ServiceCollection()
             .AddSingleton<IConfiguration>(configuration)
-            .AddXUnitLogging(output);
-
-        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+            .AddLogging()
+            //.AddXUnitLogging(output)
+            ;
 
         var connectionString = configuration["ConnectionStrings:storage"];
         _connectionString = connectionString ?? throw new NullReferenceException(nameof(_connectionString));
@@ -29,7 +29,7 @@ public abstract class TestBase
         services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString));
 
         //assign services to be tested
-        var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider().AddStaticLogging();
         _blobSvc = serviceProvider.GetRequiredService<IAzBlobService>();
         _queueSvc = serviceProvider.GetRequiredService<IAzQueueService>();
     }
