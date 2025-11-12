@@ -92,7 +92,7 @@ public static class LocalExtensions
         return GetDateTimeFromRowKey(rowKeyValue, dt, lexicalOrder);
     }
 
-    static DateTime GetDateTimeFromRowKey(long rowKeyValue, DateTime dt, bool lexicalOrder = true)
+    private static DateTime GetDateTimeFromRowKey(long rowKeyValue, DateTime dt, bool lexicalOrder = true)
     {
         var ticks = lexicalOrder ? ticksInADay - rowKeyValue : rowKeyValue;
         return DateTime.SpecifyKind(dt.AddTicks(ticks), DateTimeKind.Utc);
