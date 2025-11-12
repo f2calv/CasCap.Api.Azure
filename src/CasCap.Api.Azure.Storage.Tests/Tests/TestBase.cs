@@ -25,8 +25,8 @@ public abstract class TestBase
         _connectionString = connectionString ?? throw new NullReferenceException(nameof(_connectionString));
 
         //add services
-        services.AddTransient<IAzBlobService>(s => new AzBlobService(_connectionString));
-        services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString));
+        services.AddTransient<IAzBlobService>(s => new AzBlobService(_connectionString, $"wibble{Environment.Version.Major}"));
+        services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
 
         //assign services to be tested
         var serviceProvider = services.BuildServiceProvider().AddStaticLogging();

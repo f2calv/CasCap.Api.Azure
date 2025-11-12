@@ -4,7 +4,7 @@ public interface IAzQueueService : IAzQueueStorageBase
 {
 }
 
-public class AzQueueService(string connectionString)
-    : AzQueueStorageBase(connectionString, queueName: "wibble"), IAzQueueService
+public class AzQueueService(string connectionString, string queueName = "wibble")
+    : AzQueueStorageBase(connectionString, queueName), IAzQueueService
 {
 }
