@@ -1,6 +1,6 @@
 namespace CasCap.Tests;
 
-public class AzQueueStorageTests(ITestOutputHelper output) : TestBase(output)
+public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(output)*/
 {
     [Fact]
     public async Task AzQueue()

@@ -1,6 +1,6 @@
 ﻿namespace CasCap.Tests;
 
-public class AzBlobStorageTests(ITestOutputHelper output) : TestBase(output)
+public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(output)*/
 {
     private static readonly byte[] fileBytes =
     [
