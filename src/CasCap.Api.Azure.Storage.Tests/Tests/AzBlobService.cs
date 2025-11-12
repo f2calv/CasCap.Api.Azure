@@ -4,7 +4,7 @@ public interface IAzBlobService : IAzBlobStorageBase
 {
 }
 
-public class AzBlobService(string connectionString)
-    : AzBlobStorageBase(connectionString, containerName: "wibble"), IAzBlobService
+public class AzBlobService(string connectionString, string containerName= "wibble")
+    : AzBlobStorageBase(connectionString, containerName), IAzBlobService
 {
 }
