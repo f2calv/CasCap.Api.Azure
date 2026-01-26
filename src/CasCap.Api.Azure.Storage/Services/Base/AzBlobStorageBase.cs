@@ -110,7 +110,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public async Task<List<BlobItem>> ListContainerBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var l = new List<BlobItem>();
-        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken))
             l.Add(blobItem);
         return l;
     }
@@ -118,7 +118,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public async Task<List<BlobItem>> ListBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var l = new List<BlobItem>();
-        await foreach (var blobItem in _containerClient.GetBlobsAsync(prefix: prefix, cancellationToken: cancellationToken))
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken))
             l.Add(blobItem);
         return l;
     }
@@ -126,7 +126,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public async Task<List<string>> GetBlobPrefixes(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var hs = new HashSet<string>();
-        await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(prefix: prefix, delimiter: "/", cancellationToken: cancellationToken))
+        await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(new GetBlobsByHierarchyOptions { Prefix = prefix, Delimiter = "/" }, cancellationToken: cancellationToken))
             hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
         _logger.LogInformation("{ClassName} Symbols/prefixes returned from blob storage are; {Symbols}",
