@@ -55,6 +55,7 @@ jobs:
           push-preview: ${{ inputs.push-preview }}
           version: ${{ needs.versioning.outputs.version }}
           solution-name: CasCap.Api.Azure.Release.slnx
+          execute-tests: false #TODO: remove this when Azurite container is updated
 
   release:
     needs: [versioning, build]
