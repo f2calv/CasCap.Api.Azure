@@ -6,6 +6,7 @@ public abstract class TestBase
 
     protected IAzBlobService _blobSvc;
     protected IAzQueueService _queueSvc;
+    protected IAzTableService _tableSvc;
 
     protected TestBase(/*ITestOutputHelper output*/)
     {
@@ -27,10 +28,12 @@ public abstract class TestBase
         //add services
         services.AddTransient<IAzBlobService>(s => new AzBlobService(_connectionString, $"wibble{Environment.Version.Major}"));
         services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
+        services.AddTransient<IAzTableService>(s => new AzTableService(_connectionString));
 
         //assign services to be tested
         var serviceProvider = services.BuildServiceProvider().AddStaticLogging();
         _blobSvc = serviceProvider.GetRequiredService<IAzBlobService>();
         _queueSvc = serviceProvider.GetRequiredService<IAzQueueService>();
+        _tableSvc = serviceProvider.GetRequiredService<IAzTableService>();
     }
 }

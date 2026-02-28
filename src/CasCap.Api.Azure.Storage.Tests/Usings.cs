@@ -1,4 +1,6 @@
-﻿global using Azure.Storage.Blobs;
+﻿global using Azure;
+global using Azure.Data.Tables;
+global using Azure.Storage.Blobs;
 global using CasCap.Abstractions;
 global using CasCap.Common.Extensions;
 global using CasCap.Services;
