@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
     //    => services.AddCasCapLogAnalyticsServices(_ => { });
 
     /// <summary>
-    /// Registers the Log Analytics configuration options and the <see cref="CasCap.Abstractions.ILogAnalyticsQueryService"/>
+    /// Registers the Log Analytics configuration options and the <see cref="IQueryService"/>
     /// implementation with the dependency injection container.
     /// Options are bound from the <c>CasCap:LogAnalyticsOptions</c> configuration section.
     /// </summary>
