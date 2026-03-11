@@ -5,6 +5,12 @@ public static class ServiceCollectionExtensions
     //public static void AddCasCapLogAnalyticsServices(this IServiceCollection services)
     //    => services.AddCasCapLogAnalyticsServices(_ => { });
 
+    /// <summary>
+    /// Registers the Log Analytics configuration options and the <see cref="CasCap.Abstractions.ILogAnalyticsQueryService"/>
+    /// implementation with the dependency injection container.
+    /// Options are bound from the <c>CasCap:LogAnalyticsOptions</c> configuration section.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     public static void AddCasCapLogAnalyticsServices(this IServiceCollection services/*,
             Action<LogAnalyticsOptions> LogAnalytics*/)
     {
