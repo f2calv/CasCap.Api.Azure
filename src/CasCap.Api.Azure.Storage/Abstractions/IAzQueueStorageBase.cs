@@ -1,4 +1,4 @@
-﻿namespace CasCap.Abstractions;
+namespace CasCap.Abstractions;
 
 /// <summary>
 /// Defines the contract for interacting with an Azure Queue Storage queue.

@@ -1,12 +1,14 @@
-﻿namespace CasCap.Services;
+namespace CasCap.Services;
 
-public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueService
+/// <inheritdoc/>
+public class QueueService : ServiceBase, IQueueService
 {
     private readonly string _queueName;
 
     private readonly ServiceBusClient _client;
 
-    public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string connectionString, string queueName) : base(logger)
+    /// <summary>Initializes a new instance of <see cref="QueueService"/> using a connection string.</summary>
+    public QueueService(ILogger<QueueService> logger, string connectionString, string queueName) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
@@ -14,7 +16,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         _client = new ServiceBusClient(connectionString);
     }
 
-    public ServiceBusQueueService(ILogger<ServiceBusQueueService> logger, string fullyQualifiedNamespace, string queueName, TokenCredential credential) : base(logger)
+    /// <summary>Initializes a new instance of <see cref="QueueService"/> using a <see cref="TokenCredential"/>.</summary>
+    public QueueService(ILogger<QueueService> logger, string fullyQualifiedNamespace, string queueName, TokenCredential credential) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
         ArgumentNullException.ThrowIfNull(credential);
@@ -23,6 +26,7 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
+    /// <summary>Sends a single <paramref name="message"/> to the queue.</summary>
     public async Task SendMessageAsync(ServiceBusMessage message)
     {
         await using var client = _client;
@@ -32,9 +36,10 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         // send the message
         await sender.SendMessageAsync(message);
         _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
-            nameof(ServiceBusQueueService), _queueName);
+            nameof(QueueService), _queueName);
     }
 
+    /// <summary>Sends a batch of <paramref name="messages"/> to the queue.</summary>
     public async Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
         await using var client = _client;
@@ -74,9 +79,10 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         }
 
         _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {QueueName}",
-            nameof(ServiceBusQueueService), messageCount, _queueName);
+            nameof(QueueService), messageCount, _queueName);
     }
 
+    /// <summary>Starts receiving messages from the queue until processing is stopped.</summary>
     public async Task ReceiveMessagesAsync(CancellationToken cancellationToken = default)
     {
         await using var client = _client;
@@ -93,8 +99,8 @@ public class ServiceBusQueueService : ServiceBusServiceBase, IServiceBusQueueSer
         await processor.StartProcessingAsync(cancellationToken);
 
         // stop processing
-        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(ServiceBusQueueService));
+        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(QueueService));
         await processor.StopProcessingAsync(cancellationToken);
-        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(ServiceBusQueueService));
+        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(QueueService));
     }
 }

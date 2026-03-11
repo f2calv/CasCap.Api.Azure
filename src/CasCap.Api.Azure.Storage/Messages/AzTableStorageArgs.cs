@@ -1,4 +1,4 @@
-﻿namespace CasCap.Messages;
+namespace CasCap.Messages;
 
 /// <summary>
 /// Provides data for the <see cref="CasCap.Abstractions.IAzTableStorageBase.BatchCompletedEvent"/> event,
@@ -19,25 +19,31 @@ public class AzTableStorageArgs
     /// <param name="countRemaining">The number of entities still remaining to be processed.</param>
     public AzTableStorageArgs(string storageAccountName, string tableName, string partitionKey, int count, int countRemaining)
     {
-        this.storageAccountName = storageAccountName;
-        this.tableName = tableName;
-        this.partitionKey = partitionKey;
+        StorageAccountName = storageAccountName;
+        TableName = tableName;
+        PartitionKey = partitionKey;
         Count = count;
         CountRemaining = countRemaining;
-        time = DateTime.UtcNow;
+        Time = DateTime.UtcNow;
     }
 
     /// <summary>Gets or sets the name of the storage account that owns the table.</summary>
-    public string storageAccountName { get; set; }
+    public string StorageAccountName { get; set; }
+
     /// <summary>Gets or sets the name of the table that was written to.</summary>
-    public string tableName { get; set; }
+    public string TableName { get; set; }
+
     /// <summary>Gets or sets the partition key of the entities in this batch.</summary>
-    public string partitionKey { get; set; }
+    public string PartitionKey { get; set; }
+
     /// <summary>Gets or sets the number of entities successfully processed in this batch.</summary>
     public int Count { get; set; }
+
     /// <summary>Gets or sets the number of entities still remaining to be processed after this batch.</summary>
     public int CountRemaining { get; set; }
+
     //public List<T> entities { get; set; }
+
     /// <summary>Gets or sets the UTC timestamp when this batch completed.</summary>
-    public DateTime time { get; set; }
+    public DateTime Time { get; set; }
 }

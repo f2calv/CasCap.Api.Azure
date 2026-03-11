@@ -1,218 +1,57 @@
-# CasCap.Api.Azure - Copilot Coding Agent Instructions
+# Copilot Instructions
 
-## Repository Overview
+## Code Quality Conventions
 
-This is a collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 9 projects (8 libraries + 1 test project) totaling ~125 C# files in a 7.1 MB codebase.
+### Style (enforced by `.editorconfig`)
 
-**Key Details:**
-- **Languages/Frameworks:** C# 14.0, .NET SDK 10.0 (targets net8.0, net9.0, net10.0)
-- **Project Type:** Multi-target class library collection producing NuGet packages
-- **Solution Files:** 
-  - `CasCap.Api.Azure.Release.slnx` (production builds, uses NuGet packages)
-  - `CasCap.Api.Azure.Debug.slnx` (development, references local CasCap.Common repo)
-- **Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at same directory level
+- **Class-per-file**: Each class, record, struct, or enum should be in its own file, and the filename must match the type name (e.g. `MyService.cs` for `class MyService`). Nested private types used only by their enclosing class are exempt. Enums are also exempt — prefer consolidating all enums within a project into a single `_Enums.cs` file for a quick overview of available enumerations.
+- **Indentation**: 4 spaces, LF line endings, insert final newline
+- **Interfaces**: Must start with `I` (PascalCase) and live in an Abstractions folder and an Abstractions namespace.
+- **Types/Methods/Properties**: PascalCase
+- **No `this.` prefix**: Qualification disabled
+- **Implicit usings**: Enabled
+- **Nullable reference types**: Enabled
+- **C# Language Version**: 14.0
+- **Braces**: Allman style (`csharp_new_line_before_open_brace = all`). For `if`, `else`, `foreach`, `for`, `while`, and `using` statements whose body is a single statement, omit the curly braces to reduce vertical verbosity.
+- **Expression-bodied members**: Preferred for accessors, properties, indexers, lambdas; **not** for constructors, operators, or local functions. For methods, use an expression body (`=>`) when the method contains a single expression. If the combined method signature and expression would cause horizontal scrolling on smaller editor windows, place the `=>` and expression on the next line, indented.
+- **Async pass-through**: When a method is a thin wrapper that only returns another async call (no `using`, `try`/`catch`, or additional `await`s), drop `async`/`await` and return the `Task`/`ValueTask` directly to avoid unnecessary state-machine overhead.
+- **Pattern matching**: Preferred (`is`, `not`, switch expressions)
+- **Primary constructors**: Preferred (`csharp_style_prefer_primary_constructors = true`)
+- **`var`**: Preferred — use `var` unless the type is not obvious from the right-hand side
+- **Records**: Prefer `record` types with `get; init;` properties over classes where object comparison semantics are useful
+- **Constructors**: When injecting services use a 'Svc' suffix on the parameter name and its private field instead of 'Service' to make more concise.
+- **DI parameter ordering**: In constructors that accept dependency-injected services, parameters should be ordered: `ILogger` first, then any `IOptions<T>` / `IOptionsMonitor<T>`, then custom/application services.
+- **No magic strings**: Avoid using string literals as dictionary keys or lookup identifiers in multiple places. Instead, define a `const` field using `nameof()` so the key is a single point of change (e.g. `public const string SummaryValues = nameof(SummaryValues);`).
+- **Namespaces**: The convention is folder-based namespacing. However, the `Services` folder is exempt — sub-folders under `Services` do **not** automatically get a sub-namespace. When creating a new sub-folder under `Services`, ask the user whether the sub-folder should introduce a sub-namespace (present a yes/no choice) before proceeding.
+- **Namespace declarations**: File-scoped (not block-scoped). Using directives go above the namespace.
+- **Standard overrides at bottom**: Standard C# overrides such as `ToString`, `GetHashCode`, and `Equals` should be placed at the bottom of the class/record body, just above any `#region` blocks for private/static helpers.
+- **Property spacing**: Separate each public property declaration (`get`/`set`/`init`) with a blank line (including in records and classes with only auto-properties). Private backing fields, however, should appear on consecutive lines with **no** blank line between them.
 
-## Build & Validation Commands
+### Suppressed Warnings
 
-**ALWAYS use these exact commands in this order:**
+Configured in `Directory.Build.props`: `IDE1006`, `IDE0079`, `IDE0042`, `CS0162`, `S125`, `NETSDK1233`
 
-### 1. Restore Dependencies (REQUIRED FIRST STEP)
-```bash
-dotnet restore CasCap.Api.Azure.Release.slnx
-```
-**Takes:** ~5-10 seconds  
-**Notes:** Always run before building. Uses centralized package management (Directory.Packages.props).
+### XML Documentation
 
-### 2. Build the Solution
-```bash
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-```
-**Takes:** ~13-15 seconds  
-**Output:** Builds all 9 projects for net8.0, net9.0, and net10.0 (27 DLLs total)  
-**Note:** Use `--no-restore` to avoid redundant restore operations.
+- Every public class, record, method, property, and enum member should have an XML comment.
+- **Exception — test projects**: XML comments are required on classes, records, and properties but **not** on test methods.
+- **Document fully on the interface** — use `/// <inheritdoc/>` on implementing classes to avoid duplication.
+- When an enum is a public method parameter, use `<inheritdoc cref="EnumType" path="/summary"/>` in the `<param>` tag rather than repeating the enum's documentation.
+- **Deep link referenced types**: When XML comments reference .NET classes, structs, interfaces, enums, or namespaces, use `<see cref="Fully.Qualified.TypeName" />` instead of plain text (e.g. `<see cref="Azure.Data.Tables.TableEntity" />`).
+- **Preserve hyperlinks**: Inline comment hyperlinks to external resources (e.g. blog posts, StackOverflow answers, GitHub issues) must never be deleted. When refactoring a comment into XML documentation, move the URL into a `<remarks>` block using `<see href="…" />` (e.g. `/// <remarks>See <see href="https://example.com" />.</remarks>`).
 
-### 3. Clean Build Artifacts
-```bash
-dotnet clean CasCap.Api.Azure.Release.slnx
-```
-**Alternative:** PowerShell script `./clean.ps1` (removes all bin/obj folders recursively)
+### Logging
 
-### 4. Format Code (REQUIRED BEFORE COMMIT)
-```bash
-dotnet format CasCap.Api.Azure.Release.slnx --no-restore
-```
-**Verify formatting:**
-```bash
-dotnet format CasCap.Api.Azure.Release.slnx --verify-no-changes --no-restore
-```
-**Critical:** CI will fail if code is not properly formatted. Always run format before committing.
+- **`{ClassName}` first**: Every structured log message must include `{ClassName}` as the first template parameter, using `nameof(EnclosingClass)` as the argument (e.g. `_logger.LogInformation("{ClassName} something happened", nameof(MyService));`).
+- **Template parameters**: Use PascalCase for all template parameters and never enclose them in quotes (e.g. `{DesiredValue}`, `{GroupAddress}`, `{ValueBefore}` not `'{DesiredValue}'`, `'{GroupAddress}'`, `'{ValueBefore}'`). The logger handles value formatting automatically.
+- **No magic strings in log messages**: When a log message references an enum value, class name, or other identifiable symbol, pass it via `nameof()` as a template argument rather than embedding it as a literal string in the message template.
 
-### 5. Run Tests (REQUIRES AZURITE)
+### Disposable Resources
 
-**Start Azurite storage emulator FIRST:**
-```bash
-docker compose up -d
-```
-**Ports:** 10000 (blob), 10001 (queue), 10002 (table)
+- `ServiceProvider` instances built in tests must be disposed via `using`/`await using`.
+- Test helper classes should be `static` when they have no instance state.
+- Avoid shared mutable static state in test fixtures — each test should be independently repeatable.
 
-**Run tests:**
-```bash
-dotnet test CasCap.Api.Azure.Release.slnx --configuration Release --no-build --verbosity normal
-```
-**Takes:** ~5-10 seconds
+### Multi-Targeting
 
-**Stop Azurite after testing:**
-```bash
-docker compose down
-```
-
-**CRITICAL KNOWN ISSUE:** Tests currently fail with "API version 2026-02-06 is not supported by Azurite" errors. This is a known compatibility issue documented in `.github/workflows/ci.yml` (line 58: `execute-tests: false`). The CI explicitly skips tests. When working on test-related changes, be aware of this limitation.
-
-## Project Structure
-
-```
-/
-├── .github/
-│   ├── workflows/
-│   │   └── ci.yml              # Main CI pipeline (lint, version, build)
-│   └── dependabot.yml          # Auto-updates for nuget, github-actions, devcontainers
-├── src/
-│   ├── CasCap.Api.Azure.AppInsights/          # Application Insights helpers
-│   ├── CasCap.Api.Azure.CognitiveServices/    # Cognitive Services (e.g., Speech)
-│   ├── CasCap.Api.Azure.ContainerRegistry/    # Azure Container Registry client
-│   ├── CasCap.Api.Azure.EventGrid/            # Event Grid messaging
-│   ├── CasCap.Api.Azure.EventHub/             # Event Hub streaming
-│   ├── CasCap.Api.Azure.LogAnalytics/         # Log Analytics query service
-│   ├── CasCap.Api.Azure.ServiceBus/           # Service Bus messaging
-│   ├── CasCap.Api.Azure.Storage/              # Blob, Queue, Table storage
-│   └── CasCap.Api.Azure.Storage.Tests/        # xUnit tests for Storage
-├── Directory.Build.props       # Common MSBuild properties for all projects
-├── Directory.Packages.props    # Centralized package version management (CPM)
-├── .editorconfig               # Code style rules (4-space indent, LF line endings)
-├── GitVersion.yml              # Semantic versioning configuration
-├── global.json                 # .NET SDK version (allowPrerelease: false)
-└── docker-compose.yml          # Azurite storage emulator setup
-```
-
-**Typical Project Structure:**
-- `Abstractions/` - Interfaces
-- `Services/` - Service implementations  
-- `Extensions/` - Dependency injection extensions
-- `Models/` - DTOs and options classes
-- `Usings.cs` - Global using statements
-
-## CI/CD Pipeline (.github/workflows/ci.yml)
-
-**Triggers:** push (except preview branches), pull_request to main, workflow_dispatch
-
-**Jobs:**
-1. **lint** - Uses reusable workflow `f2calv/gha-workflows/.github/workflows/lint.yml@v1`
-2. **versioning** - GitVersion for semantic versioning (uses GitVersion.yml)
-3. **build** - Ubuntu runner with:
-   - Azurite service container (ports 10000-10002)
-   - Reusable workflow `f2calv/gha-dotnet-nuget@v2`
-   - Configuration: Release (default) or Debug (manual)
-   - **Tests are disabled** (`execute-tests: false`) due to Azurite API version incompatibility
-4. **release** - Creates GitHub releases (only on main or preview branches)
-
-**Important:** The CI skips tests due to Azurite issues. Don't be alarmed if tests fail locally - this is expected.
-
-## Code Style & Conventions
-
-**Enforced by .editorconfig:**
-- **Indentation:** 4 spaces (not tabs)
-- **Line endings:** LF (Unix-style)
-- **Insert final newline:** Yes
-- **Naming:** PascalCase for types/methods, interfaces prefixed with `I`
-- **Implicit usings:** Enabled
-- **Nullable reference types:** Enabled
-- **C# Language Version:** 14.0
-
-**Suppressed warnings (Directory.Build.props):**
-- IDE1006, IDE0079, IDE0042, CS0162, S125, NETSDK1233
-
-**Key Conventions:**
-- Use expression-bodied members for accessors and properties
-- Prefer pattern matching over `is`/`as` with null checks
-- Always use braces for code blocks (`csharp_prefer_braces = true`)
-- Namespace declarations: block-scoped (not file-scoped)
-- Using directives: Outside namespace
-
-## Multi-Targeting Notes
-
-All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making changes:
-- Test builds across all target frameworks
-- Some packages (like `System.Linq.Async`) are only referenced for net8.0/net9.0
-- Build output generates separate DLLs for each framework
-
-## Packaging & Versioning
-
-- **IsPackable:** Explicitly set per project (default is `false` in Directory.Build.props)
-- **Versioning:** Automated via GitVersion (MainLine mode)
-- **NuGet Push:** Handled by CI on main branch (requires NUGET_API_KEY secret)
-- **Package metadata:** Defined in Directory.Build.props (author, license, icon, source link)
-
-## Common Gotchas
-
-1. **Debug vs Release solution:**
-   - Debug solution references local `../CasCap.Common` repo (must be cloned)
-   - Release solution uses NuGet packages
-   - Always use Release solution unless actively developing CasCap.Common integration
-
-2. **Central Package Management:**
-   - Package versions are centralized in `Directory.Packages.props`
-   - Never add version attributes to `<PackageReference>` in .csproj files
-   - Update versions only in Directory.Packages.props
-
-3. **Azurite Test Failures:**
-   - Tests fail with API version errors - this is EXPECTED
-   - Don't spend time trying to fix this unless specifically tasked
-   - CI intentionally skips tests
-
-4. **Docker Compose Command:**
-   - Use `docker compose` (not `docker-compose`)
-   - Older hyphenated command may not be available
-
-5. **Formatting is Mandatory:**
-   - CI will fail if code is not formatted
-   - Always run `dotnet format` before committing
-   - CI uses `--verify-no-changes` flag
-
-6. **Pre-commit Hooks:**
-   - Configured in `.pre-commit-config.yaml` but requires manual installation
-   - Not automatically enforced in standard environments
-   - Checks: YAML, JSON5, markdown linting, large files, whitespace
-
-## Quick Reference
-
-**Full build from scratch:**
-```bash
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-dotnet format CasCap.Api.Azure.Release.slnx --no-restore
-```
-
-**Build + Test (with Azurite):**
-```bash
-docker compose up -d
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-dotnet test CasCap.Api.Azure.Release.slnx --configuration Release --no-build
-docker compose down
-```
-
-**Clean + Rebuild:**
-```bash
-dotnet clean CasCap.Api.Azure.Release.slnx
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-```
-
-## Trust These Instructions
-
-The commands and information in this file have been validated against the actual codebase and CI configuration. Only search for additional information if:
-- These instructions are incomplete for your specific task
-- You encounter errors not documented here
-- You need details about specific service implementations
-
-When in doubt, prefer using the Release solution file (`CasCap.Api.Azure.Release.slnx`) and always format your code before committing.
+- Library code using APIs unavailable in lower target frameworks must use `#if` preprocessor guards (e.g. `#if NET8_0_OR_GREATER`).

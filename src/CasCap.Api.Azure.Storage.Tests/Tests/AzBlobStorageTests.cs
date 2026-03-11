@@ -1,5 +1,6 @@
-﻿namespace CasCap.Tests;
+namespace CasCap.Tests;
 
+/// <summary>Integration tests for <see cref="AzBlobStorageBase"/>.</summary>
 public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(output)*/
 {
     private static readonly byte[] fileBytes =

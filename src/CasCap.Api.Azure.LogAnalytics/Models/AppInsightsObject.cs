@@ -1,4 +1,4 @@
-﻿namespace CasCap.Models;
+namespace CasCap.Models;
 
 /// <summary>
 /// Represents a single exception record returned from an Application Insights Log Analytics query.

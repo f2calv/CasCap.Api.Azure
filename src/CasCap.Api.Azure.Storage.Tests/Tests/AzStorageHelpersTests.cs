@@ -1,6 +1,7 @@
-﻿namespace CasCap.Tests;
+namespace CasCap.Tests;
 
-public class AzStorageTests
+/// <summary>Unit tests for <see cref="CasCap.Common.Extensions.LocalExtensions"/> storage key helpers.</summary>
+public class AzStorageHelpersTests
 {
     [Fact, Trait("Category", "Azure")]
     public void PartitionKeyTest()

@@ -1,5 +1,6 @@
 namespace CasCap.Tests;
 
+/// <summary>Integration tests for <see cref="AzQueueStorageBase"/>.</summary>
 public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(output)*/
 {
     [Fact]
@@ -31,11 +32,4 @@ public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outp
         Assert.NotNull(result5);
         Assert.True(result5.Count >= 2, $"actually found {result5.Count} message(s)");
     }
-}
-
-public class TestMessage
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTime Dt { get; set; } = DateTime.UtcNow;
-    public string? TestString { get; set; }
 }

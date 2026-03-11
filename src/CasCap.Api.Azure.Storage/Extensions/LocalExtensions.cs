@@ -1,5 +1,6 @@
-﻿namespace CasCap.Common.Extensions;
+namespace CasCap.Common.Extensions;
 
+/// <summary>Extension methods for Azure Table Storage key and date helpers.</summary>
 public static class LocalExtensions
 {
     /// <summary>
@@ -15,7 +16,6 @@ public static class LocalExtensions
         return false;
     }
 
-    //private static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
     private static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
     //private static readonly Regex DisallowedCharsInTableKeys = new("[#]", RegexOptions.Compiled);
     //https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns
@@ -41,7 +41,6 @@ public static class LocalExtensions
     public static DateTime GetDateFromFileName(this string path, DateTimeKind kind = DateTimeKind.Utc)
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
-        //someDirectory/2016-05-17-some-suffix.log.gz -> 2016-05-17
         var strDt = fileName.Substring(0, 10);
         if (DateTime.TryParse(strDt, out var date))
             return DateTime.SpecifyKind(date, kind);
@@ -49,12 +48,14 @@ public static class LocalExtensions
             throw new ArgumentException("unable to parse {path} to retrieve date", path);
     }
 
+    /// <summary>A sentinel maximum date value (2050-01-01 UTC) used to represent "no expiry".</summary>
     public static readonly DateTime newMaxDate = new(2050, 1, 1);
 
+    /// <summary>The default date format string used for partition keys (<c>yyMMdd</c>).</summary>
     public const string yyMMdd = nameof(yyMMdd);
 
     /// <summary>
-    /// Returns a partition key suitable for Azure Table Storage in the default format 'yyMMdd'.
+    /// Returns a partition key suitable for Azure Table Storage in the default format <c>yyMMdd</c>.
     /// </summary>
     /// <param name="thisDate">The date to convert into a partition key string.</param>
     /// <param name="format">The date format string used to produce the partition key. Defaults to <see cref="yyMMdd"/>.</param>
@@ -75,20 +76,10 @@ public static class LocalExtensions
     public static DateTime GetDateFromPartitionKey(this string thisPartitionKey, string format = yyMMdd)
         => DateTime.ParseExact(thisPartitionKey, format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
 
-    const long ticksInADay = 863999999999;
+    private const long ticksInADay = 863999999999;
 
     /// <summary>
-    /// This method returns only the Time portion of a DateTime with or without dictionary/lexicographical order.
-    ///
-    /// Why?
-    ///
-    /// When storing huge quantities of data with tick-level accuracy the storage space required for every field
-    /// is both large in terms of cost and crucially data retrieval speed is slow (less data = faster!).
-    ///
-    /// Best practise is to split the DateTime up into two parts, storing the Date in either the PartitionKey or event
-    /// the table name and the (hopefully unique!) Time portion in the RowKey.
-    ///
-    /// Plus now if you use lexicographical order you are able to retrieve *only* the TOP n records from the table.
+    /// Returns only the time-of-day portion of <paramref name="thisDate"/> as a 12-digit string row key.
     /// </summary>
     /// <param name="thisDate">The date and time value from which to derive the row key.</param>
     /// <param name="lexicalOrder">

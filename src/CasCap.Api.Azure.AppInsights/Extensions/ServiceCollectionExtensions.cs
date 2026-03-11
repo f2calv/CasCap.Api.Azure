@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection;
 
+/// <summary>Extension methods for registering Application Insights services with <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection" />.</summary>
 public static class ServiceCollectionExtensions
 {
     //public static void AddCasCapAppInsightsServices(this IServiceCollection services)
@@ -13,10 +14,10 @@ public static class ServiceCollectionExtensions
     public static void AddCasCapAppInsightsServices(this IServiceCollection services/*,
             Action<AppInsightsOptions> appInsights*/)
     {
-        services.AddSingleton<IConfigureOptions<AppInsightsOptions>>(s =>
+        services.AddSingleton<IConfigureOptions<AppInsightsConfig>>(s =>
         {
             var configuration = s.GetRequiredService<IConfiguration>();
-            return new ConfigureOptions<AppInsightsOptions>(options => configuration?.Bind(AppInsightsOptions.ConfigurationSectionName, options));
+            return new ConfigureOptions<AppInsightsConfig>(options => configuration?.Bind(AppInsightsConfig.ConfigurationSectionName, options));
         });
     }
 }

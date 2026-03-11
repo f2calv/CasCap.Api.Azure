@@ -1,13 +1,15 @@
-﻿namespace CasCap.Services;
+namespace CasCap.Services;
 
-public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueService
+/// <inheritdoc/>
+public class TopicService : ServiceBase, ITopicService
 {
     private readonly string _topicName;
     private readonly string _subscriptionName;
 
     private readonly ServiceBusClient _client;
 
-    public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string connectionString, string topicName, string subscriptionName) : base(logger)
+    /// <summary>Initializes a new instance of <see cref="TopicService"/> using a connection string.</summary>
+    public TopicService(ILogger<TopicService> logger, string connectionString, string topicName, string subscriptionName) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
@@ -17,7 +19,8 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         _client = new ServiceBusClient(connectionString);
     }
 
-    public ServiceBusTopicService(ILogger<ServiceBusTopicService> logger, string fullyQualifiedNamespace, string topicName, string subscriptionName, TokenCredential credential) : base(logger)
+    /// <summary>Initializes a new instance of <see cref="TopicService"/> using a <see cref="TokenCredential"/>.</summary>
+    public TopicService(ILogger<TopicService> logger, string fullyQualifiedNamespace, string topicName, string subscriptionName, TokenCredential credential) : base(logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
         ArgumentException.ThrowIfNullOrWhiteSpace(topicName);
@@ -28,6 +31,7 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
+    /// <summary>Sends a single <paramref name="message"/> to the topic.</summary>
     public async Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default)
     {
         await using var client = _client;
@@ -35,9 +39,10 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         var sender = client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken);
         _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
-            nameof(ServiceBusTopicService), _topicName);
+            nameof(TopicService), _topicName);
     }
 
+    /// <summary>Sends a batch of <paramref name="messages"/> to the topic.</summary>
     public async Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
         await using var client = _client;
@@ -78,9 +83,10 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         }
 
         _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {TopicName}",
-            nameof(ServiceBusTopicService), messageCount, _topicName);
+            nameof(TopicService), messageCount, _topicName);
     }
 
+    /// <summary>Starts receiving messages from the topic subscription until processing is stopped.</summary>
     public async Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default)
     {
         await using var client = _client;
@@ -97,8 +103,8 @@ public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueSer
         await processor.StartProcessingAsync(cancellationToken);
 
         // stop processing
-        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(ServiceBusTopicService));
+        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
         await processor.StopProcessingAsync(cancellationToken);
-        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(ServiceBusTopicService));
+        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
     }
 }

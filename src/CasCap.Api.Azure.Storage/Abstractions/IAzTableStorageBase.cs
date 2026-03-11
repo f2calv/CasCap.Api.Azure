@@ -1,4 +1,4 @@
-﻿namespace CasCap.Abstractions;
+namespace CasCap.Abstractions;
 
 /// <summary>
 /// Defines the contract for interacting with Azure Table Storage, supporting CRUD operations across one or more tables.

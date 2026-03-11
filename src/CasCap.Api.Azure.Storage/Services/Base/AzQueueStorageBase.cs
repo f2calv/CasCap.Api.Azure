@@ -2,12 +2,14 @@
 
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-tutorial-queues
 //https://docs.microsoft.com/en-us/azure/storage/queues/storage-quickstart-queues-dotnet
+/// <inheritdoc/>
 public abstract class AzQueueStorageBase : IAzQueueStorageBase
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(AzQueueStorageBase));
 
     private readonly QueueClient _queueClient;
 
+    /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a connection string.</summary>
     protected AzQueueStorageBase(string connectionString, string queueName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
@@ -17,6 +19,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
 
+    /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a <see cref="TokenCredential"/>.</summary>
     protected AzQueueStorageBase(Uri queueUri, string queueName, TokenCredential credential)
     {
         ArgumentNullException.ThrowIfNull(queueUri);
@@ -32,12 +35,14 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     private async ValueTask CreateQueueIfNotExistsAsync()
     {
         if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
-            _logger.LogDebug("{ClassName} storage queue didn't exist so have now created '{QueueName}'", nameof(AzQueueStorageBase), _queueClient.Name);
+            _logger.LogDebug("{ClassName} storage queue didn't exist so have now created {QueueName}", nameof(AzQueueStorageBase), _queueClient.Name);
         _haveCheckedIfQueueExists = true;
     }
 
-    public async Task<bool> Enqueue<T>(T obj) where T : class => await Enqueue([obj]);
+    /// <inheritdoc/>
+    public Task<bool> Enqueue<T>(T obj) where T : class => Enqueue([obj]);
 
+    /// <inheritdoc/>
     public async Task<bool> Enqueue<T>(List<T> objs) where T : class
     {
         await CreateQueueIfNotExistsAsync();
@@ -71,6 +76,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         return i > 0;
     }
 
+    /// <inheritdoc/>
     public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
     {
         //_logger.LogTrace("{ClassName} trying account {AccountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
@@ -107,6 +113,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             return (default, default!);
     }
 
+    /// <inheritdoc/>
     public async Task<List<T>> DequeueMany<T>(int limit = 1) where T : class
     {
         await CreateQueueIfNotExistsAsync();
