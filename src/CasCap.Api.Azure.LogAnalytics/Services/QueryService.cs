@@ -9,18 +9,18 @@ namespace CasCap.Services;
 public class QueryService : IQueryService
 {
     private readonly ILogger _logger;
-    private readonly LogAnalyticsOptions _logAnalyticsOptions;
+    private readonly LogAnalyticsConfig _logAnalyticsConfig;
 
     private readonly LogsQueryClient _client;
 
     /// <summary>Initializes a new instance of <see cref="QueryService"/>.</summary>
     public QueryService(ILogger<QueryService> logger,
-        IOptions<LogAnalyticsOptions> logAnalyticsOptions,
+        IOptions<LogAnalyticsConfig> logAnalyticsConfig,
         TokenCredential credential
         )
     {
         _logger = logger;
-        _logAnalyticsOptions = logAnalyticsOptions.Value;
+        _logAnalyticsConfig = logAnalyticsConfig.Value;
         _client = new LogsQueryClient(credential);
     }
 
@@ -34,7 +34,7 @@ public class QueryService : IQueryService
         //var query = "availabilityResults | summarize count() by name, bin(duration,500) | order by _count desc";
         //var metric = "availabilityResults/duration";
 
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsOptions.WorkspaceId, query, timeRange);
+        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, timeRange);
         //var queryResults = await _client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
         foreach (var row in queryResults.Value.Table.Rows)
         {
@@ -59,7 +59,7 @@ public class QueryService : IQueryService
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsOptions.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
+        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
         var l = new List<AppInsightsObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {

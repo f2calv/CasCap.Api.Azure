@@ -15,10 +15,10 @@ public static class ServiceCollectionExtensions
     public static void AddCasCapLogAnalyticsServices(this IServiceCollection services/*,
             Action<LogAnalyticsOptions> LogAnalytics*/)
     {
-        services.AddSingleton<IConfigureOptions<LogAnalyticsOptions>>(s =>
+        services.AddSingleton<IConfigureOptions<LogAnalyticsConfig>>(s =>
         {
             var configuration = s.GetRequiredService<IConfiguration>();
-            return new ConfigureOptions<LogAnalyticsOptions>(options => configuration?.Bind(LogAnalyticsOptions.ConfigurationSectionName, options));
+            return new ConfigureOptions<LogAnalyticsConfig>(options => configuration?.Bind(LogAnalyticsConfig.ConfigurationSectionName, options));
         });
         services.AddSingleton<IQueryService, QueryService>();
         //services.AddSingleton<ILogAnalyticsService, LogAnalyticsService>()
