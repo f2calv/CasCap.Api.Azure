@@ -2,14 +2,15 @@ namespace CasCap.Services;
 
 /// <inheritdoc/>
 /// <remarks>See <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md" />.</remarks>
-public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<T>
+public abstract class SubscriberService<T> : ISubscriberService<T>
 {
-    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubSubscriberService<T>));
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(SubscriberService<T>));
 
     private readonly BlobContainerClient _checkpointStore;
     private readonly EventProcessorClient _eventProcessorClient;
 
-    protected EventHubSubscriberService(
+    /// <summary>Initializes a new instance of <see cref="SubscriberService{T}"/> using connection strings.</summary>
+    protected SubscriberService(
         string eventHubName,
         string eventHubConnectionString,
         string storageConnectionString,
@@ -29,7 +30,8 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             eventHubName);
     }
 
-    protected EventHubSubscriberService(
+    /// <summary>Initializes a new instance of <see cref="SubscriberService{T}"/> using a <see cref="TokenCredential"/>.</summary>
+    protected SubscriberService(
         string eventHubName,
         string eventHubConnectionString,
         string storageConnectionString,
@@ -66,7 +68,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
             try
             {
-                _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(EventHubSubscriberService<T>), _eventProcessorClient.EventHubName);
+                _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(SubscriberService<T>), _eventProcessorClient.EventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken);
                 await Task.Delay(Timeout.Infinite, cancellationToken);
             }
@@ -117,11 +119,11 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             {
                 var obj = bytes.FromMessagePack<T>();
                 _logger.LogInformation("{ClassName} Message received. Partition: {PartitionId}, Data: {Obj}",
-                    nameof(EventHubSubscriberService<T>), partitionId, obj);
+                    nameof(SubscriberService<T>), partitionId, obj);
             }
             else
                 _logger.LogWarning("{ClassName} Message received. Partition: {PartitionId}, Data: null",
-                    nameof(EventHubSubscriberService<T>), partitionId);
+                    nameof(SubscriberService<T>), partitionId);
 
             var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(
                 key: partitionId,
@@ -146,7 +148,7 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         try
         {
             _logger.LogError(args.Exception, "{ClassName} error detected in operation {Operation}",
-                nameof(EventHubSubscriberService<T>), args.Operation);
+                nameof(SubscriberService<T>), args.Operation);
         }
         catch
         {

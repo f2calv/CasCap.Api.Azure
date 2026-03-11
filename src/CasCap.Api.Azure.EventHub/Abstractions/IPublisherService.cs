@@ -1,7 +1,7 @@
 namespace CasCap.Abstractions;
 
 /// <summary>Abstraction for publishing messages to an Azure Event Hub.</summary>
-public interface IEventHubPublisherService<T>// where T : IEventHubEvent
+public interface IPublisherService<T>// where T : IEvent
 {
     /// <summary>Serializes and pushes a single event object to the Event Hub.</summary>
     Task Push(T obj);

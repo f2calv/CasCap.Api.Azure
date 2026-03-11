@@ -1,4 +1,4 @@
-﻿namespace CasCap.Services;
+namespace CasCap.Services;
 
 /// <inheritdoc/>
 /// <remarks>
@@ -6,14 +6,15 @@
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public class LogAnalyticsQueryService : ILogAnalyticsQueryService
+public class QueryService : IQueryService
 {
     private readonly ILogger _logger;
     private readonly LogAnalyticsOptions _logAnalyticsOptions;
 
     private readonly LogsQueryClient _client;
 
-    public LogAnalyticsQueryService(ILogger<LogAnalyticsQueryService> logger,
+    /// <summary>Initializes a new instance of <see cref="QueryService"/>.</summary>
+    public QueryService(ILogger<QueryService> logger,
         IOptions<LogAnalyticsOptions> logAnalyticsOptions,
         TokenCredential credential
         )

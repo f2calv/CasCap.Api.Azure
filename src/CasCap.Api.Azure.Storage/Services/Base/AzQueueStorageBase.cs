@@ -9,6 +9,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     private readonly QueueClient _queueClient;
 
+    /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a connection string.</summary>
     protected AzQueueStorageBase(string connectionString, string queueName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
@@ -18,6 +19,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
     }
 
+    /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a <see cref="TokenCredential"/>.</summary>
     protected AzQueueStorageBase(Uri queueUri, string queueName, TokenCredential credential)
     {
         ArgumentNullException.ThrowIfNull(queueUri);

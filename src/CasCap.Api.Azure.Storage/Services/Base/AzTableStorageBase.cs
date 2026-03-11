@@ -44,6 +44,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         return table;
     }
 
+    /// <summary>Sets the active <see cref="TableClient"/> for <paramref name="tableName"/>, optionally creating it if it does not exist.</summary>
     protected async Task<TableClient> SetActiveTable(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentNullException(nameof(tableName), "expected!");

@@ -7,6 +7,7 @@ public class SpeechService : ISpeechService
 
     private readonly SpeechConfig _speechConfig;
 
+    /// <summary>Initializes a new instance of <see cref="SpeechService"/> using a subscription key.</summary>
     public SpeechService(string subscriptionKey, string region = "westeurope")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionKey);
@@ -18,6 +19,7 @@ public class SpeechService : ISpeechService
         //_speechConfig.SpeechSynthesisLanguage = "en-GB";
     }
 
+    /// <summary>Initializes a new instance of <see cref="SpeechService"/> using a <see cref="TokenCredential"/>.</summary>
     public SpeechService(Uri endpoint, TokenCredential credential)
     {
         ArgumentNullException.ThrowIfNull(endpoint);
