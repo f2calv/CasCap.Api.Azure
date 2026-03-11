@@ -1,13 +1,13 @@
-﻿namespace CasCap.Services;
+namespace CasCap.Services;
 
 /// <inheritdoc/>
-public class Text2SpeechService : IText2SpeechService
+public class SpeechService : ISpeechService
 {
-    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(Text2SpeechService));
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(SpeechService));
 
     private readonly SpeechConfig _speechConfig;
 
-    public Text2SpeechService(string subscriptionKey, string region = "westeurope")
+    public SpeechService(string subscriptionKey, string region = "westeurope")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionKey);
         //note: WSL 2 w/Ubuntu 18.04 needs 'sudo apt-get update && sudo apt-get -y install libasound2'
@@ -18,7 +18,7 @@ public class Text2SpeechService : IText2SpeechService
         //_speechConfig.SpeechSynthesisLanguage = "en-GB";
     }
 
-    public Text2SpeechService(Uri endpoint, TokenCredential credential)
+    public SpeechService(Uri endpoint, TokenCredential credential)
     {
         ArgumentNullException.ThrowIfNull(endpoint);
         ArgumentNullException.ThrowIfNull(credential);
@@ -32,15 +32,15 @@ public class Text2SpeechService : IText2SpeechService
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);
         using var result = await synthesizer.SpeakTextAsync(soundByte);
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
-            _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(Text2SpeechService), soundByte);
+            _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(SpeechService), soundByte);
         else if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
-            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(Text2SpeechService), cancellation.Reason);
+            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(SpeechService), cancellation.Reason);
             if (cancellation.Reason == CancellationReason.Error)
             {
                 _logger.LogError("{ClassName} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
-                    nameof(Text2SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
+                    nameof(SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
             }
         }
     }
@@ -66,24 +66,24 @@ public class Text2SpeechService : IText2SpeechService
     {
         if (result.Reason is ResultReason.RecognizedSpeech)
         {
-            _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(Text2SpeechService), result.Text);
+            _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(SpeechService), result.Text);
             return result.Text;
         }
 
         if (result.Reason is ResultReason.NoMatch)
         {
-            _logger.LogWarning("{ClassName} Speech could not be recognized", nameof(Text2SpeechService));
+            _logger.LogWarning("{ClassName} Speech could not be recognized", nameof(SpeechService));
             return null;
         }
 
         if (result.Reason is ResultReason.Canceled)
         {
             var cancellation = CancellationDetails.FromResult(result);
-            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(Text2SpeechService), cancellation.Reason);
+            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(SpeechService), cancellation.Reason);
             if (cancellation.Reason == CancellationReason.Error)
             {
                 _logger.LogError("{ClassName} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
-                    nameof(Text2SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
+                    nameof(SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
             }
         }
 
