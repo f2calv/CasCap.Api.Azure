@@ -44,4 +44,49 @@ public class Text2SpeechService : IText2SpeechService
             }
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<string?> RecognizeFromWAV(string path)
+    {
+        using var audioInput = AudioConfig.FromWavFileInput(path);
+        using var recognizer = new SpeechRecognizer(_speechConfig, audioInput);
+        var result = await recognizer.RecognizeOnceAsync();
+        return HandleRecognitionResult(result);
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> RecognizeFromMicrophone()
+    {
+        using var recognizer = new SpeechRecognizer(_speechConfig);
+        var result = await recognizer.RecognizeOnceAsync();
+        return HandleRecognitionResult(result);
+    }
+
+    private string? HandleRecognitionResult(SpeechRecognitionResult result)
+    {
+        if (result.Reason is ResultReason.RecognizedSpeech)
+        {
+            _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(Text2SpeechService), result.Text);
+            return result.Text;
+        }
+
+        if (result.Reason is ResultReason.NoMatch)
+        {
+            _logger.LogWarning("{ClassName} Speech could not be recognized", nameof(Text2SpeechService));
+            return null;
+        }
+
+        if (result.Reason is ResultReason.Canceled)
+        {
+            var cancellation = CancellationDetails.FromResult(result);
+            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(Text2SpeechService), cancellation.Reason);
+            if (cancellation.Reason == CancellationReason.Error)
+            {
+                _logger.LogError("{ClassName} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
+                    nameof(Text2SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
+            }
+        }
+
+        return null;
+    }
 }
