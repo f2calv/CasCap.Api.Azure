@@ -4,12 +4,12 @@ namespace CasCap.Models;
 
 /// <summary>
 /// Configuration options for Azure Application Insights.
-/// Bound from the <c>CasCap:AppInsightsOptions</c> configuration section.
+/// Bound from the <c>CasCap:AppInsightsConfig</c> configuration section.
 /// </summary>
-public record AppInsightsOptions
+public record AppInsightsConfig
 {
     /// <summary>The configuration section path used to bind these options.</summary>
-    public const string ConfigurationSectionName = $"{nameof(CasCap)}:{nameof(AppInsightsOptions)}";
+    public const string ConfigurationSectionName = $"{nameof(CasCap)}:{nameof(AppInsightsConfig)}";
 
     /// <summary>Gets the Application Insights instrumentation key used to identify the target resource.</summary>
     [Required]
