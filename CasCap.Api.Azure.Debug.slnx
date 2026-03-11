@@ -1,8 +1,13 @@
-﻿<Solution>
+<Solution>
   <Folder Name="/CasCap.Api.Azure/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path=".pre-commit-config.yaml" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="GitVersion.yml" />
+    <File Path="global.json" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/CasCap.Common/">
     <Project Path="../CasCap.Common/src/CasCap.Common.Extensions/CasCap.Common.Extensions.csproj" />
