@@ -11,7 +11,7 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 
 ## Project Structure
 
-```
+```text
 /
 ├── .github/
 │   ├── workflows/
