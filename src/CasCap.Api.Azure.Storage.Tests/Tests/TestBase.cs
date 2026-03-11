@@ -1,12 +1,18 @@
 ﻿namespace CasCap.Tests;
 
+/// <summary>Base class for storage integration tests.</summary>
 public abstract class TestBase
 {
+    /// <summary>Gets the Azure Storage connection string used by the tests.</summary>
     protected string _connectionString;
 
+    /// <summary>Gets the blob service under test.</summary>
     protected IAzBlobService _blobSvc;
+
+    /// <summary>Gets the queue service under test.</summary>
     protected IAzQueueService _queueSvc;
 
+    /// <summary>Initializes a new instance of <see cref="TestBase" />.</summary>
     protected TestBase(/*ITestOutputHelper output*/)
     {
         var configuration = new ConfigurationBuilder()
@@ -29,7 +35,8 @@ public abstract class TestBase
         services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
 
         //assign services to be tested
-        var serviceProvider = services.BuildServiceProvider().AddStaticLogging();
+        using var serviceProvider = services.BuildServiceProvider();
+        serviceProvider.AddStaticLogging();
         _blobSvc = serviceProvider.GetRequiredService<IAzBlobService>();
         _queueSvc = serviceProvider.GetRequiredService<IAzQueueService>();
     }

@@ -1,5 +1,6 @@
 ﻿namespace CasCap.Services;
 
+/// <inheritdoc/>
 public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>// where T : IEventHubEvent
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubPublisherService<T>));
@@ -30,10 +31,13 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         _producerClient = new EventHubProducerClient(fullyQualifiedNamespace, eventHubName, credential, options);
     }
 
-    public async Task Push(T obj) => await Push([obj.ToMessagePack()]);
+    /// <inheritdoc/>
+    public Task Push(T obj) => Push([obj.ToMessagePack()]);
 
-    public async Task Push(byte[] bytes) => await Push([bytes]);
+    /// <inheritdoc/>
+    public Task Push(byte[] bytes) => Push([bytes]);
 
+    /// <inheritdoc/>
     public async Task Push(List<T> objs)
     {
         var l = new List<byte[]>(objs.Count);
@@ -42,6 +46,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         await Push(l);
     }
 
+    /// <inheritdoc/>
     public async Task Push(List<byte[]> bytesCollection)
     {
         using var eventBatch = await _producerClient.CreateBatchAsync();
@@ -62,6 +67,7 @@ public abstract class EventHubPublisherService<T> : IEventHubPublisherService<T>
         }
     }
 
+    /// <inheritdoc/>
     public async Task SendTestMessages(int numMessagesToSend = 10)
     {
         for (var i = 0; i < numMessagesToSend; i++)

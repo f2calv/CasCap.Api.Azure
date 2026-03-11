@@ -1,6 +1,7 @@
-﻿namespace CasCap.Services;
+namespace CasCap.Services;
 
-//https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md
+/// <inheritdoc/>
+/// <remarks>See <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md" />.</remarks>
 public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<T>
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(EventHubSubscriberService<T>));
@@ -55,12 +56,13 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
 
     private readonly ConcurrentDictionary<string, int> partitionEventCount = new();
 
+    /// <inheritdoc/>
     public async Task InitiateReceive(CancellationToken cancellationToken)
     {
         try
         {
             await _checkpointStore.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
-            _eventProcessorClient.ProcessEventAsync += processEventHandler;
+            _eventProcessorClient.ProcessEventAsync += ProcessEventHandler;
             _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
             try
             {
@@ -89,12 +91,12 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
         {
             // It is encouraged that you unregister your handlers when you have finished using the Event Processor to ensure proper cleanup.
             // This is especially important when using lambda expressions or handlers in any form that may contain closure scopes or hold other references.
-            _eventProcessorClient.ProcessEventAsync -= processEventHandler;
+            _eventProcessorClient.ProcessEventAsync -= ProcessEventHandler;
             _eventProcessorClient.ProcessErrorAsync -= ProcessErrorHandler;
         }
     }
 
-    private async Task processEventHandler(ProcessEventArgs args)
+    private async Task ProcessEventHandler(ProcessEventArgs args)
     {
         try
         {
@@ -114,11 +116,11 @@ public abstract class EventHubSubscriberService<T> : IEventHubSubscriberService<
             if (bytes is not null)
             {
                 var obj = bytes.FromMessagePack<T>();
-                _logger.LogInformation("{ClassName} Message received. Partition: '{PartitionId}', Data: '{Obj}'",
+                _logger.LogInformation("{ClassName} Message received. Partition: {PartitionId}, Data: {Obj}",
                     nameof(EventHubSubscriberService<T>), partitionId, obj);
             }
             else
-                _logger.LogWarning("{ClassName} Message received. Partition: '{PartitionId}', Data: null",
+                _logger.LogWarning("{ClassName} Message received. Partition: {PartitionId}, Data: null",
                     nameof(EventHubSubscriberService<T>), partitionId);
 
             var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(

@@ -1,22 +1,34 @@
-﻿namespace CasCap.Messages;
+namespace CasCap.Messages;
 
-public class AzTableStorageArgs
+/// <summary>Event arguments raised after an Azure Table Storage batch operation completes.</summary>
+public record AzTableStorageArgs
 {
+    /// <summary>Initializes a new instance of <see cref="AzTableStorageArgs" />.</summary>
     public AzTableStorageArgs(string storageAccountName, string tableName, string partitionKey, int count, int countRemaining)
     {
-        this.storageAccountName = storageAccountName;
-        this.tableName = tableName;
-        this.partitionKey = partitionKey;
+        StorageAccountName = storageAccountName;
+        TableName = tableName;
+        PartitionKey = partitionKey;
         Count = count;
         CountRemaining = countRemaining;
-        time = DateTime.UtcNow;
+        Time = DateTime.UtcNow;
     }
 
-    public string storageAccountName { get; set; }
-    public string tableName { get; set; }
-    public string partitionKey { get; set; }
-    public int Count { get; set; }
-    public int CountRemaining { get; set; }
-    //public List<T> entities { get; set; }
-    public DateTime time { get; set; }
+    /// <summary>Gets the name of the storage account.</summary>
+    public string StorageAccountName { get; init; }
+
+    /// <summary>Gets the name of the table.</summary>
+    public string TableName { get; init; }
+
+    /// <summary>Gets the partition key of the batch that was processed.</summary>
+    public string PartitionKey { get; init; }
+
+    /// <summary>Gets the number of entities processed in this batch.</summary>
+    public int Count { get; init; }
+
+    /// <summary>Gets the number of entities still remaining to be processed.</summary>
+    public int CountRemaining { get; init; }
+
+    /// <summary>Gets the UTC timestamp when the batch completed.</summary>
+    public DateTime Time { get; init; }
 }

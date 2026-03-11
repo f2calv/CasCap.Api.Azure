@@ -1,10 +1,9 @@
-﻿namespace Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.Extensions.DependencyInjection;
 
+/// <summary>Extension methods for registering Log Analytics services with <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection" />.</summary>
 public static class ServiceCollectionExtensions
 {
-    //public static void AddCasCapLogAnalyticsServices(this IServiceCollection services)
-    //    => services.AddCasCapLogAnalyticsServices(_ => { });
-
+    /// <summary>Registers <see cref="CasCap.Models.LogAnalyticsOptions" /> configuration binding and <see cref="CasCap.Abstractions.ILogAnalyticsQueryService" />.</summary>
     public static void AddCasCapLogAnalyticsServices(this IServiceCollection services/*,
             Action<LogAnalyticsOptions> LogAnalytics*/)
     {
