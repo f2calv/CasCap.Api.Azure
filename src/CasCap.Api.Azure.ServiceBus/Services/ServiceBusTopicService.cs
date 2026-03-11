@@ -1,5 +1,6 @@
 ﻿namespace CasCap.Services;
 
+/// <inheritdoc/>
 public class ServiceBusTopicService : ServiceBusServiceBase, IServiceBusQueueService
 {
     private readonly string _topicName;

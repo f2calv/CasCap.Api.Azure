@@ -1,5 +1,6 @@
 ﻿namespace CasCap.Services;
 
+/// <inheritdoc/>
 public class Text2SpeechService : IText2SpeechService
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(Text2SpeechService));
@@ -24,6 +25,7 @@ public class Text2SpeechService : IText2SpeechService
         _speechConfig = SpeechConfig.FromEndpoint(endpoint, credential);
     }
 
+    /// <inheritdoc/>
     public async Task CreateWAV(string soundByte, string path)
     {
         using var fileOutput = AudioConfig.FromWavFileOutput(path);

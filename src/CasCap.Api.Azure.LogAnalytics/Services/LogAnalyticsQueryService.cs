@@ -1,12 +1,11 @@
 ﻿namespace CasCap.Services;
 
-//https://gist.github.com/alexeldeib/7bfa6e671904cd33aaaac5c3d3ff8e09
-//https://dev.applicationinsights.io/documentation/Authorization/AAD-Application-Setup
-//https://stackoverflow.com/questions/62898365/azure-app-insights-api-to-get-traces-using-query-in-c-sharp
-//https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-configure-app-access-web-apis#add-credentials-to-your-web-application
-//https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/
-//above all deprecated info...
-//https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet
+/// <inheritdoc/>
+/// <remarks>
+/// See <see href="https://gist.github.com/alexeldeib/7bfa6e671904cd33aaaac5c3d3ff8e09" />,
+/// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
+/// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
+/// </remarks>
 public class LogAnalyticsQueryService : ILogAnalyticsQueryService
 {
     private readonly ILogger _logger;
@@ -24,6 +23,7 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
         _client = new LogsQueryClient(credential);
     }
 
+    /// <summary>Queries the workspace for up to 50 results and writes them to the console.</summary>
     public async Task Query(QueryTimeRange timeRange)
     {
         //var query = "traces | where operation_Id contains '33f491236bb412419002b006e1c3058b'";
@@ -54,6 +54,7 @@ public class LogAnalyticsQueryService : ILogAnalyticsQueryService
     //    //}
     //}
 
+    /// <inheritdoc/>
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
