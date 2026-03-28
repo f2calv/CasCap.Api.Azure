@@ -9,6 +9,120 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 
 **Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at the same directory level.
 
+## Projects
+
+| Project | Description | README |
+|---------|-------------|--------|
+| **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
+| **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
+| **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |
+| **CasCap.Api.Azure.EventGrid** | Azure Event Grid messaging (placeholder) | [README](src/CasCap.Api.Azure.EventGrid/README.md) |
+| **CasCap.Api.Azure.EventHub** | Event Hub publisher/subscriber with MessagePack serialization | [README](src/CasCap.Api.Azure.EventHub/README.md) |
+| **CasCap.Api.Azure.LogAnalytics** | Log Analytics query service for Application Insights | [README](src/CasCap.Api.Azure.LogAnalytics/README.md) |
+| **CasCap.Api.Azure.ServiceBus** | Service Bus queue and topic send/receive operations | [README](src/CasCap.Api.Azure.ServiceBus/README.md) |
+| **CasCap.Api.Azure.Storage** | Blob, Queue, and Table storage base services | [README](src/CasCap.Api.Azure.Storage/README.md) |
+| **CasCap.Api.Azure.Storage.Tests** | xUnit integration tests for Storage (requires Azurite) | [README](src/CasCap.Api.Azure.Storage.Tests/README.md) |
+
+## Dependency Graph
+
+### NuGet Package Dependencies
+
+```mermaid
+graph TD
+    subgraph "CasCap.Common (external)"
+        Logging["CasCap.Common.Logging"]
+        Ext["CasCap.Common.Extensions"]
+        SerJson["CasCap.Common.Serialization.Json"]
+        SerMsgPack["CasCap.Common.Serialization.MessagePack"]
+        Testing["CasCap.Common.Testing"]
+    end
+
+    subgraph "CasCap.Api.Azure Libraries"
+        AI["AppInsights"]
+        CS["CognitiveServices"]
+        CR["ContainerRegistry"]
+        EG["EventGrid"]
+        EH["EventHub"]
+        LA["LogAnalytics"]
+        SB["ServiceBus"]
+        ST["Storage"]
+    end
+
+    Tests["Storage.Tests"]
+
+    AI --> Logging
+    AI --> Ext
+
+    CS --> Logging
+    CS --> Ext
+
+    CR --> Logging
+    CR --> Ext
+
+    EG --> Logging
+    EG --> Ext
+
+    EH --> Logging
+    EH --> Ext
+    EH --> SerMsgPack
+
+    LA --> Logging
+    LA --> Ext
+
+    SB --> Logging
+    SB --> Ext
+
+    ST --> Logging
+    ST --> Ext
+    ST --> SerJson
+
+    Tests --> ST
+    Tests --> Logging
+    Tests --> Testing
+```
+
+### Azure SDK Dependencies
+
+```mermaid
+graph LR
+    subgraph "Azure SDKs"
+        AzCore["Azure.Core"]
+        AzIdentity["Azure.Identity"]
+        AzBlobs["Azure.Storage.Blobs"]
+        AzQueues["Azure.Storage.Queues"]
+        AzTables["Azure.Data.Tables"]
+        AzEG["Azure.Messaging.EventGrid"]
+        AzEH["Azure.Messaging.EventHubs"]
+        AzEHP["Azure.Messaging.EventHubs.Processor"]
+        AzSB["Azure.Messaging.ServiceBus"]
+        AzMQ["Azure.Monitor.Query"]
+        AzACR["Azure.Containers.ContainerRegistry"]
+        CogSpeech["Microsoft.CognitiveServices.Speech"]
+    end
+
+    AI["AppInsights"]
+    CS["CognitiveServices"] --> CogSpeech
+    CR["ContainerRegistry"] --> AzACR
+    CR --> AzIdentity
+    EG["EventGrid"] --> AzEG
+    EH["EventHub"] --> AzEH
+    EH --> AzEHP
+    LA["LogAnalytics"] --> AzIdentity
+    LA --> AzMQ
+    SB["ServiceBus"] --> AzSB
+    ST["Storage"] --> AzCore
+    ST --> AzBlobs
+    ST --> AzQueues
+    ST --> AzTables
+```
+
+### Project Reference Graph
+
+```mermaid
+graph TD
+    Tests["Storage.Tests"] --> ST["Storage"]
+```
+
 ## Project Structure
 
 ```text
