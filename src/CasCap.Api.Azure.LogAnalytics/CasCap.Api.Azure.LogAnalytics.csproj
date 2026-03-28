@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Log Analytics.</Description>
-    <PackageTags>azure,log,analytics</PackageTags>
+    <Description>Helper library for Azure Monitor Log Analytics workspace queries and Application Insights exception retrieval.</Description>
+    <PackageTags>azure,log-analytics,azure-monitor,application-insights,query</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

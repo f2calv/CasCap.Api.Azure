@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Container Registry.</Description>
-    <PackageTags>azure,container,registry</PackageTags>
+    <Description>Helper library for Azure Container Registry repository and manifest operations.</Description>
+    <PackageTags>azure,container-registry,acr,docker,containers</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

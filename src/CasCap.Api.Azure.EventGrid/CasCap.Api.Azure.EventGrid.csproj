@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure EventGrid.</Description>
-    <PackageTags>azure,eventgrid</PackageTags>
+    <Description>Helper library for Azure Event Grid messaging.</Description>
+    <PackageTags>azure,event-grid,eventgrid,messaging,events</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
