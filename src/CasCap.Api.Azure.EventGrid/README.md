@@ -17,7 +17,7 @@ None.
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `Azure.Messaging.EventGrid` | Azure Event Grid client library |
 | `CasCap.Common.Logging` | Shared logging infrastructure |
 | `CasCap.Common.Extensions` | Common extension methods |

@@ -7,7 +7,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Classes
 
 | Class | Description |
-|-------|-------------|
+| ----- | ----------- |
 | `TestBase` | Abstract base configuring DI, logging, and Azurite connection string from `appsettings.Test.json`. |
 | `AzBlobStorageTests` | Integration tests for `AzBlobStorageBase` (container creation, upload, download, list, delete). |
 | `AzQueueStorageTests` | Integration tests for `AzQueueStorageBase` (enqueue, dequeue single/many). |
@@ -15,7 +15,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Services
 
 | Class | Description |
-|-------|-------------|
+| ----- | ----------- |
 | `AzBlobService` | Concrete `AzBlobStorageBase` implementation for test blob operations. |
 | `AzQueueService` | Concrete `AzQueueStorageBase` implementation for test queue operations. |
 | `TestMessage` | Simple DTO with `Id`, `Dt`, and `TestString` used as a queue message payload. |
@@ -23,7 +23,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Interfaces
 
 | Interface | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | `IAzBlobService` | Test-specific blob storage abstraction extending `IAzBlobStorageBase`. |
 | `IAzQueueService` | Test-specific queue storage abstraction extending `IAzQueueStorageBase`. |
 
@@ -32,7 +32,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `Microsoft.NET.Test.Sdk` | .NET test SDK infrastructure |
 | `xunit` | xUnit testing framework |
 | `xunit.runner.visualstudio` | xUnit Visual Studio test runner |
@@ -46,5 +46,5 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ### Project References
 
 | Project | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `CasCap.Api.Azure.Storage` | The library under test |

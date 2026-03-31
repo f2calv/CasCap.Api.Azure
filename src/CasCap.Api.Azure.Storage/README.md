@@ -5,7 +5,7 @@ Helper library for Azure Storage Services. Provides abstract base service classe
 ## Services / Extensions
 
 | Type | Name | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 | Interface | `IAzBlobStorageBase` | Contract for Azure Blob Storage container operations (upload, download, list, delete). |
 | Interface | `IAzQueueStorageBase` | Contract for Azure Queue Storage operations (enqueue, dequeue). |
 | Interface | `IAzTableStorageBase` | Contract for Azure Table Storage CRUD operations with batch support. |
@@ -48,7 +48,7 @@ No configuration model. Services are constructed directly with connection string
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `Azure.Core` | Azure SDK core library |
 | `Azure.Storage.Blobs` | Azure Blob Storage client library |
 | `Azure.Storage.Queues` | Azure Queue Storage client library |

@@ -5,13 +5,13 @@ Helper library for Azure Application Insights. Provides configuration binding an
 ## Services / Extensions
 
 | Type | Name | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 | Extension | `AddCasCapAppInsightsServices` | Registers `AppInsightsConfig` options from the `CasCap:AppInsightsConfig` configuration section. |
 
 ## Configuration
 
 | Class | Section | Properties |
-|-------|---------|------------|
+| ----- | ------- | ---------- |
 | `AppInsightsConfig` | `CasCap:AppInsightsConfig` | `InstrumentationKey` (required) |
 
 ## Dependencies
@@ -19,7 +19,7 @@ Helper library for Azure Application Insights. Provides configuration binding an
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `CasCap.Common.Logging` | Shared logging infrastructure |
 | `CasCap.Common.Extensions` | Common extension methods |
 

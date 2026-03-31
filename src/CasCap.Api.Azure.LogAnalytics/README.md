@@ -5,7 +5,7 @@ Helper library for Azure Log Analytics. Provides a query service for retrieving 
 ## Services / Extensions
 
 | Type | Name | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 | Interface | `IQueryService` | Abstraction for querying Azure Monitor / Application Insights via Log Analytics. |
 | Service | `QueryService` | Implements `IQueryService` using `LogsQueryClient`. Authenticates via `TokenCredential`. |
 | Extension | `AddCasCapLogAnalyticsServices` | Registers `LogAnalyticsConfig` options and `IQueryService` / `QueryService` with the DI container. |
@@ -19,7 +19,7 @@ Helper library for Azure Log Analytics. Provides a query service for retrieving 
 ## Configuration
 
 | Class | Section | Properties |
-|-------|---------|------------|
+| ----- | ------- | ---------- |
 | `LogAnalyticsConfig` | `CasCap:LogAnalyticsConfig` | `WorkspaceId` (required) |
 
 ## Dependencies
@@ -27,7 +27,7 @@ Helper library for Azure Log Analytics. Provides a query service for retrieving 
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `Azure.Identity` | Azure identity and credential providers |
 | `Azure.Monitor.Query` | Azure Monitor Log Analytics query client |
 | `CasCap.Common.Logging` | Shared logging infrastructure |

@@ -5,7 +5,7 @@ Helper library for Azure Event Hub. Provides generic publisher and subscriber ba
 ## Services / Extensions
 
 | Type | Name | Description |
-|------|------|-------------|
+| ---- | ---- | ----------- |
 | Interface | `IEvent` | Marker interface for Event Hub event objects. |
 | Interface | `IPublisherService<T>` | Abstraction for publishing messages to an Event Hub. |
 | Interface | `ISubscriberService<T>` | Abstraction for receiving and processing messages from an Event Hub. |
@@ -32,7 +32,7 @@ No configuration model. Services are constructed directly with connection string
 ### NuGet Packages
 
 | Package | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `Azure.Messaging.EventHubs` | Azure Event Hubs client library |
 | `Azure.Messaging.EventHubs.Processor` | Event Hubs processor with checkpoint support |
 | `CasCap.Common.Logging` | Shared logging infrastructure |

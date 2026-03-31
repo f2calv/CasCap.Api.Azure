@@ -12,7 +12,7 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 ## Projects
 
 | Project | Description | README |
-|---------|-------------|--------|
+| ------- | ----------- | ------ |
 | **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
 | **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
 | **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |
