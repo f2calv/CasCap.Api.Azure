@@ -1,6 +1,34 @@
 # CasCap.Api.Azure
 
+[cascap.api.azure.appinsights-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.AppInsights?color=blue
+[cascap.api.azure.appinsights-url]: https://nuget.org/packages/CasCap.Api.Azure.AppInsights
+[cascap.api.azure.cognitiveservices-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices?color=blue
+[cascap.api.azure.cognitiveservices-url]: https://nuget.org/packages/CasCap.Api.Azure.CognitiveServices
+[cascap.api.azure.containerregistry-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry?color=blue
+[cascap.api.azure.containerregistry-url]: https://nuget.org/packages/CasCap.Api.Azure.ContainerRegistry
+[cascap.api.azure.eventgrid-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid?color=blue
+[cascap.api.azure.eventgrid-url]: https://nuget.org/packages/CasCap.Api.Azure.EventGrid
+[cascap.api.azure.eventhub-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventHub?color=blue
+[cascap.api.azure.eventhub-url]: https://nuget.org/packages/CasCap.Api.Azure.EventHub
+[cascap.api.azure.loganalytics-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.LogAnalytics?color=blue
+[cascap.api.azure.loganalytics-url]: https://nuget.org/packages/CasCap.Api.Azure.LogAnalytics
+[cascap.api.azure.servicebus-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ServiceBus?color=blue
+[cascap.api.azure.servicebus-url]: https://nuget.org/packages/CasCap.Api.Azure.ServiceBus
+[cascap.api.azure.storage-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage?color=blue
+[cascap.api.azure.storage-url]: https://nuget.org/packages/CasCap.Api.Azure.Storage
+
 A collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 9 projects (8 libraries + 1 test project) targeting net8.0, net9.0, and net10.0.
+
+| Library | Package |
+| --- | --- |
+| CasCap.Api.Azure.AppInsights | [![Nuget][cascap.api.azure.appinsights-badge]][cascap.api.azure.appinsights-url] |
+| CasCap.Api.Azure.CognitiveServices | [![Nuget][cascap.api.azure.cognitiveservices-badge]][cascap.api.azure.cognitiveservices-url] |
+| CasCap.Api.Azure.ContainerRegistry | [![Nuget][cascap.api.azure.containerregistry-badge]][cascap.api.azure.containerregistry-url] |
+| CasCap.Api.Azure.EventGrid | [![Nuget][cascap.api.azure.eventgrid-badge]][cascap.api.azure.eventgrid-url] |
+| CasCap.Api.Azure.EventHub | [![Nuget][cascap.api.azure.eventhub-badge]][cascap.api.azure.eventhub-url] |
+| CasCap.Api.Azure.LogAnalytics | [![Nuget][cascap.api.azure.loganalytics-badge]][cascap.api.azure.loganalytics-url] |
+| CasCap.Api.Azure.ServiceBus | [![Nuget][cascap.api.azure.servicebus-badge]][cascap.api.azure.servicebus-url] |
+| CasCap.Api.Azure.Storage | [![Nuget][cascap.api.azure.storage-badge]][cascap.api.azure.storage-url] |
 
 **Solution Files:**
 
@@ -12,7 +40,7 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 ## Projects
 
 | Project | Description | README |
-| ------- | ----------- | ------ |
+| --- | --- | --- |
 | **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
 | **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
 | **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |

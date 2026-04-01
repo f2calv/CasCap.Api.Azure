@@ -5,7 +5,7 @@ Helper library for Azure Cognitive Services. Provides text-to-speech synthesis a
 ## Services / Extensions
 
 | Type | Name | Description |
-| ---- | ---- | ----------- |
+| --- | --- | --- |
 | Interface | `ISpeechService` | Abstraction for speech synthesis (TTS) and speech recognition (STT). |
 | Service | `SpeechService` | Implements `ISpeechService` using `Microsoft.CognitiveServices.Speech`. Supports subscription key and `TokenCredential` authentication. |
 
@@ -18,18 +18,18 @@ Helper library for Azure Cognitive Services. Provides text-to-speech synthesis a
 ## Configuration
 
 | Class | Section | Properties |
-| ----- | ------- | ---------- |
+| --- | --- | --- |
 | `CognitiveServicesConfig` | `CasCap:CognitiveServicesConfig` | `SubscriptionKey` (required) |
 
 ## Dependencies
 
 ### NuGet Packages
 
-| Package | Description |
-| ------- | ----------- |
-| `Microsoft.CognitiveServices.Speech` | Azure Cognitive Services Speech SDK |
-| `CasCap.Common.Logging` | Shared logging infrastructure |
-| `CasCap.Common.Extensions` | Common extension methods |
+| Package |
+| --- |
+| [Microsoft.CognitiveServices.Speech](https://www.nuget.org/packages/microsoft.cognitiveservices.speech) |
+| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
 
 ### Project References
 

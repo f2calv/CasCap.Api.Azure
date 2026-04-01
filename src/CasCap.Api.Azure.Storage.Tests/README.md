@@ -7,7 +7,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Classes
 
 | Class | Description |
-| ----- | ----------- |
+| --- | --- |
 | `TestBase` | Abstract base configuring DI, logging, and Azurite connection string from `appsettings.Test.json`. |
 | `AzBlobStorageTests` | Integration tests for `AzBlobStorageBase` (container creation, upload, download, list, delete). |
 | `AzQueueStorageTests` | Integration tests for `AzQueueStorageBase` (enqueue, dequeue single/many). |
@@ -15,7 +15,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Services
 
 | Class | Description |
-| ----- | ----------- |
+| --- | --- |
 | `AzBlobService` | Concrete `AzBlobStorageBase` implementation for test blob operations. |
 | `AzQueueService` | Concrete `AzQueueStorageBase` implementation for test queue operations. |
 | `TestMessage` | Simple DTO with `Id`, `Dt`, and `TestString` used as a queue message payload. |
@@ -23,7 +23,7 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 ## Test Interfaces
 
 | Interface | Description |
-| --------- | ----------- |
+| --- | --- |
 | `IAzBlobService` | Test-specific blob storage abstraction extending `IAzBlobStorageBase`. |
 | `IAzQueueService` | Test-specific queue storage abstraction extending `IAzQueueStorageBase`. |
 
@@ -31,20 +31,20 @@ xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover 
 
 ### NuGet Packages
 
-| Package | Description |
-| ------- | ----------- |
-| `Microsoft.NET.Test.Sdk` | .NET test SDK infrastructure |
-| `xunit` | xUnit testing framework |
-| `xunit.runner.visualstudio` | xUnit Visual Studio test runner |
-| `coverlet.collector` | Code coverage collector |
-| `coverlet.msbuild` | Code coverage MSBuild integration |
-| `Serilog.Sinks.XUnit` | Serilog sink for xUnit test output |
-| `Microsoft.Extensions.Configuration.Json` | JSON configuration file provider |
-| `CasCap.Common.Logging` | Shared logging infrastructure |
-| `CasCap.Common.Testing` | Shared test utilities |
+| Package |
+| --- |
+| [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/microsoft.net.test.sdk) |
+| [xunit](https://www.nuget.org/packages/xunit) |
+| [xunit.runner.visualstudio](https://www.nuget.org/packages/xunit.runner.visualstudio) |
+| [coverlet.collector](https://www.nuget.org/packages/coverlet.collector) |
+| [coverlet.msbuild](https://www.nuget.org/packages/coverlet.msbuild) |
+| [Serilog.Sinks.XUnit](https://www.nuget.org/packages/serilog.sinks.xunit) |
+| [Microsoft.Extensions.Configuration.Json](https://www.nuget.org/packages/microsoft.extensions.configuration.json) |
+| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+| [CasCap.Common.Testing](https://www.nuget.org/packages/cascap.common.testing) |
 
 ### Project References
 
 | Project | Description |
-| ------- | ----------- |
+| --- | --- |
 | `CasCap.Api.Azure.Storage` | The library under test |

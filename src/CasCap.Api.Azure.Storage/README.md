@@ -5,7 +5,7 @@ Helper library for Azure Storage Services. Provides abstract base service classe
 ## Services / Extensions
 
 | Type | Name | Description |
-| ---- | ---- | ----------- |
+| --- | --- | --- |
 | Interface | `IAzBlobStorageBase` | Contract for Azure Blob Storage container operations (upload, download, list, delete). |
 | Interface | `IAzQueueStorageBase` | Contract for Azure Queue Storage operations (enqueue, dequeue). |
 | Interface | `IAzTableStorageBase` | Contract for Azure Table Storage CRUD operations with batch support. |
@@ -47,16 +47,16 @@ No configuration model. Services are constructed directly with connection string
 
 ### NuGet Packages
 
-| Package | Description |
-| ------- | ----------- |
-| `Azure.Core` | Azure SDK core library |
-| `Azure.Storage.Blobs` | Azure Blob Storage client library |
-| `Azure.Storage.Queues` | Azure Queue Storage client library |
-| `Azure.Data.Tables` | Azure Table Storage client library |
-| `System.Linq.Async` | Async LINQ operators (net8.0 and net9.0 only) |
-| `CasCap.Common.Logging` | Shared logging infrastructure |
-| `CasCap.Common.Extensions` | Common extension methods |
-| `CasCap.Common.Serialization.Json` | JSON serialization helpers |
+| Package |
+| --- |
+| [Azure.Core](https://www.nuget.org/packages/azure.core) |
+| [Azure.Storage.Blobs](https://www.nuget.org/packages/azure.storage.blobs) |
+| [Azure.Storage.Queues](https://www.nuget.org/packages/azure.storage.queues) |
+| [Azure.Data.Tables](https://www.nuget.org/packages/azure.data.tables) |
+| [System.Linq.Async](https://www.nuget.org/packages/system.linq.async) |
+| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
+| [CasCap.Common.Serialization.Json](https://www.nuget.org/packages/cascap.common.serialization.json) |
 
 ### Project References
 

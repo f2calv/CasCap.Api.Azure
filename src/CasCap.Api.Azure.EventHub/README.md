@@ -5,7 +5,7 @@ Helper library for Azure Event Hub. Provides generic publisher and subscriber ba
 ## Services / Extensions
 
 | Type | Name | Description |
-| ---- | ---- | ----------- |
+| --- | --- | --- |
 | Interface | `IEvent` | Marker interface for Event Hub event objects. |
 | Interface | `IPublisherService<T>` | Abstraction for publishing messages to an Event Hub. |
 | Interface | `ISubscriberService<T>` | Abstraction for receiving and processing messages from an Event Hub. |
@@ -31,13 +31,13 @@ No configuration model. Services are constructed directly with connection string
 
 ### NuGet Packages
 
-| Package | Description |
-| ------- | ----------- |
-| `Azure.Messaging.EventHubs` | Azure Event Hubs client library |
-| `Azure.Messaging.EventHubs.Processor` | Event Hubs processor with checkpoint support |
-| `CasCap.Common.Logging` | Shared logging infrastructure |
-| `CasCap.Common.Extensions` | Common extension methods |
-| `CasCap.Common.Serialization.MessagePack` | MessagePack serialization helpers |
+| Package |
+| --- |
+| [Azure.Messaging.EventHubs](https://www.nuget.org/packages/azure.messaging.eventhubs) |
+| [Azure.Messaging.EventHubs.Processor](https://www.nuget.org/packages/azure.messaging.eventhubs.processor) |
+| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
+| [CasCap.Common.Serialization.MessagePack](https://www.nuget.org/packages/cascap.common.serialization.messagepack) |
 
 ### Project References
 

@@ -16,11 +16,11 @@ None.
 
 ### NuGet Packages
 
-| Package | Description |
-| ------- | ----------- |
-| `Azure.Messaging.EventGrid` | Azure Event Grid client library |
-| `CasCap.Common.Logging` | Shared logging infrastructure |
-| `CasCap.Common.Extensions` | Common extension methods |
+| Package |
+| --- |
+| [Azure.Messaging.EventGrid](https://www.nuget.org/packages/azure.messaging.eventgrid) |
+| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
 
 ### Project References
 
