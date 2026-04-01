@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Storage Services.</Description>
-    <PackageTags>azure,service,bus</PackageTags>
+    <Description>Helper library for Azure Blob, Queue, and Table storage operations.</Description>
+    <PackageTags>azure,storage,blob-storage,queue-storage,table-storage</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

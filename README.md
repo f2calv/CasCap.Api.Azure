@@ -1,6 +1,34 @@
 # CasCap.Api.Azure
 
+[cascap.api.azure.appinsights-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.AppInsights?color=blue
+[cascap.api.azure.appinsights-url]: https://nuget.org/packages/CasCap.Api.Azure.AppInsights
+[cascap.api.azure.cognitiveservices-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices?color=blue
+[cascap.api.azure.cognitiveservices-url]: https://nuget.org/packages/CasCap.Api.Azure.CognitiveServices
+[cascap.api.azure.containerregistry-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry?color=blue
+[cascap.api.azure.containerregistry-url]: https://nuget.org/packages/CasCap.Api.Azure.ContainerRegistry
+[cascap.api.azure.eventgrid-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid?color=blue
+[cascap.api.azure.eventgrid-url]: https://nuget.org/packages/CasCap.Api.Azure.EventGrid
+[cascap.api.azure.eventhub-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventHub?color=blue
+[cascap.api.azure.eventhub-url]: https://nuget.org/packages/CasCap.Api.Azure.EventHub
+[cascap.api.azure.loganalytics-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.LogAnalytics?color=blue
+[cascap.api.azure.loganalytics-url]: https://nuget.org/packages/CasCap.Api.Azure.LogAnalytics
+[cascap.api.azure.servicebus-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ServiceBus?color=blue
+[cascap.api.azure.servicebus-url]: https://nuget.org/packages/CasCap.Api.Azure.ServiceBus
+[cascap.api.azure.storage-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage?color=blue
+[cascap.api.azure.storage-url]: https://nuget.org/packages/CasCap.Api.Azure.Storage
+
 A collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 9 projects (8 libraries + 1 test project) targeting net8.0, net9.0, and net10.0.
+
+| Library | Package |
+| --- | --- |
+| CasCap.Api.Azure.AppInsights | [![Nuget][cascap.api.azure.appinsights-badge]][cascap.api.azure.appinsights-url] |
+| CasCap.Api.Azure.CognitiveServices | [![Nuget][cascap.api.azure.cognitiveservices-badge]][cascap.api.azure.cognitiveservices-url] |
+| CasCap.Api.Azure.ContainerRegistry | [![Nuget][cascap.api.azure.containerregistry-badge]][cascap.api.azure.containerregistry-url] |
+| CasCap.Api.Azure.EventGrid | [![Nuget][cascap.api.azure.eventgrid-badge]][cascap.api.azure.eventgrid-url] |
+| CasCap.Api.Azure.EventHub | [![Nuget][cascap.api.azure.eventhub-badge]][cascap.api.azure.eventhub-url] |
+| CasCap.Api.Azure.LogAnalytics | [![Nuget][cascap.api.azure.loganalytics-badge]][cascap.api.azure.loganalytics-url] |
+| CasCap.Api.Azure.ServiceBus | [![Nuget][cascap.api.azure.servicebus-badge]][cascap.api.azure.servicebus-url] |
+| CasCap.Api.Azure.Storage | [![Nuget][cascap.api.azure.storage-badge]][cascap.api.azure.storage-url] |
 
 **Solution Files:**
 
@@ -8,6 +36,120 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 - `CasCap.Api.Azure.Debug.slnx` (development, references local CasCap.Common repo)
 
 **Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at the same directory level.
+
+## Projects
+
+| Project | Description | README |
+| --- | --- | --- |
+| **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
+| **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
+| **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |
+| **CasCap.Api.Azure.EventGrid** | Azure Event Grid messaging (placeholder) | [README](src/CasCap.Api.Azure.EventGrid/README.md) |
+| **CasCap.Api.Azure.EventHub** | Event Hub publisher/subscriber with MessagePack serialization | [README](src/CasCap.Api.Azure.EventHub/README.md) |
+| **CasCap.Api.Azure.LogAnalytics** | Log Analytics query service for Application Insights | [README](src/CasCap.Api.Azure.LogAnalytics/README.md) |
+| **CasCap.Api.Azure.ServiceBus** | Service Bus queue and topic send/receive operations | [README](src/CasCap.Api.Azure.ServiceBus/README.md) |
+| **CasCap.Api.Azure.Storage** | Blob, Queue, and Table storage base services | [README](src/CasCap.Api.Azure.Storage/README.md) |
+| **CasCap.Api.Azure.Storage.Tests** | xUnit integration tests for Storage (requires Azurite) | [README](src/CasCap.Api.Azure.Storage.Tests/README.md) |
+
+## Dependency Graph
+
+### NuGet Package Dependencies
+
+```mermaid
+graph TD
+    subgraph "CasCap.Common (external)"
+        Logging["CasCap.Common.Logging"]
+        Ext["CasCap.Common.Extensions"]
+        SerJson["CasCap.Common.Serialization.Json"]
+        SerMsgPack["CasCap.Common.Serialization.MessagePack"]
+        Testing["CasCap.Common.Testing"]
+    end
+
+    subgraph "CasCap.Api.Azure Libraries"
+        AI["AppInsights"]
+        CS["CognitiveServices"]
+        CR["ContainerRegistry"]
+        EG["EventGrid"]
+        EH["EventHub"]
+        LA["LogAnalytics"]
+        SB["ServiceBus"]
+        ST["Storage"]
+    end
+
+    Tests["Storage.Tests"]
+
+    AI --> Logging
+    AI --> Ext
+
+    CS --> Logging
+    CS --> Ext
+
+    CR --> Logging
+    CR --> Ext
+
+    EG --> Logging
+    EG --> Ext
+
+    EH --> Logging
+    EH --> Ext
+    EH --> SerMsgPack
+
+    LA --> Logging
+    LA --> Ext
+
+    SB --> Logging
+    SB --> Ext
+
+    ST --> Logging
+    ST --> Ext
+    ST --> SerJson
+
+    Tests --> ST
+    Tests --> Logging
+    Tests --> Testing
+```
+
+### Azure SDK Dependencies
+
+```mermaid
+graph LR
+    subgraph "Azure SDKs"
+        AzCore["Azure.Core"]
+        AzIdentity["Azure.Identity"]
+        AzBlobs["Azure.Storage.Blobs"]
+        AzQueues["Azure.Storage.Queues"]
+        AzTables["Azure.Data.Tables"]
+        AzEG["Azure.Messaging.EventGrid"]
+        AzEH["Azure.Messaging.EventHubs"]
+        AzEHP["Azure.Messaging.EventHubs.Processor"]
+        AzSB["Azure.Messaging.ServiceBus"]
+        AzMQ["Azure.Monitor.Query"]
+        AzACR["Azure.Containers.ContainerRegistry"]
+        CogSpeech["Microsoft.CognitiveServices.Speech"]
+    end
+
+    AI["AppInsights"]
+    CS["CognitiveServices"] --> CogSpeech
+    CR["ContainerRegistry"] --> AzACR
+    CR --> AzIdentity
+    EG["EventGrid"] --> AzEG
+    EH["EventHub"] --> AzEH
+    EH --> AzEHP
+    LA["LogAnalytics"] --> AzIdentity
+    LA --> AzMQ
+    SB["ServiceBus"] --> AzSB
+    ST["Storage"] --> AzCore
+    ST --> AzBlobs
+    ST --> AzQueues
+    ST --> AzTables
+```
+
+### Project Reference Graph
+
+```mermaid
+graph TD
+    Tests["Storage.Tests"] --> ST["Storage"]
+```
 
 ## Project Structure
 

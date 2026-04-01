@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Application Insights.</Description>
-    <PackageTags>azure,application,insights</PackageTags>
+    <Description>Helper library for Azure Application Insights configuration binding and dependency injection registration.</Description>
+    <PackageTags>azure,application-insights,app-insights,telemetry,configuration</PackageTags>
   </PropertyGroup>
 
   <Choose>

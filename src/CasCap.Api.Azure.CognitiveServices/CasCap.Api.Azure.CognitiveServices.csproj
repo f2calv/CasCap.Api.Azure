@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Cognitive Services.</Description>
-    <PackageTags>azure,cognitive,services</PackageTags>
+    <Description>Helper library for Azure Cognitive Services speech synthesis (TTS) and speech recognition (STT).</Description>
+    <PackageTags>azure,cognitive-services,speech,text-to-speech,speech-to-text</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

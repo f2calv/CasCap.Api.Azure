@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Service Bus.</Description>
-    <PackageTags>azure,service,bus</PackageTags>
+    <Description>Helper library for Azure Service Bus queue and topic send/receive operations.</Description>
+    <PackageTags>azure,service-bus,servicebus,messaging,queues,topics</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

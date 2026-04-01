@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Helper library for Azure Event Hub.</Description>
-    <PackageTags>azure,event,hub</PackageTags>
+    <Description>Helper library for Azure Event Hub publish/subscribe streaming with MessagePack serialization.</Description>
+    <PackageTags>azure,event-hub,eventhub,streaming,messaging</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
