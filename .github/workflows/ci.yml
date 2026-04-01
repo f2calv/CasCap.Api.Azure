@@ -12,10 +12,9 @@ on:
           - Release
           - Debug
       push-preview:
-        type: string
-        description: Push preview branch?
-        required: true
-        default: "false"
+        type: boolean
+        description: Push a pre-release NuGet package from a non-default branch?
+        default: false
   push:
     branches-ignore:
       - "preview/**"
