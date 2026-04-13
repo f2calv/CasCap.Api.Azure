@@ -23,6 +23,78 @@ Helper library for Azure Event Hub. Provides generic publisher and subscriber ba
 
 - `InitiateReceive(CancellationToken)` — Begins processing events until cancellation.
 
+## Class Hierarchy
+
+Publisher/Subscriber pattern for Event Hub streaming:
+
+```mermaid
+classDiagram
+    direction TB
+    
+    IPublisherService~T~ <|.. PublisherService~T~
+    ISubscriberService~T~ <|.. SubscriberService~T~
+    
+    PublisherService~T~ <|-- YourPublisher
+    SubscriberService~T~ <|-- YourSubscriber
+    
+    class IEvent {
+        <<interface>>
+    }
+    
+    class IPublisherService~T~ {
+        <<interface>>
+        +Push(obj) Task
+        +Push(objs) Task
+        +Push(bytes) Task
+    }
+    
+    class PublisherService~T~ {
+        <<abstract>>
+        #EventHubProducerClient Client
+        #ILogger Logger
+        +Push(obj) Task
+        +Push(objs) Task
+        +Push(bytes) Task
+        +SendTestMessages(count) Task
+    }
+    
+    class ISubscriberService~T~ {
+        <<interface>>
+        +InitiateReceive(token) Task
+    }
+    
+    class SubscriberService~T~ {
+        <<abstract>>
+        #EventProcessorClient Client
+        #ILogger Logger
+        +InitiateReceive(token) Task
+        #ProcessEventHandler(args) Task
+        #ProcessErrorHandler(args) Task
+    }
+    
+    class YourPublisher {
+        +PublishDomainEvent(event) Task
+    }
+    
+    class YourSubscriber {
+        +ProcessDomainEvent(event) Task
+    }
+    
+    T --|> IEvent : implements
+    PublisherService~T~ ..> EventHubProducerClient : uses
+    SubscriberService~T~ ..> EventProcessorClient : uses
+    PublisherService~T~ ..> MessagePack : serializes
+    SubscriberService~T~ ..> MessagePack : deserializes
+```
+
+**Usage Pattern:**
+
+1. Define event types implementing `IEvent`
+2. Inherit from `PublisherService<T>` for sending
+3. Inherit from `SubscriberService<T>` for receiving
+4. Override `ProcessEventHandler` for custom event processing
+5. MessagePack handles serialization automatically
+
 ## Configuration
 
 No configuration model. Services are constructed directly with connection strings or `TokenCredential`.

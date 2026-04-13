@@ -39,6 +39,103 @@ Helper library for Azure Storage Services. Provides abstract base service classe
 - `DeleteData<T>(TableClient, List<T>, CancellationToken)` — Batch delete entities.
 - `GetEntities<T>(TableClient, ...)` — Queries entities with optional filtering and paging.
 
+## Class Hierarchy
+
+Abstract base classes for Azure Storage services:
+
+```mermaid
+classDiagram
+    direction TB
+    
+    IAzBlobStorageBase <|.. AzBlobStorageBase
+    IAzQueueStorageBase <|.. AzQueueStorageBase
+    IAzTableStorageBase <|.. AzTableStorageBase
+    
+    AzBlobStorageBase <|-- YourBlobService
+    AzQueueStorageBase <|-- YourQueueService
+    AzTableStorageBase <|-- YourTableService
+    
+    class IAzBlobStorageBase {
+        <<interface>>
+        +CreateContainerIfNotExists() Task
+        +DownloadBlobAsync(name) Task~byte[]~
+        +ListContainerBlobs(prefix) IAsyncEnumerable~BlobItem~
+        +DeleteBlob(name) Task
+    }
+    
+    class AzBlobStorageBase {
+        <<abstract>>
+        #BlobServiceClient Client
+        #ILogger Logger
+        +CreateContainerIfNotExists() Task
+        +DownloadBlobAsync(name) Task~byte[]~
+        +UploadBlob(name, data) Task
+        +PageBlobTest(path) Task
+    }
+    
+    class IAzQueueStorageBase {
+        <<interface>>
+        +Enqueue~T~(obj) Task
+        +DequeueSingle~T~() Task~T~
+        +DequeueMany~T~(limit) Task~List~T~~
+    }
+    
+    class AzQueueStorageBase {
+        <<abstract>>
+        #QueueServiceClient Client
+        #ILogger Logger
+        +Enqueue~T~(obj) Task
+        +Enqueue~T~(objs) Task
+        +DequeueSingle~T~() Task~T~
+        +DequeueMany~T~(limit) Task~List~T~~
+    }
+    
+    class IAzTableStorageBase {
+        <<interface>>
+        +GetTables() AsyncPageable~TableItem~
+        +UpsertEntity~T~(table, entity) Task
+        +GetEntities~T~(table) AsyncPageable~T~
+    }
+    
+    class AzTableStorageBase {
+        <<abstract>>
+        #TableServiceClient Client
+        #ILogger Logger
+        +event BatchCompletedEvent
+        +GetTables() AsyncPageable~TableItem~
+        +UploadData~T~(client, entities, parallel) Task
+        +UpsertEntity~T~(table, entity) Task
+        +DeleteData~T~(client, entities) Task
+        +GetEntities~T~(client, filter) AsyncPageable~T~
+    }
+    
+    class YourBlobService {
+        +UploadImage(bytes) Task
+        +GetImage(id) Task~byte[]~
+    }
+    
+    class YourQueueService {
+        +EnqueueMessage(msg) Task
+        +ProcessMessages() Task
+    }
+    
+    class YourTableService {
+        +SaveEntity(entity) Task
+        +QueryEntities(filter) Task~List~
+    }
+    
+    AzBlobStorageBase ..> BlobServiceClient : uses
+    AzQueueStorageBase ..> QueueServiceClient : uses
+    AzTableStorageBase ..> TableServiceClient : uses
+```
+
+**Usage Pattern:**
+
+1. Inherit from appropriate abstract base class
+2. Pass connection string or `TokenCredential` to base constructor
+3. Use protected `Client` and `Logger` fields
+4. Call base methods or add domain-specific operations
+
 ## Configuration
 
 No configuration model. Services are constructed directly with connection strings or `TokenCredential`.

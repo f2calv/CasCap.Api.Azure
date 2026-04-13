@@ -24,6 +24,76 @@ Helper library for Azure Service Bus. Provides base service classes for queue an
 - `SendMessageBatchToTopicAsync(Queue<ServiceBusMessage>, CancellationToken)` — Sends a batch of messages.
 - `ReceiveFromSubscriptionAsync(CancellationToken)` — Receives and processes messages from a subscription.
 
+## Class Hierarchy
+
+Queue and Topic service abstraction for Azure Service Bus:
+
+```mermaid
+classDiagram
+    direction TB
+    
+    ServiceBase <|-- QueueService
+    ServiceBase <|-- TopicService
+    IQueueService <|.. QueueService
+    ITopicService <|.. TopicService
+    
+    class ServiceBase {
+        <<abstract>>
+        #ILogger Logger
+        +event MessageReceivedEvent
+        +event ErrorReceivedEvent
+        #OnMessageReceived(args) void
+        #OnErrorReceived(args) void
+    }
+    
+    class IQueueService {
+        <<interface>>
+        +SendMessageAsync(message) Task
+        +SendMessageBatchAsync(messages, token) Task
+        +ReceiveMessagesAsync(token) Task
+    }
+    
+    class QueueService {
+        -ServiceBusClient Client
+        -ServiceBusSender Sender
+        -ServiceBusProcessor Processor
+        +SendMessageAsync(message) Task
+        +SendMessageBatchAsync(messages, token) Task
+        +ReceiveMessagesAsync(token) Task
+    }
+    
+    class ITopicService {
+        <<interface>>
+        +SendMessageToTopicAsync(message, token) Task
+        +SendMessageBatchToTopicAsync(messages, token) Task
+        +ReceiveFromSubscriptionAsync(token) Task
+    }
+    
+    class TopicService {
+        -ServiceBusClient Client
+        -ServiceBusSender Sender
+        -ServiceBusProcessor Processor
+        +SendMessageToTopicAsync(message, token) Task
+        +SendMessageBatchToTopicAsync(messages, token) Task
+        +ReceiveFromSubscriptionAsync(token) Task
+    }
+    
+    QueueService ..> ServiceBusClient : uses
+    TopicService ..> ServiceBusClient : uses
+    QueueService ..> ServiceBusSender : uses
+    TopicService ..> ServiceBusSender : uses
+    QueueService ..> ServiceBusProcessor : uses
+    TopicService ..> ServiceBusProcessor : uses
+```
+
+**Usage Pattern:**
+
+1. Instantiate `QueueService` for queue operations or `TopicService` for topic/subscription operations
+2. Subscribe to `MessageReceivedEvent` for incoming messages
+3. Subscribe to `ErrorReceivedEvent` for error handling
+4. Use `SendMessageAsync` / `SendMessageBatchAsync` for sending
+5. Use `ReceiveMessagesAsync` / `ReceiveFromSubscriptionAsync` to start listening
+
 ## Configuration
 
 No configuration model. Services are constructed directly with connection strings or `TokenCredential`.
