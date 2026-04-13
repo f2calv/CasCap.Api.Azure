@@ -42,7 +42,7 @@ public record AzureAuthConfig : IAppConfig, IAzureAuthConfig
     {
         get
         {
-            tokenCredential ??= TokenCredentialFactory.CreateTokenCredential(this);
+            tokenCredential ??= TokenCredentialExtensions.CreateTokenCredential(this);
             return tokenCredential;
         }
     }

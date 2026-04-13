@@ -4,7 +4,7 @@ namespace CasCap;
 /// Factory methods for creating Azure <see cref="TokenCredential"/> instances
 /// from <see cref="IAzureAuthConfig"/> properties.
 /// </summary>
-public static class TokenCredentialFactory
+public static class TokenCredentialExtensions
 {
     /// <summary>
     /// Checks whether the current pod is using Azure workload identity

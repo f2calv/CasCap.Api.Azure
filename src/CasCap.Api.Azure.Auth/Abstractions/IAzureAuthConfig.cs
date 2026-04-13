@@ -18,7 +18,7 @@ public interface IAzureAuthConfig
     Uri KeyVaultUri { get; }
 
     /// <summary>Azure managed identity client id for in-AKS workload identity.</summary>
-    /// <remarks>Used when <see cref="TokenCredentialFactory.IsPodManagedIdentity"/> returns <see langword="true"/>.</remarks>
+    /// <remarks>Used when <see cref="TokenCredentialExtensions.IsPodManagedIdentity"/> returns <see langword="true"/>.</remarks>
     Guid? AzureEntraPodManagedIdentityClientId { get; }
 
     /// <summary>Azure Entra tenant id for certificate-based authentication from the Edge.</summary>

@@ -9,12 +9,12 @@ Helper library for Azure authentication. Provides a factory for creating `TokenC
 | Type | Name | Description |
 | --- | --- | --- |
 | Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint or PFX path/password, and a lazily-resolved `TokenCredential`. |
-| Static factory | `TokenCredentialFactory` | Creates `ClientCertificateCredential` from `IAzureAuthConfig` properties (certificate thumbprint or PFX file). |
+| Static factory | `TokenCredentialExtensions` | Creates `ClientCertificateCredential` from `IAzureAuthConfig` properties (certificate thumbprint or PFX file). |
 
 ### Key Methods
 
-- `TokenCredentialFactory.IsPodManagedIdentity` — Checks whether the current pod is using Azure workload identity (federated tokens).
-- `TokenCredentialFactory.CreateTokenCredential(IAzureAuthConfig)` — Creates a `ClientCertificateCredential` from the certificate properties in the configuration, or returns `null` if no certificate is available.
+- `TokenCredentialExtensions.IsPodManagedIdentity` — Checks whether the current pod is using Azure workload identity (federated tokens).
+- `TokenCredentialExtensions.CreateTokenCredential(IAzureAuthConfig)` — Creates a `ClientCertificateCredential` from the certificate properties in the configuration, or returns `null` if no certificate is available.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ Helper library for Azure authentication. Provides a factory for creating `TokenC
 | --- | --- | --- |
 | `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
 
-`AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialFactory`.
+`AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
 
 ## Dependencies
 
