@@ -11,9 +11,7 @@ public class QueryService(
     IOptions<LogAnalyticsConfig> logAnalyticsConfigOpt,
     TokenCredential credential) : IQueryService
 {
-    private readonly ILogger _logger = loggerSvc;
-    private readonly LogAnalyticsConfig _logAnalyticsConfig = logAnalyticsConfigOpt.Value;
-    private readonly LogsQueryClient _client = new(credential);
+    private readonly LogsQueryClient client = new(credential);
 
     /// <summary>Queries the workspace for up to 50 results and writes them to the console.</summary>
     public async Task Query(QueryTimeRange timeRange)
@@ -25,8 +23,8 @@ public class QueryService(
         //var query = "availabilityResults | summarize count() by name, bin(duration,500) | order by _count desc";
         //var metric = "availabilityResults/duration";
 
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, timeRange);
-        //var queryResults = await _client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfigOpt.Value.WorkspaceId, query, timeRange);
+        //var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
         foreach (var row in queryResults.Value.Table.Rows)
         {
             // Do something with query results
@@ -37,7 +35,7 @@ public class QueryService(
     //public async Task GetCustomEvents(string timespan = "P1D")
     //{
     //    var query = "customEvents";
-    //    var queryResults = await _client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
+    //    var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
     //    //foreach (var e in queryResults.Results)
     //    //{
     //    //    var name = e.Values[0]CustomEvent.Name;
@@ -50,7 +48,7 @@ public class QueryService(
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfigOpt.Value.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
         var l = new List<AppInsightsObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {
