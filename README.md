@@ -2,6 +2,8 @@
 
 [cascap.api.azure.appinsights-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.AppInsights?color=blue
 [cascap.api.azure.appinsights-url]: https://nuget.org/packages/CasCap.Api.Azure.AppInsights
+[cascap.api.azure.auth-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Auth?color=blue
+[cascap.api.azure.auth-url]: https://nuget.org/packages/CasCap.Api.Azure.Auth
 [cascap.api.azure.cognitiveservices-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices?color=blue
 [cascap.api.azure.cognitiveservices-url]: https://nuget.org/packages/CasCap.Api.Azure.CognitiveServices
 [cascap.api.azure.containerregistry-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry?color=blue
@@ -17,11 +19,12 @@
 [cascap.api.azure.storage-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage?color=blue
 [cascap.api.azure.storage-url]: https://nuget.org/packages/CasCap.Api.Azure.Storage
 
-A collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 9 projects (8 libraries + 1 test project) targeting net8.0, net9.0, and net10.0.
+A collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 10 projects (9 libraries + 1 test project) targeting net8.0, net9.0, and net10.0.
 
 | Library | Package |
 | --- | --- |
 | CasCap.Api.Azure.AppInsights | [![Nuget][cascap.api.azure.appinsights-badge]][cascap.api.azure.appinsights-url] |
+| CasCap.Api.Azure.Auth | [![Nuget][cascap.api.azure.auth-badge]][cascap.api.azure.auth-url] |
 | CasCap.Api.Azure.CognitiveServices | [![Nuget][cascap.api.azure.cognitiveservices-badge]][cascap.api.azure.cognitiveservices-url] |
 | CasCap.Api.Azure.ContainerRegistry | [![Nuget][cascap.api.azure.containerregistry-badge]][cascap.api.azure.containerregistry-url] |
 | CasCap.Api.Azure.EventGrid | [![Nuget][cascap.api.azure.eventgrid-badge]][cascap.api.azure.eventgrid-url] |
@@ -42,6 +45,7 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 | Project | Description | README |
 | --- | --- | --- |
 | **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
+| **CasCap.Api.Azure.Auth** | Azure authentication credential factory for Key Vault and certificate-based access | [README](src/CasCap.Api.Azure.Auth/README.md) |
 | **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
 | **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |
 | **CasCap.Api.Azure.EventGrid** | Azure Event Grid messaging (placeholder) | [README](src/CasCap.Api.Azure.EventGrid/README.md) |
@@ -67,6 +71,7 @@ graph TD
 
     subgraph "CasCap.Api.Azure Libraries"
         AI["AppInsights"]
+        AU["Auth"]
         CS["CognitiveServices"]
         CR["ContainerRegistry"]
         EG["EventGrid"]
@@ -80,6 +85,9 @@ graph TD
 
     AI --> Logging
     AI --> Ext
+
+    AU --> Logging
+    AU --> Ext
 
     CS --> Logging
     CS --> Ext
@@ -129,6 +137,7 @@ graph LR
     end
 
     AI["AppInsights"]
+    AU["Auth"] --> AzIdentity
     CS["CognitiveServices"] --> CogSpeech
     CR["ContainerRegistry"] --> AzACR
     CR --> AzIdentity
@@ -161,6 +170,7 @@ graph TD
 │   └── dependabot.yml          # Auto-updates for nuget, github-actions, devcontainers
 ├── src/
 │   ├── CasCap.Api.Azure.AppInsights/          # Application Insights helpers
+│   ├── CasCap.Api.Azure.Auth/                 # Azure authentication credential factory
 │   ├── CasCap.Api.Azure.CognitiveServices/    # Cognitive Services (e.g., Speech)
 │   ├── CasCap.Api.Azure.ContainerRegistry/    # Azure Container Registry client
 │   ├── CasCap.Api.Azure.EventGrid/            # Event Grid messaging
@@ -204,7 +214,7 @@ dotnet restore CasCap.Api.Azure.Release.slnx
 dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
 ```
 
-Builds all 9 projects for net8.0, net9.0, and net10.0 (27 DLLs total).
+Builds all 10 projects for net8.0, net9.0, and net10.0 (30 DLLs total).
 
 ### 3. Clean Build Artifacts
 
