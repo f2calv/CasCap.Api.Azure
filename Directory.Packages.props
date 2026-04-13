@@ -19,7 +19,7 @@
     <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.8.0" />
     <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.8.0" />
     <PackageVersion Include="CasCap.Common.Testing" Version="4.8.0" />
-    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.48.2" />
+    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.49.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
