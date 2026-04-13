@@ -26,12 +26,8 @@ public static class TokenCredentialFactory
     /// properties in <paramref name="config"/>.
     /// </summary>
     /// <param name="config">Azure authentication configuration.</param>
-    /// <param name="nodeName">
-    /// Kubernetes node name — when non-<see langword="null"/>, enables PFX file loading
-    /// for Edge deployments.
-    /// </param>
     /// <returns>A <see cref="TokenCredential"/> or <see langword="null"/> if no certificate is available.</returns>
-    public static TokenCredential? CreateTokenCredential(IAzureAuthConfig config, string? nodeName = null)
+    public static TokenCredential? CreateTokenCredential(IAzureAuthConfig config)
     {
         X509Certificate2? certificate = null;
         if (!string.IsNullOrWhiteSpace(config.AzureEntraCertThumbprint))
@@ -42,7 +38,7 @@ public static class TokenCredentialFactory
                 .OfType<X509Certificate2>().SingleOrDefault();
             store.Close();
         }
-        else if (!string.IsNullOrWhiteSpace(nodeName) && !string.IsNullOrWhiteSpace(config.AzureEntraPfxPath))
+        else if (!string.IsNullOrWhiteSpace(config.AzureEntraPfxPath))
         {
 #if NET9_0_OR_GREATER
             certificate = X509CertificateLoader.LoadPkcs12FromFile(config.AzureEntraPfxPath, config.AzureEntraPfxPassword);

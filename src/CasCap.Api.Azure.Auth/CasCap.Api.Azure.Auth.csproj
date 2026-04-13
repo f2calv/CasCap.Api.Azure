@@ -17,12 +17,14 @@
   <Choose>
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
+        <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Abstractions\CasCap.Common.Abstractions.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Logging\CasCap.Common.Logging.csproj" />
         <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Extensions\CasCap.Common.Extensions.csproj" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
+        <PackageReference Include="CasCap.Common.Abstractions" />
         <PackageReference Include="CasCap.Common.Logging" />
         <PackageReference Include="CasCap.Common.Extensions" />
       </ItemGroup>
