@@ -14,6 +14,7 @@
   </Folder>
   <Folder Name="/CasCap.Api.Azure/">
     <Project Path="src/CasCap.Api.Azure.AppInsights/CasCap.Api.Azure.AppInsights.csproj" />
+    <Project Path="src/CasCap.Api.Azure.Auth/CasCap.Api.Azure.Auth.csproj" />
     <Project Path="src/CasCap.Api.Azure.CognitiveServices/CasCap.Api.Azure.CognitiveServices.csproj" />
     <Project Path="src/CasCap.Api.Azure.ContainerRegistry/CasCap.Api.Azure.ContainerRegistry.csproj" />
     <Project Path="src/CasCap.Api.Azure.EventGrid/CasCap.Api.Azure.EventGrid.csproj" />
