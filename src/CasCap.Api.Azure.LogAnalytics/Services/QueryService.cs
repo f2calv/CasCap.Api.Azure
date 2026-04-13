@@ -6,23 +6,14 @@ namespace CasCap.Services;
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public class QueryService : IQueryService
+public class QueryService(
+    ILogger<QueryService> loggerSvc,
+    IOptions<LogAnalyticsConfig> logAnalyticsConfigOpt,
+    TokenCredential credential) : IQueryService
 {
-    private readonly ILogger _logger;
-    private readonly LogAnalyticsConfig _logAnalyticsConfig;
-
-    private readonly LogsQueryClient _client;
-
-    /// <summary>Initializes a new instance of <see cref="QueryService"/>.</summary>
-    public QueryService(ILogger<QueryService> logger,
-        IOptions<LogAnalyticsConfig> logAnalyticsConfig,
-        TokenCredential credential
-        )
-    {
-        _logger = logger;
-        _logAnalyticsConfig = logAnalyticsConfig.Value;
-        _client = new LogsQueryClient(credential);
-    }
+    private readonly ILogger _logger = loggerSvc;
+    private readonly LogAnalyticsConfig _logAnalyticsConfig = logAnalyticsConfigOpt.Value;
+    private readonly LogsQueryClient _client = new(credential);
 
     /// <summary>Queries the workspace for up to 50 results and writes them to the console.</summary>
     public async Task Query(QueryTimeRange timeRange)
