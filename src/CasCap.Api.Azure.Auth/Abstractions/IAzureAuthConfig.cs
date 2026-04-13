@@ -1,6 +1,4 @@
-using Azure.Core;
-
-namespace CasCap.Api.Azure.Auth.Abstractions;
+namespace CasCap.Abstractions;
 
 /// <summary>
 /// Exposes Azure authentication configuration properties required for

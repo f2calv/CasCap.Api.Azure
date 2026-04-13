@@ -1,8 +1,4 @@
-using Azure.Core;
-using CasCap.Common.Abstractions;
-using System.ComponentModel.DataAnnotations;
-
-namespace CasCap.Api.Azure.Auth.Models;
+namespace CasCap.Models;
 
 /// <summary>
 /// Lightweight projection of the <c>AppConfig</c> section that exposes only

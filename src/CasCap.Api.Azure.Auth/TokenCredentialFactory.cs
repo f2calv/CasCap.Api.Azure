@@ -1,9 +1,4 @@
-using Azure.Core;
-using Azure.Identity;
-using CasCap.Common.Exceptions;
-using System.Security.Cryptography.X509Certificates;
-
-namespace CasCap.Api.Azure.Auth;
+namespace CasCap;
 
 /// <summary>
 /// Factory methods for creating Azure <see cref="TokenCredential"/> instances
