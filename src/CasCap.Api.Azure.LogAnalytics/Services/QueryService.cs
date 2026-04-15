@@ -7,7 +7,7 @@ namespace CasCap.Services;
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
 public class QueryService(
-    ILogger<QueryService> loggerSvc,
+    ILogger<QueryService> logger,
     IOptions<LogAnalyticsConfig> logAnalyticsConfigOpt,
     TokenCredential credential) : IQueryService
 {
@@ -28,6 +28,7 @@ public class QueryService(
         foreach (var row in queryResults.Value.Table.Rows)
         {
             // Do something with query results
+            logger.LogInformation(string.Join("    ", row));
             Console.WriteLine(string.Join("    ", row));
         }
     }
