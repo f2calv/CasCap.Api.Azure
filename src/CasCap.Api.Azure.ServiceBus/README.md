@@ -31,12 +31,12 @@ Queue and Topic service abstraction for Azure Service Bus:
 ```mermaid
 classDiagram
     direction TB
-    
+
     ServiceBase <|-- QueueService
     ServiceBase <|-- TopicService
     IQueueService <|.. QueueService
     ITopicService <|.. TopicService
-    
+
     class ServiceBase {
         <<abstract>>
         #ILogger Logger
@@ -45,14 +45,14 @@ classDiagram
         #OnMessageReceived(args) void
         #OnErrorReceived(args) void
     }
-    
+
     class IQueueService {
         <<interface>>
         +SendMessageAsync(message) Task
         +SendMessageBatchAsync(messages, token) Task
         +ReceiveMessagesAsync(token) Task
     }
-    
+
     class QueueService {
         -ServiceBusClient Client
         -ServiceBusSender Sender
@@ -61,14 +61,14 @@ classDiagram
         +SendMessageBatchAsync(messages, token) Task
         +ReceiveMessagesAsync(token) Task
     }
-    
+
     class ITopicService {
         <<interface>>
         +SendMessageToTopicAsync(message, token) Task
         +SendMessageBatchToTopicAsync(messages, token) Task
         +ReceiveFromSubscriptionAsync(token) Task
     }
-    
+
     class TopicService {
         -ServiceBusClient Client
         -ServiceBusSender Sender
@@ -77,7 +77,7 @@ classDiagram
         +SendMessageBatchToTopicAsync(messages, token) Task
         +ReceiveFromSubscriptionAsync(token) Task
     }
-    
+
     QueueService ..> ServiceBusClient : uses
     TopicService ..> ServiceBusClient : uses
     QueueService ..> ServiceBusSender : uses

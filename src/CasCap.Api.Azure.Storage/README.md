@@ -46,15 +46,15 @@ Abstract base classes for Azure Storage services:
 ```mermaid
 classDiagram
     direction TB
-    
+
     IAzBlobStorageBase <|.. AzBlobStorageBase
     IAzQueueStorageBase <|.. AzQueueStorageBase
     IAzTableStorageBase <|.. AzTableStorageBase
-    
+
     AzBlobStorageBase <|-- YourBlobService
     AzQueueStorageBase <|-- YourQueueService
     AzTableStorageBase <|-- YourTableService
-    
+
     class IAzBlobStorageBase {
         <<interface>>
         +CreateContainerIfNotExists() Task
@@ -62,7 +62,7 @@ classDiagram
         +ListContainerBlobs(prefix) IAsyncEnumerable~BlobItem~
         +DeleteBlob(name) Task
     }
-    
+
     class AzBlobStorageBase {
         <<abstract>>
         #BlobServiceClient Client
@@ -72,14 +72,14 @@ classDiagram
         +UploadBlob(name, data) Task
         +PageBlobTest(path) Task
     }
-    
+
     class IAzQueueStorageBase {
         <<interface>>
         +Enqueue~T~(obj) Task
         +DequeueSingle~T~() Task~T~
         +DequeueMany~T~(limit) Task~List~T~~
     }
-    
+
     class AzQueueStorageBase {
         <<abstract>>
         #QueueServiceClient Client
@@ -89,14 +89,14 @@ classDiagram
         +DequeueSingle~T~() Task~T~
         +DequeueMany~T~(limit) Task~List~T~~
     }
-    
+
     class IAzTableStorageBase {
         <<interface>>
         +GetTables() AsyncPageable~TableItem~
         +UpsertEntity~T~(table, entity) Task
         +GetEntities~T~(table) AsyncPageable~T~
     }
-    
+
     class AzTableStorageBase {
         <<abstract>>
         #TableServiceClient Client
@@ -108,22 +108,22 @@ classDiagram
         +DeleteData~T~(client, entities) Task
         +GetEntities~T~(client, filter) AsyncPageable~T~
     }
-    
+
     class YourBlobService {
         +UploadImage(bytes) Task
         +GetImage(id) Task~byte[]~
     }
-    
+
     class YourQueueService {
         +EnqueueMessage(msg) Task
         +ProcessMessages() Task
     }
-    
+
     class YourTableService {
         +SaveEntity(entity) Task
         +QueryEntities(filter) Task~List~
     }
-    
+
     AzBlobStorageBase ..> BlobServiceClient : uses
     AzQueueStorageBase ..> QueueServiceClient : uses
     AzTableStorageBase ..> TableServiceClient : uses

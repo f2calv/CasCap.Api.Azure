@@ -31,46 +31,46 @@ TokenCredential creation from configuration:
 ```mermaid
 flowchart TD
     CONFIG["AzureAuthConfig<br/>(IAzureAuthConfig)"]
-    
+
     subgraph Detection["Environment Detection"]
         POD_CHECK{"IsPodManagedIdentity()?<br/>(Azure Workload Identity)"}
         WORKLOAD["WorkloadIdentityCredential<br/>(Federated token from pod)"]
     end
-    
+
     subgraph CertificateSource["Certificate Source"]
         THUMBPRINT{"CertThumbprint<br/>provided?"}
         PFX{"PfxPath +<br/>PfxPassword<br/>provided?"}
         STORE["X509Store<br/>(LocalMachine\\My)"]
         FILE["X509Certificate2<br/>(from PFX file)"]
     end
-    
+
     CREDENTIAL["ClientCertificateCredential"]
     NULL["null<br/>(no credential)"]
-    
+
     subgraph AzureServices["Azure Services"]
         KV["Key Vault"]
         STORAGE["Storage"]
         EH["Event Hub"]
         SB["Service Bus"]
     end
-    
+
     CONFIG --> POD_CHECK
     POD_CHECK -->|"Yes"| WORKLOAD
     POD_CHECK -->|"No"| THUMBPRINT
-    
+
     THUMBPRINT -->|"Yes"| STORE
     THUMBPRINT -->|"No"| PFX
-    
+
     PFX -->|"Yes"| FILE
     PFX -->|"No"| NULL
-    
+
     STORE --> CREDENTIAL
     FILE --> CREDENTIAL
     WORKLOAD --> KV
     WORKLOAD --> STORAGE
     WORKLOAD --> EH
     WORKLOAD --> SB
-    
+
     CREDENTIAL --> KV
     CREDENTIAL --> STORAGE
     CREDENTIAL --> EH

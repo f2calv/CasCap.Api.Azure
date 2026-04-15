@@ -30,24 +30,24 @@ Publisher/Subscriber pattern for Event Hub streaming:
 ```mermaid
 classDiagram
     direction TB
-    
+
     IPublisherService~T~ <|.. PublisherService~T~
     ISubscriberService~T~ <|.. SubscriberService~T~
-    
+
     PublisherService~T~ <|-- YourPublisher
     SubscriberService~T~ <|-- YourSubscriber
-    
+
     class IEvent {
         <<interface>>
     }
-    
+
     class IPublisherService~T~ {
         <<interface>>
         +Push(obj) Task
         +Push(objs) Task
         +Push(bytes) Task
     }
-    
+
     class PublisherService~T~ {
         <<abstract>>
         #EventHubProducerClient Client
@@ -57,12 +57,12 @@ classDiagram
         +Push(bytes) Task
         +SendTestMessages(count) Task
     }
-    
+
     class ISubscriberService~T~ {
         <<interface>>
         +InitiateReceive(token) Task
     }
-    
+
     class SubscriberService~T~ {
         <<abstract>>
         #EventProcessorClient Client
@@ -71,15 +71,15 @@ classDiagram
         #ProcessEventHandler(args) Task
         #ProcessErrorHandler(args) Task
     }
-    
+
     class YourPublisher {
         +PublishDomainEvent(event) Task
     }
-    
+
     class YourSubscriber {
         +ProcessDomainEvent(event) Task
     }
-    
+
     T --|> IEvent : implements
     PublisherService~T~ ..> EventHubProducerClient : uses
     SubscriberService~T~ ..> EventProcessorClient : uses
