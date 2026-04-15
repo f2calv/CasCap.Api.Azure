@@ -1,13 +1,10 @@
 namespace CasCap.Services;
 
 /// <summary>Base class providing common Service Bus message and error event handling.</summary>
-public abstract class ServiceBase
+public abstract class ServiceBase(ILogger<ServiceBase> logger)
 {
     /// <summary>Logger instance for this class.</summary>
-    protected ILogger _logger;
-
-    /// <summary>Initializes a new instance of <see cref="ServiceBase" />.</summary>
-    protected ServiceBase(ILogger<ServiceBase> logger) => _logger = logger;
+    protected ILogger _logger = logger;
 
     /// <summary>Raised when a message is received from the Service Bus.</summary>
     public event EventHandler<ProcessMessageEventArgs>? MessageReceivedEvent;

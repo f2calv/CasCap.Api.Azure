@@ -1,8 +1,6 @@
 namespace CasCap.Models;
 
-/// <summary>
-/// Represents a single exception record returned from an Application Insights Log Analytics query.
-/// </summary>
+/// <summary>Represents a single exception record returned from an Application Insights Log Analytics query.</summary>
 /// <remarks>
 /// Property names intentionally match the Application Insights exception table column names
 /// returned by the Log Analytics query API, which use lowercase and snake_case conventions.

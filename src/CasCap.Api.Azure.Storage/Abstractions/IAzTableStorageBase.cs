@@ -8,9 +8,7 @@ public interface IAzTableStorageBase
     /// <summary>Raised after each batch of entities has been successfully processed.</summary>
     event EventHandler<AzTableStorageArgs> BatchCompletedEvent;
 
-    /// <summary>
-    /// Returns a list of all tables in the storage account.
-    /// </summary>
+    /// <summary>Returns a list of all tables in the storage account.</summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A list of <see cref="TableItem"/> objects describing the available tables.</returns>
     Task<List<TableItem>> GetTables(CancellationToken cancellationToken);
@@ -24,9 +22,7 @@ public interface IAzTableStorageBase
     /// <returns>A <see cref="TableClient"/> for the specified table.</returns>
     Task<TableClient> GetTableClient(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Upserts (inserts or replaces) a batch of entities into the specified table.
-    /// </summary>
+    /// <summary>Upserts (inserts or replaces) a batch of entities into the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tbl">The <see cref="TableClient"/> targeting the destination table.</param>
     /// <param name="entities">The list of entities to upsert.</param>
@@ -35,9 +31,7 @@ public interface IAzTableStorageBase
     /// <returns>The list of entities that were successfully upserted.</returns>
     Task<List<T>> UploadData<T>(TableClient tbl, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
 
-    /// <summary>
-    /// Upserts (inserts or replaces) a batch of entities into the specified table.
-    /// </summary>
+    /// <summary>Upserts (inserts or replaces) a batch of entities into the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to write to.</param>
     /// <param name="entities">The list of entities to upsert.</param>
@@ -46,9 +40,7 @@ public interface IAzTableStorageBase
     /// <returns>The list of entities that were successfully upserted.</returns>
     Task<List<T>> UploadData<T>(string tableName, List<T> entities, bool useParallelism = true, CancellationToken cancellationToken = default) where T : class, ITableEntity;
 
-    /// <summary>
-    /// Deletes a batch of entities from the specified table.
-    /// </summary>
+    /// <summary>Deletes a batch of entities from the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table from which entities will be deleted.</param>
     /// <param name="entities">The list of entities to delete.</param>
@@ -64,9 +56,7 @@ public interface IAzTableStorageBase
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     Task DeleteData<T>(TableClient tbl, List<T> entities, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Upserts a single entity into the specified table.
-    /// </summary>
+    /// <summary>Upserts a single entity into the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to write to.</param>
     /// <param name="entity">The entity to upsert.</param>
@@ -74,9 +64,7 @@ public interface IAzTableStorageBase
     /// <returns>The HTTP status code returned by the storage service.</returns>
     Task<int> UpsertEntity<T>(string tableName, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Upserts a single entity into the table represented by the given <see cref="TableClient"/>.
-    /// </summary>
+    /// <summary>Upserts a single entity into the table represented by the given <see cref="TableClient"/>.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tbl">The <see cref="TableClient"/> targeting the destination table.</param>
     /// <param name="entity">The entity to upsert.</param>
@@ -84,9 +72,7 @@ public interface IAzTableStorageBase
     /// <returns>The HTTP status code returned by the storage service.</returns>
     Task<int> UpsertEntity<T>(TableClient tbl, T entity, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Retrieves a single entity by partition key and optional row key from the specified table.
-    /// </summary>
+    /// <summary>Retrieves a single entity by partition key and optional row key from the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
     /// <param name="partitionKey">The partition key of the entity to retrieve.</param>
@@ -106,27 +92,21 @@ public interface IAzTableStorageBase
     /// <returns>The matching entity, or <see langword="null"/> if it does not exist.</returns>
     Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Retrieves all entities from the specified table.
-    /// </summary>
+    /// <summary>Retrieves all entities from the specified table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A list of all entities in the table.</returns>
     Task<List<T>> GetEntities<T>(string tableName, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Retrieves all entities from the table represented by the given <see cref="TableClient"/>.
-    /// </summary>
+    /// <summary>Retrieves all entities from the table represented by the given <see cref="TableClient"/>.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tbl">The <see cref="TableClient"/> targeting the source table.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A list of all entities in the table.</returns>
     Task<List<T>> GetEntities<T>(TableClient tbl, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Retrieves all entities belonging to the specified partition from the given table.
-    /// </summary>
+    /// <summary>Retrieves all entities belonging to the specified partition from the given table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
     /// <param name="partitionKey">The partition key to filter entities by.</param>
@@ -144,9 +124,7 @@ public interface IAzTableStorageBase
     /// <returns>A list of entities in the specified partition.</returns>
     Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
-    /// <summary>
-    /// Retrieves entities within a row key range from the specified partition of the given table.
-    /// </summary>
+    /// <summary>Retrieves entities within a row key range from the specified partition of the given table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
     /// <param name="partitionKey">The partition key to filter entities by.</param>

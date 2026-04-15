@@ -6,23 +6,12 @@ namespace CasCap.Services;
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public class QueryService : IQueryService
+public class QueryService(
+    ILogger<QueryService> logger,
+    IOptions<LogAnalyticsConfig> logAnalyticsConfig,
+    TokenCredential credential) : IQueryService
 {
-    private readonly ILogger _logger;
-    private readonly LogAnalyticsConfig _logAnalyticsConfig;
-
-    private readonly LogsQueryClient _client;
-
-    /// <summary>Initializes a new instance of <see cref="QueryService"/>.</summary>
-    public QueryService(ILogger<QueryService> logger,
-        IOptions<LogAnalyticsConfig> logAnalyticsConfig,
-        TokenCredential credential
-        )
-    {
-        _logger = logger;
-        _logAnalyticsConfig = logAnalyticsConfig.Value;
-        _client = new LogsQueryClient(credential);
-    }
+    private readonly LogsQueryClient client = new(credential);
 
     /// <summary>Queries the workspace for up to 50 results and writes them to the console.</summary>
     public async Task Query(QueryTimeRange timeRange)
@@ -34,11 +23,12 @@ public class QueryService : IQueryService
         //var query = "availabilityResults | summarize count() by name, bin(duration,500) | order by _count desc";
         //var metric = "availabilityResults/duration";
 
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, timeRange);
-        //var queryResults = await _client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange);
+        //var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
         foreach (var row in queryResults.Value.Table.Rows)
         {
             // Do something with query results
+            logger.LogInformation(string.Join("    ", row));
             Console.WriteLine(string.Join("    ", row));
         }
     }
@@ -46,7 +36,7 @@ public class QueryService : IQueryService
     //public async Task GetCustomEvents(string timespan = "P1D")
     //{
     //    var query = "customEvents";
-    //    var queryResults = await _client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
+    //    var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
     //    //foreach (var e in queryResults.Results)
     //    //{
     //    //    var name = e.Values[0]CustomEvent.Name;
@@ -59,7 +49,7 @@ public class QueryService : IQueryService
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
-        var queryResults = await _client.QueryWorkspaceAsync(_logAnalyticsConfig.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
         var l = new List<AppInsightsObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {
