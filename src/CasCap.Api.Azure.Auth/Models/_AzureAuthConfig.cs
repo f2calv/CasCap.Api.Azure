@@ -11,7 +11,7 @@ public record AzureAuthConfig : IAppConfig, IAzureAuthConfig
     public static string ConfigurationSectionName => "AppConfig";
 
     /// <inheritdoc/>
-    [Required]
+    [Required, MinLength(3)]
     public required string KeyVaultName { get; init; }
 
     /// <inheritdoc/>
