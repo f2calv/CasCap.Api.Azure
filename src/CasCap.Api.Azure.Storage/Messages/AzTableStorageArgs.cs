@@ -4,9 +4,7 @@ namespace CasCap.Messages;
 /// Provides data for the <see cref="CasCap.Abstractions.IAzTableStorageBase.BatchCompletedEvent"/> event,
 /// describing the batch that was just processed.
 /// </summary>
-/// <remarks>
-/// Some properties use camelCase naming to preserve backward compatibility with existing consumers.
-/// </remarks>
+/// <remarks>Some properties use camelCase naming to preserve backward compatibility with existing consumers.</remarks>
 public class AzTableStorageArgs(string storageAccountName, string tableName, string partitionKey, int count, int countRemaining)
 {
 

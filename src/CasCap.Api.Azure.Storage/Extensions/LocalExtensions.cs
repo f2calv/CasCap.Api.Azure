@@ -54,9 +54,7 @@ public static class LocalExtensions
     /// <summary>The default date format string used for partition keys (<c>yyMMdd</c>).</summary>
     public const string yyMMdd = nameof(yyMMdd);
 
-    /// <summary>
-    /// Returns a partition key suitable for Azure Table Storage in the default format <c>yyMMdd</c>.
-    /// </summary>
+    /// <summary>Returns a partition key suitable for Azure Table Storage in the default format <c>yyMMdd</c>.</summary>
     /// <param name="thisDate">The date to convert into a partition key string.</param>
     /// <param name="format">The date format string used to produce the partition key. Defaults to <see cref="yyMMdd"/>.</param>
     /// <returns>A string representation of the date in the specified format, suitable for use as a partition key.</returns>

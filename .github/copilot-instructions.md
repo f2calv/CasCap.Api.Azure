@@ -22,7 +22,7 @@
 - **Async pass-through**: When a method is a thin wrapper that only returns another async call (no `using`, `try`/`catch`, or additional `await`s), drop `async`/`await` and return the `Task`/`ValueTask` directly to avoid unnecessary state-machine overhead.
 - **Async/Await**: Always await async method calls.
 - **Pattern matching**: Preferred (`is`, `not`, switch expressions)
-- **Primary constructors**: Preferred (`csharp_style_prefer_primary_constructors = true`). Use primary constructor parameters directly in the class body — do **not** assign them to private or protected fields (e.g. avoid `private ILogger _logger = logger;`). When the parameter list exceeds a comfortable single-line width, wrap to one parameter per line with the closing parenthesis and base/interface clause on their own line.
+- **Primary constructors**: Preferred (`csharp_style_prefer_primary_constructors = true`). Use primary constructor parameters directly in the class body — do **not** assign them to private or protected fields (e.g. avoid `private ILogger _logger = logger;`). **Exception**: abstract base classes that expose a `protected` field for derived types (e.g. `protected ILogger _logger = logger;` where subclasses pass the value via `: base(logger)`) are exempt — the field must be accessible to inheritors. For `IOptions<T>` / `IOptionsMonitor<T>` parameters, access `.Value` / `.CurrentValue` inline each time rather than caching to a field (e.g. `cachingConfig.Value.SomeProperty`). When the parameter list exceeds a comfortable single-line width, wrap to one parameter per line with the closing parenthesis and base/interface clause on their own line.
 - **`var`**: Preferred — use `var` unless the type is not obvious from the right-hand side
 - **Records**: Prefer `record` types with `get; init;` properties over classes where object comparison semantics are useful
 - **Constructors**: When injecting services use a 'Svc' suffix on the parameter name and its private field instead of 'Service' to make more concise.
@@ -277,12 +277,13 @@ Use these consistent heading patterns before Mermaid diagrams:
 
 ## Copilot Workflow
 
-- **Test execution after refactoring**: After completing a refactoring, always prompt the user with a yes/no choice before running any tests. Do not automatically run tests. When prompting, offer a clickable yes/no UI option if the environment supports it.
+- **Test execution**: Never run tests automatically — they may be integration tests requiring extra setup. Always prompt (ideally with a visual yes/no button) before running any tests.
 - **Preserve git history during renames/moves**: When renaming or relocating files, first perform the rename/move (preferably via `git mv`), then make content edits to the file in its new location/name. This two-step approach preserves git history across the rename. Do not delete-and-recreate files when a rename or move is the intent.
 
 ## Misc
 
 - When detecting new conventions or patterns in the codebase, add them to this document and apply them retroactively where applicable.
+- When multiple `copilot-instructions.md` files are available in the workspace, keep them in sync based on the common guidelines in the synced section.
 
 ---
 
