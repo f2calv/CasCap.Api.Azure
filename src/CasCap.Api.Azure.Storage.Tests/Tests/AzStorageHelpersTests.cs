@@ -1,13 +1,13 @@
 namespace CasCap.Tests;
 
-/// <summary>Unit tests for <see cref="CasCap.Common.Extensions.LocalExtensions"/> storage key helpers.</summary>
+/// <summary>Unit tests for <see cref="CasCap.Common.Extensions.StorageExtensions"/> storage key helpers.</summary>
 public class AzStorageHelpersTests
 {
     [Fact, Trait("Category", "Azure")]
     public void PartitionKeyTest()
     {
         var utcNow = DateTime.UtcNow;
-        Assert.True(utcNow.ToString(LocalExtensions.yyMMdd) == utcNow.GetPartitionKey());
+        Assert.True(utcNow.ToString(StorageExtensions.yyMMdd) == utcNow.GetPartitionKey());
         /*
         var sTimestamp = "2023-06-08T04:02:09.7832039Z";
         _ = DateTime.Parse(sTimestamp);
