@@ -1,7 +1,7 @@
 namespace CasCap.Common.Extensions;
 
 /// <summary>Extension methods for Azure Table Storage key and date helpers.</summary>
-public static class LocalExtensions
+public static class StorageExtensions
 {
     /// <summary>
     /// Checks whether a table with the specified name exists in the given <see cref="TableServiceClient"/>.
@@ -138,4 +138,45 @@ public static class LocalExtensions
         var ticks = lexicalOrder ? ticksInADay - rowKeyValue : rowKeyValue;
         return DateTime.SpecifyKind(dt.AddTicks(ticks), DateTimeKind.Utc);
     }
+
+    /// <summary>
+    /// Creates a <see cref="TableClient"/> from either a full connection string (e.g. Azurite)
+    /// or a plain table endpoint URI with a <see cref="TokenCredential"/> (e.g. production Azure).
+    /// </summary>
+    /// <remarks>
+    /// When <paramref name="connectionString"/> contains a semicolon it is treated as a full
+    /// connection string and <paramref name="credential"/> is ignored. Otherwise it is parsed
+    /// as a <see cref="Uri"/> and <paramref name="credential"/> is used for authentication.
+    /// </remarks>
+    /// <param name="connectionString">Either a full storage connection string or a table endpoint URI.</param>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="credential">
+    /// The <see cref="TokenCredential"/> used when <paramref name="connectionString"/> is a URI.
+    /// May be <see langword="null"/> when a full connection string is supplied.
+    /// </param>
+    /// <returns>A configured <see cref="TableClient"/> instance.</returns>
+    public static TableClient CreateTableClient(string connectionString, string tableName, TokenCredential? credential = null) =>
+        connectionString.Contains(';')
+            ? new TableClient(connectionString, tableName)
+            : new TableClient(new Uri(connectionString), tableName, credential);
+
+    /// <summary>
+    /// Creates a <see cref="BlobServiceClient"/> from either a full connection string (e.g. Azurite)
+    /// or a plain blob endpoint URI with a <see cref="TokenCredential"/> (e.g. production Azure).
+    /// </summary>
+    /// <remarks>
+    /// When <paramref name="connectionString"/> contains a semicolon it is treated as a full
+    /// connection string and <paramref name="credential"/> is ignored. Otherwise it is parsed
+    /// as a <see cref="Uri"/> and <paramref name="credential"/> is used for authentication.
+    /// </remarks>
+    /// <param name="connectionString">Either a full storage connection string or a blob endpoint URI.</param>
+    /// <param name="credential">
+    /// The <see cref="TokenCredential"/> used when <paramref name="connectionString"/> is a URI.
+    /// May be <see langword="null"/> when a full connection string is supplied.
+    /// </param>
+    /// <returns>A configured <see cref="BlobServiceClient"/> instance.</returns>
+    public static BlobServiceClient CreateBlobServiceClient(string connectionString, TokenCredential? credential = null) =>
+        connectionString.Contains(';')
+            ? new BlobServiceClient(connectionString)
+            : new BlobServiceClient(new Uri(connectionString), credential);
 }

@@ -17,6 +17,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ContainerName = containerName;
         _containerClient = new BlobContainerClient(connectionString, containerName);
+        _containerClient.CreateIfNotExists();
     }
 
     /// <summary>Initializes a new instance of <see cref="AzBlobStorageBase" /> using a URI and token credential.</summary>
@@ -27,6 +28,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         ContainerName = containerName;
         ArgumentNullException.ThrowIfNull(credential);
         _containerClient = new BlobContainerClient(new Uri(blobContainerUri, containerName), credential);
+        _containerClient.CreateIfNotExists();
     }
 
     /// <inheritdoc/>
