@@ -11,6 +11,10 @@ public record AzureAuthConfig : IAppConfig, IAzureAuthConfig
     public static string ConfigurationSectionName => "AppConfig";
 
     /// <inheritdoc/>
+    public bool IsKeyVaultEnabled =>
+        !string.Equals(KeyVaultName, IAzureAuthConfig.SkipKeyVaultSentinel, StringComparison.OrdinalIgnoreCase);
+
+    /// <inheritdoc/>
     [Required, MinLength(3)]
     public required string KeyVaultName { get; init; }
 

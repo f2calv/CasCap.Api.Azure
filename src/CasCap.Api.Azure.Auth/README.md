@@ -8,7 +8,7 @@ Helper library for Azure authentication. Provides a factory for creating `TokenC
 
 | Type | Name | Description |
 | --- | --- | --- |
-| Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint or PFX path/password, and a lazily-resolved `TokenCredential`. |
+| Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint or PFX path/password, and a lazily-resolved `TokenCredential`. Provides `IsKeyVaultEnabled` to allow Key Vault-free operation. |
 | Static factory | `TokenCredentialExtensions` | Creates `ClientCertificateCredential` from `IAzureAuthConfig` properties (certificate thumbprint or PFX file). |
 
 ### Key Methods
@@ -20,9 +20,24 @@ Helper library for Azure authentication. Provides a factory for creating `TokenC
 
 | Class | Section | Properties |
 | --- | --- | --- |
-| `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
+| `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `IsKeyVaultEnabled` (computed), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
 
 `AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
+
+### Running Without Key Vault
+
+Set `KeyVaultName` to `"skip"` (case-insensitive) to disable Key Vault integration entirely. When `IsKeyVaultEnabled` returns `false`:
+
+- The application skips adding Azure Key Vault as a configuration source at startup.
+- `TokenCredential` is not resolved (no certificate lookup is attempted).
+- Secrets must be supplied via alternative configuration sources (environment variables, user secrets, or `appsettings.json`).
+- Sink services that use `StorageExtensions.CreateTableClient()` automatically fall back to connection strings when the connection string contains `;` (e.g. Azurite emulator).
+
+Override via any configuration source:
+
+- **Environment variable**: `AppConfig__KeyVaultName=skip`
+- **User secrets**: `{ "AppConfig": { "KeyVaultName": "skip" } }`
+- **appsettings override**: same JSON shape
 
 ## Data Flow
 
@@ -54,7 +69,9 @@ flowchart TD
         SB["Service Bus"]
     end
 
-    CONFIG --> POD_CHECK
+    CONFIG --> SKIP_CHECK{"KeyVaultName<br/>= 'skip'?"}
+    SKIP_CHECK -->|"Yes"| NULL
+    SKIP_CHECK -->|"No"| POD_CHECK
     POD_CHECK -->|"Yes"| WORKLOAD
     POD_CHECK -->|"No"| THUMBPRINT
 
@@ -79,6 +96,7 @@ flowchart TD
 
 **Credential Resolution Priority:**
 
+0. **Skip sentinel** — `KeyVaultName = "skip"` → `null` (no credential, no Key Vault)
 1. **Azure Workload Identity** (Kubernetes pod with federated token) — auto-detected
 2. **Certificate thumbprint** — searches `LocalMachine\My` certificate store
 3. **PFX file** — loads certificate from path with password
