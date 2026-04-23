@@ -33,13 +33,6 @@ A collection of .NET helper class libraries for interacting with Azure PaaS serv
 | CasCap.Api.Azure.ServiceBus | [![Nuget][cascap.api.azure.servicebus-badge]][cascap.api.azure.servicebus-url] |
 | CasCap.Api.Azure.Storage | [![Nuget][cascap.api.azure.storage-badge]][cascap.api.azure.storage-url] |
 
-**Solution Files:**
-
-- `CasCap.Api.Azure.Release.slnx` (production builds, uses NuGet packages)
-- `CasCap.Api.Azure.Debug.slnx` (development, references local CasCap.Common repo)
-
-**Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at the same directory level.
-
 ## Projects
 
 | Project | Description | README |
@@ -200,7 +193,7 @@ graph TD
 - **.NET SDK**: 10.0.x stable (see `global.json` — `allowPrerelease: false`)
 - **Docker**: Required for Azurite storage emulator during testing
 
-## Build & Validation Commands
+## Build and Test
 
 ### 1. Restore Dependencies (REQUIRED FIRST STEP)
 
@@ -290,6 +283,32 @@ dotnet restore CasCap.Api.Azure.Release.slnx
 dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
 ```
 
+## Project Configuration
+
+### Solution Files
+
+| File | Purpose |
+| --- | --- |
+| `CasCap.Api.Azure.Debug.slnx` | Development — references local `CasCap.Common` repo |
+| `CasCap.Api.Azure.Release.slnx` | Release builds — consumes `CasCap.Common` as NuGet packages |
+
+**Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at the same directory level.
+
+### Key Files
+
+| File | Purpose |
+| --- | --- |
+| `Directory.Build.props` | C# 14.0, `ImplicitUsings`, `Nullable: enable`, `TreatWarningsAsErrors: true`, `IsPackable: false` by default |
+| `Directory.Packages.props` | Central package version management (`ManagePackageVersionsCentrally: true`) |
+| `.editorconfig` | Code style rules (4-space indent, LF line endings, full formatting rules) |
+| `global.json` | SDK constraint — stable releases only |
+| `docker-compose.yml` | Azurite storage emulator setup |
+| `GitVersion.yml` | Semantic versioning configuration |
+
+### Suppressed Warnings
+
+Configured in `Directory.Build.props`: `IDE1006`, `IDE0079`, `IDE0042`, `CS0162`, `CS1574`, `S125`, `NETSDK1233`, `NU1901`, `NU1902`, `NU1903`
+
 ## CI/CD Pipeline (.github/workflows/ci.yml)
 
 **Triggers:** push (except preview branches), pull_request to main, workflow_dispatch
@@ -319,6 +338,51 @@ All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making
 - **Versioning:** Automated via GitVersion (MainLine mode)
 - **NuGet Push:** Handled by CI on main branch (requires NUGET_API_KEY secret)
 - **Package metadata:** Defined in Directory.Build.props (author, license, icon, source link)
+
+## Making Changes
+
+### Adding Code
+
+1. Place code in the correct project by functionality
+2. Follow `.editorconfig` style rules
+3. Add XML documentation to all public API surface
+4. Add tests in the corresponding `.Tests` project
+5. Validate: `dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore` → 0 errors
+
+### Adding Dependencies
+
+1. Add version to `Directory.Packages.props`
+2. Reference in `.csproj` **without** a version attribute:
+
+   ```xml
+   <PackageReference Include="PackageName" />
+   ```
+
+3. Run `dotnet restore`
+
+### Creating New Projects
+
+- Library projects inherit `Directory.Build.props` automatically
+- Set `<IsPackable>true</IsPackable>` explicitly only for NuGet packages
+- Test projects must **not** be packable (default) and must target `net8.0;net9.0;net10.0`
+
+## Validation Checklist
+
+- [ ] `dotnet restore CasCap.Api.Azure.Release.slnx` succeeds
+- [ ] `dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore` completes with 0 errors
+- [ ] `dotnet format CasCap.Api.Azure.Release.slnx --verify-no-changes --no-restore` passes
+- [ ] Docker dependencies running for tests (`docker compose up -d`)
+- [ ] Public API has XML documentation
+- [ ] Properties separated by blank lines
+- [ ] `ServiceProvider` instances are disposed in tests
+
+## Contributing
+
+1. Fork the repository and create a feature branch
+2. Follow all conventions documented above
+3. Run the full validation checklist before submitting a PR
+4. PRs target the `main` branch and require CI to pass
+5. Versioning is automated via GitVersion — do not manually edit version numbers
 
 ## Common Gotchas
 

@@ -11,6 +11,14 @@ namespace CasCap.Abstractions;
 /// </remarks>
 public interface IAzureAuthConfig
 {
+    /// <summary>Sentinel value for <see cref="KeyVaultName"/> that disables Key Vault integration.</summary>
+    /// <remarks>Set <see cref="KeyVaultName"/> to this value to run without Azure Key Vault.</remarks>
+    const string SkipKeyVaultSentinel = "skip";
+
+    /// <summary>Whether Key Vault integration is active.</summary>
+    /// <remarks>Returns <see langword="false"/> when <see cref="KeyVaultName"/> equals <c>"skip"</c> (case-insensitive).</remarks>
+    bool IsKeyVaultEnabled => !string.Equals(KeyVaultName, SkipKeyVaultSentinel, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>Short name of the Azure Key Vault (without the <c>.vault.azure.net</c> suffix).</summary>
     string KeyVaultName { get; }
 
