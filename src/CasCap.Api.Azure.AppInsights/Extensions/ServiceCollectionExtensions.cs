@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     public static void AddCasCapAppInsightsServices(this IServiceCollection services/*,
-            Action<AppInsightsOptions> appInsights*/)
+            Action<LogAnalyticsConfig> appInsights*/)
     {
         services.AddSingleton<IConfigureOptions<AppInsightsConfig>>(s =>
         {

@@ -9,11 +9,11 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers the Log Analytics configuration options and the <see cref="IQueryService"/>
     /// implementation with the dependency injection container.
-    /// Options are bound from the <c>CasCap:LogAnalyticsOptions</c> configuration section.
+    /// Options are bound from the <c>CasCap:LogAnalyticsConfig</c> configuration section.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     public static void AddCasCapLogAnalyticsServices(this IServiceCollection services/*,
-            Action<LogAnalyticsOptions> LogAnalytics*/)
+            Action<LogAnalyticsConfig> LogAnalytics*/)
     {
         services.AddSingleton<IConfigureOptions<LogAnalyticsConfig>>(s =>
         {
@@ -22,6 +22,6 @@ public static class ServiceCollectionExtensions
         });
         services.AddSingleton<IQueryService, QueryService>();
         //services.AddSingleton<ILogAnalyticsService, LogAnalyticsService>()
-        //    .Configure<LogAnalyticsOptions>(configuration.GetSection(nameof(LogAnalyticsOptions)));
+        //    .Configure<LogAnalyticsConfig>(configuration.GetSection(nameof(LogAnalyticsConfig)));
     }
 }
