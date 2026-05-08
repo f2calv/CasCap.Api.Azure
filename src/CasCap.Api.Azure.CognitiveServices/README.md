@@ -2,6 +2,12 @@
 
 Helper library for Azure Cognitive Services. Provides text-to-speech synthesis and speech-to-text recognition via the Azure Speech SDK.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.CognitiveServices
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |

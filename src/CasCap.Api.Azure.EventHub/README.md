@@ -2,6 +2,12 @@
 
 Helper library for Azure Event Hub. Provides generic publisher and subscriber base services for streaming events via Event Hubs, with MessagePack serialization.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.EventHub
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |

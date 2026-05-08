@@ -2,6 +2,12 @@
 
 Helper library for Azure authentication. Provides a factory for creating `TokenCredential` instances from certificate-based configuration properties and an abstraction for Azure Key Vault and Entra ID settings.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.Auth
+```
+
 **Target frameworks:** `net8.0`, `net9.0`, `net10.0`
 
 ## Services / Extensions

@@ -2,6 +2,12 @@
 
 Helper library for Azure Storage Services. Provides abstract base service classes for Blob, Queue, and Table storage operations with both connection string and `TokenCredential` authentication.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.Storage
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |

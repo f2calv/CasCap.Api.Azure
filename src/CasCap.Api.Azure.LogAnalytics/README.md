@@ -2,6 +2,12 @@
 
 Helper library for Azure Log Analytics. Provides a query service for retrieving Application Insights exception data via Azure Monitor Log Analytics, with DI registration and configuration binding.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.LogAnalytics
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |
