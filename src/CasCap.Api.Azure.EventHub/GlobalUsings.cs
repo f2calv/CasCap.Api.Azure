@@ -1,4 +1,4 @@
-﻿global using Azure.Core;
+global using Azure.Core;
 global using Azure.Messaging.EventHubs;
 global using Azure.Messaging.EventHubs.Consumer;
 global using Azure.Messaging.EventHubs.Processor;

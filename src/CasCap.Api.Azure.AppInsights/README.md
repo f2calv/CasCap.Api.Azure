@@ -2,6 +2,12 @@
 
 Helper library for Azure Application Insights. Provides configuration binding and DI registration for Application Insights instrumentation.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.AppInsights
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |

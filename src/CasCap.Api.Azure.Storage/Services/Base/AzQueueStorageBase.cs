@@ -32,20 +32,20 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
 
     private bool _haveCheckedIfQueueExists = false;
 
-    private async ValueTask CreateQueueIfNotExistsAsync()
+    private async ValueTask CreateQueueIfNotExistsAsync(CancellationToken cancellationToken = default)
     {
-        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync() is not null))
+        if (!_haveCheckedIfQueueExists && (await _queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken) is not null))
             _logger.LogDebug("{ClassName} storage queue didn't exist so have now created {QueueName}", nameof(AzQueueStorageBase), _queueClient.Name);
         _haveCheckedIfQueueExists = true;
     }
 
     /// <inheritdoc/>
-    public Task<bool> Enqueue<T>(T obj) where T : class => Enqueue([obj]);
+    public Task<bool> Enqueue<T>(T obj, CancellationToken cancellationToken = default) where T : class => Enqueue([obj], cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<bool> Enqueue<T>(List<T> objs) where T : class
+    public async Task<bool> Enqueue<T>(List<T> objs, CancellationToken cancellationToken = default) where T : class
     {
-        await CreateQueueIfNotExistsAsync();
+        await CreateQueueIfNotExistsAsync(cancellationToken);
         var i = 1;
         foreach (var obj in objs)
         {
@@ -59,7 +59,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             Azure.Response<SendReceipt>? result = null;
             try
             {
-                result = await _queueClient.SendMessageAsync(message);
+                result = await _queueClient.SendMessageAsync(message, default, default, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -77,12 +77,12 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     }
 
     /// <inheritdoc/>
-    public async Task<(T?, QueueMessage)> DequeueSingle<T>() where T : class
+    public async Task<(T?, QueueMessage)> DequeueSingle<T>(CancellationToken cancellationToken = default) where T : class
     {
         //_logger.LogTrace("{ClassName} trying account {AccountName}...", nameof(AzQueueStorageBase), _queueClient.AccountName);
-        await CreateQueueIfNotExistsAsync();
+        await CreateQueueIfNotExistsAsync(cancellationToken);
         // Get the next message
-        var retrievedMessage = await _queueClient.ReceiveMessageAsync();
+        var retrievedMessage = await _queueClient.ReceiveMessageAsync(cancellationToken: cancellationToken);
         if (retrievedMessage is not null && retrievedMessage.Value is not null)
         {
             var json = retrievedMessage.Value.Body.ToString();
@@ -99,7 +99,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             finally
             {
-                _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt);
+                _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt, cancellationToken);
                 if (IsCorrupted)
                     _logger.LogWarning("{ClassName} removed message id {Id} from queue as it failed deserialization, '{Json}'",
                         nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, json);
@@ -114,10 +114,10 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     }
 
     /// <inheritdoc/>
-    public async Task<List<T>> DequeueMany<T>(int limit = 1) where T : class
+    public async Task<List<T>> DequeueMany<T>(int limit = 1, CancellationToken cancellationToken = default) where T : class
     {
-        await CreateQueueIfNotExistsAsync();
-        var messages = await Dequeue(limit);
+        await CreateQueueIfNotExistsAsync(cancellationToken);
+        var messages = await Dequeue(limit, cancellationToken);
         var l = new List<T>(messages.Count);
         foreach (var retrievedMessage in messages)
         {
@@ -125,17 +125,17 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             var obj = json.FromJson<T>();
             l.Add(obj!);
             //delete each message after processing
-            await _queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt);
+            await _queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt, cancellationToken);
         }
         return l;
     }
 
-    private async Task<List<QueueMessage>> Dequeue(int limit = 1)
+    private async Task<List<QueueMessage>> Dequeue(int limit = 1, CancellationToken cancellationToken = default)
     {
-        var properties = await _queueClient.GetPropertiesAsync();
+        var properties = await _queueClient.GetPropertiesAsync(cancellationToken);
         if (properties.Value.ApproximateMessagesCount > 1) limit = properties.Value.ApproximateMessagesCount;
         var l = new List<QueueMessage>(limit);
-        var messages = await _queueClient.ReceiveMessagesAsync(limit);
+        var messages = await _queueClient.ReceiveMessagesAsync(limit, cancellationToken: cancellationToken);
         foreach (var retrievedMessage in messages.Value)
             l.Add(retrievedMessage);
         return l;

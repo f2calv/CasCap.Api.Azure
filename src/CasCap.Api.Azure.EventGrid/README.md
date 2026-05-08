@@ -2,6 +2,12 @@
 
 Helper library for Azure Event Grid. Provides foundational package references for Event Grid messaging integration.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.EventGrid
+```
+
 > **Note:** This project currently contains no service classes or interfaces. It serves as a packaging placeholder with the `Azure.Messaging.EventGrid` SDK dependency ready for consumption by downstream projects.
 
 ## Services / Extensions

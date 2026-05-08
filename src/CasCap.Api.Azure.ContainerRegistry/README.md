@@ -2,6 +2,12 @@
 
 Helper library for Azure Container Registry. Provides a base service class for listing repositories and manifests.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.ContainerRegistry
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |

@@ -2,6 +2,12 @@
 
 Helper library for Azure Service Bus. Provides base service classes for queue and topic send/receive operations with event-driven message handling.
 
+## Installation
+
+```bash
+dotnet add package CasCap.Api.Azure.ServiceBus
+```
+
 ## Services / Extensions
 
 | Type | Name | Description |
