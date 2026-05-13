@@ -12,15 +12,15 @@
     <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.12.2" />
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageVersion Include="Azure.Monitor.Query" Version="1.7.1" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.27.0" />
-    <PackageVersion Include="Azure.Storage.Queues" Version="12.25.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.28.0" />
+    <PackageVersion Include="Azure.Storage.Queues" Version="12.26.0" />
     <PackageVersion Include="CasCap.Common.Abstractions" Version="4.11.2" />
     <PackageVersion Include="CasCap.Common.Extensions" Version="4.11.2" />
     <PackageVersion Include="CasCap.Common.Logging" Version="4.11.2" />
     <PackageVersion Include="CasCap.Common.Serialization.Json" Version="4.11.2" />
     <PackageVersion Include="CasCap.Common.Serialization.MessagePack" Version="4.11.2" />
     <PackageVersion Include="CasCap.Common.Testing" Version="4.11.2" />
-    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.49.1" />
+    <PackageVersion Include="Microsoft.CognitiveServices.Speech" Version="1.50.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
