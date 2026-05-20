@@ -46,6 +46,14 @@ public interface IAzBlobStorageBase
     Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Uploads a stream to the container as a blob with the specified name, overwriting any existing blob.
+    /// </summary>
+    /// <param name="blobName">The name to assign to the uploaded blob.</param>
+    /// <param name="stream">The stream content to upload. The caller is responsible for disposing.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Runs a page blob write/read test by creating a 1 GB page blob and uploading the contents of the specified file.
     /// </summary>
     /// <param name="path">The local file path whose contents will be written to the page blob. Must be 4 MB or smaller.</param>
