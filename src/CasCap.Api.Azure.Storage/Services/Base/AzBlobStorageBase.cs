@@ -151,4 +151,11 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         using var stream = new MemoryStream(bytes, writable: false);
         _ = await _blobClient.UploadAsync(stream, true, cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken)
+    {
+        var _blobClient = _containerClient.GetBlobClient(blobName);
+        _ = await _blobClient.UploadAsync(stream, true, cancellationToken);
+    }
 }
