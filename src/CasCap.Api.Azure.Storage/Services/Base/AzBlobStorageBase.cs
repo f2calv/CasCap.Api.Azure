@@ -11,23 +11,29 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public string ContainerName { get; private set; }
 
     /// <summary>Initializes a new instance of <see cref="AzBlobStorageBase" /> using a connection string.</summary>
-    protected AzBlobStorageBase(string connectionString, string containerName)
+    protected AzBlobStorageBase(string connectionString, string containerName, BlobClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ContainerName = containerName;
-        _containerClient = new BlobContainerClient(connectionString, containerName);
+        var options = serviceVersion.HasValue ? new BlobClientOptions(serviceVersion.Value) : null;
+        _containerClient = options is not null
+            ? new BlobContainerClient(connectionString, containerName, options)
+            : new BlobContainerClient(connectionString, containerName);
         _containerClient.CreateIfNotExists();
     }
 
     /// <summary>Initializes a new instance of <see cref="AzBlobStorageBase" /> using a URI and token credential.</summary>
-    protected AzBlobStorageBase(Uri blobContainerUri, string containerName, TokenCredential credential)
+    protected AzBlobStorageBase(Uri blobContainerUri, string containerName, TokenCredential credential, BlobClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentNullException.ThrowIfNull(blobContainerUri);
         ArgumentException.ThrowIfNullOrWhiteSpace(containerName);
         ContainerName = containerName;
         ArgumentNullException.ThrowIfNull(credential);
-        _containerClient = new BlobContainerClient(new Uri(blobContainerUri, containerName), credential);
+        var options = serviceVersion.HasValue ? new BlobClientOptions(serviceVersion.Value) : null;
+        _containerClient = options is not null
+            ? new BlobContainerClient(new Uri(blobContainerUri, containerName), credential, options)
+            : new BlobContainerClient(new Uri(blobContainerUri, containerName), credential);
         _containerClient.CreateIfNotExists();
     }
 

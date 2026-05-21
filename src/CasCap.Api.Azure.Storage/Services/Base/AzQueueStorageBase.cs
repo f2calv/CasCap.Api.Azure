@@ -10,24 +10,28 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     private readonly QueueClient _queueClient;
 
     /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a connection string.</summary>
-    protected AzQueueStorageBase(string connectionString, string queueName)
+    protected AzQueueStorageBase(string connectionString, string queueName, QueueClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
-        _queueClient = new QueueClient(connectionString, queueName,
-            //https://github.com/Azure/azure-sdk-for-net/issues/10242
-            new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
+        //https://github.com/Azure/azure-sdk-for-net/issues/10242
+        var options = serviceVersion.HasValue
+            ? new QueueClientOptions(serviceVersion.Value) { MessageEncoding = QueueMessageEncoding.Base64 }
+            : new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 };
+        _queueClient = new QueueClient(connectionString, queueName, options);
     }
 
     /// <summary>Initializes a new instance of <see cref="AzQueueStorageBase"/> using a <see cref="TokenCredential"/>.</summary>
-    protected AzQueueStorageBase(Uri queueUri, string queueName, TokenCredential credential)
+    protected AzQueueStorageBase(Uri queueUri, string queueName, TokenCredential credential, QueueClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentNullException.ThrowIfNull(queueUri);
         ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
         ArgumentNullException.ThrowIfNull(credential);
-        _queueClient = new QueueClient(new Uri(queueUri, queueName), credential,
-            //https://github.com/Azure/azure-sdk-for-net/issues/10242
-            new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 });
+        //https://github.com/Azure/azure-sdk-for-net/issues/10242
+        var options = serviceVersion.HasValue
+            ? new QueueClientOptions(serviceVersion.Value) { MessageEncoding = QueueMessageEncoding.Base64 }
+            : new QueueClientOptions { MessageEncoding = QueueMessageEncoding.Base64 };
+        _queueClient = new QueueClient(new Uri(queueUri, queueName), credential, options);
     }
 
     private bool _haveCheckedIfQueueExists = false;

@@ -17,18 +17,22 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     protected TableServiceClient _tableSvcClient { get; set; }
 
     /// <summary>Initializes a new instance of <see cref="AzTableStorageBase" /> using a connection string.</summary>
-    protected AzTableStorageBase(string connectionString)
+    protected AzTableStorageBase(string connectionString, TableClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _tableSvcClient = new TableServiceClient(connectionString);
+        _tableSvcClient = serviceVersion.HasValue
+            ? new TableServiceClient(connectionString, new TableClientOptions(serviceVersion.Value))
+            : new TableServiceClient(connectionString);
     }
 
     /// <summary>Initializes a new instance of <see cref="AzTableStorageBase" /> using a service endpoint and token credential.</summary>
-    protected AzTableStorageBase(Uri endpoint, TokenCredential credential)
+    protected AzTableStorageBase(Uri endpoint, TokenCredential credential, TableClientOptions.ServiceVersion? serviceVersion = null)
     {
         ArgumentNullException.ThrowIfNull(endpoint);
         ArgumentNullException.ThrowIfNull(credential);
-        _tableSvcClient = new TableServiceClient(endpoint, credential);
+        _tableSvcClient = serviceVersion.HasValue
+            ? new TableServiceClient(endpoint, credential, new TableClientOptions(serviceVersion.Value))
+            : new TableServiceClient(endpoint, credential);
     }
 
     /// <inheritdoc/>
