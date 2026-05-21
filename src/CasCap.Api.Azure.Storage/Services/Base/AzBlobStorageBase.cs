@@ -38,62 +38,10 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     }
 
     /// <inheritdoc/>
-    /// <remarks>See <see href="https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet" /> and <see href="https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-pageblob-overview?tabs=dotnet" />.</remarks>
-    public async Task PageBlobTest(string path, CancellationToken cancellationToken = default)
-    {
-        //https://docs.microsoft.com/en-us/rest/api/storageservices/understanding-block-blobs--append-blobs--and-page-blobs?WT.mc_id=AZ-MVP-5003203
-
-        //First, get a reference to a container. To create a page blob, call the GetPageBlobClient method, and then call the PageBlobClient.Create method.
-        //Pass in the max size for the blob to create. That size must be a multiple of 512 bytes.
-
-        long OneGigabyteAsBytes = 1024 * 1024 * 1024;
-
-        //BlobServiceClient blobServiceClient = new BlobServiceClient(_connectionString);
-        //var blobContainerClient = blobServiceClient.GetBlobContainerClient(_containerName);
-        //var pageBlobClient = blobContainerClient.GetPageBlobClient("0s4.vhd");
-        //pageBlobClient.Create(16 * OneGigabyteAsBytes);
-
-        var pageBlobClient = _containerClient.GetPageBlobClient("test.bin");
-        await pageBlobClient.CreateAsync(1 * OneGigabyteAsBytes, cancellationToken: cancellationToken);
-
-        //Resizing a page blob
-        //pageBlobClient.Resize(32 * OneGigabyteAsBytes, cancellationToken: cancellationToken);
-
-        //Writing pages to a page blob
-        //var array = new byte[512];
-
-        var bytes = await File.ReadAllBytesAsync(path, cancellationToken);//200kb
-
-        if (bytes.Length > 4 * 1024 * 1024)
-            throw new GenericException("bigger than 4mb");
-
-        using (var stream = new MemoryStream(bytes))
-        {
-            _ = await pageBlobClient.UploadPagesAsync(stream, 0, cancellationToken: cancellationToken);
-            //Debugger.Break();
-            //await blockBlob.UploadFromStreamAsync(stream);
-        }
-
-        IEnumerable<HttpRange> pageRanges = (await pageBlobClient.GetPageRangesAsync(cancellationToken: cancellationToken)).Value.PageRanges;
-        foreach (var range in pageRanges)
-        {
-            _ = await pageBlobClient.DownloadAsync(range, cancellationToken: cancellationToken);
-        }
-
-        _ = await pageBlobClient.DownloadAsync(new HttpRange(0, 1000), cancellationToken: cancellationToken);
-        //Debugger.Break();
-    }
-
-    /// <inheritdoc/>
     public async Task<bool> CreateContainerIfNotExists(CancellationToken cancellationToken)
     {
-        if (!await _containerClient.ExistsAsync(cancellationToken))
-        {
-            _ = await _containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
-            return true;
-        }
-        else
-            return false;
+        var response = await _containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+        return response is not null;
     }
 
     /// <inheritdoc/>
@@ -103,7 +51,6 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     /// <inheritdoc/>
     public async Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default)
     {
-        byte[] bytes;
         var blobClient = _containerClient.GetBlobClient(blobName);
 
         if (!await blobClient.ExistsAsync(cancellationToken))
@@ -111,31 +58,17 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
             _logger.LogWarning("{ClassName} blob {BlobName} does not exist", nameof(AzBlobStorageBase), blobName);
             return null;
         }
-        var downloadInfo = await blobClient.DownloadAsync(cancellationToken);
-        using (var ms = new MemoryStream())
-        {
-            await downloadInfo.Value.Content.CopyToAsync(ms, cancellationToken);
-            bytes = ms.ToArray();
-        }
-        return bytes;
+        var response = await blobClient.DownloadContentAsync(cancellationToken);
+        return response.Value.Content.ToArray();
     }
 
     /// <inheritdoc/>
     public async Task<List<BlobItem>> ListContainerBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
-        var l = new List<BlobItem>();
+        var blobs = new List<BlobItem>();
         await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken))
-            l.Add(blobItem);
-        return l;
-    }
-
-    /// <summary>Lists all blobs in the container, optionally filtered by <paramref name="prefix"/>.</summary>
-    public async Task<List<BlobItem>> ListBlobs(string? prefix = null, CancellationToken cancellationToken = default)
-    {
-        var l = new List<BlobItem>();
-        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken))
-            l.Add(blobItem);
-        return l;
+            blobs.Add(blobItem);
+        return blobs;
     }
 
     /// <inheritdoc/>
@@ -145,7 +78,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(new GetBlobsByHierarchyOptions { Prefix = prefix, Delimiter = "/" }, cancellationToken: cancellationToken))
             hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
-        _logger.LogInformation("{ClassName} Symbols/prefixes returned from blob storage are; {Symbols}",
+        _logger.LogDebug("{ClassName} prefixes returned from blob storage are; {Prefixes}",
             nameof(AzBlobStorageBase), prefixes);
         return prefixes;
     }
@@ -153,15 +86,15 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     /// <inheritdoc/>
     public async Task UploadBlob(string blobName, byte[] bytes, CancellationToken cancellationToken)
     {
-        var _blobClient = _containerClient.GetBlobClient(blobName);
+        var blobClient = _containerClient.GetBlobClient(blobName);
         using var stream = new MemoryStream(bytes, writable: false);
-        _ = await _blobClient.UploadAsync(stream, true, cancellationToken);
+        _ = await blobClient.UploadAsync(stream, true, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken)
     {
-        var _blobClient = _containerClient.GetBlobClient(blobName);
-        _ = await _blobClient.UploadAsync(stream, true, cancellationToken);
+        var blobClient = _containerClient.GetBlobClient(blobName);
+        _ = await blobClient.UploadAsync(stream, true, cancellationToken);
     }
 }

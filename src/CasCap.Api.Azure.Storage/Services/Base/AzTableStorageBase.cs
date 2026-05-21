@@ -51,7 +51,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     /// <summary>Sets the active <see cref="TableClient"/> for <paramref name="tableName"/>, optionally creating it if it does not exist.</summary>
     protected async Task<TableClient> SetActiveTable(string tableName, bool CreateIfNotExists = true, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentNullException(nameof(tableName), "expected!");
+        ArgumentException.ThrowIfNullOrWhiteSpace(tableName);
         var table = _tableSvcClient.GetTableClient(tableName);
         if (!await _tableSvcClient.ExistsAsync(table.Name) && CreateIfNotExists)
             await table.CreateIfNotExistsAsync(cancellationToken);
@@ -87,43 +87,42 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
     private async Task<List<T>> BatchOperation<T>(TableClient tbl, List<T> entities, bool useParallelism = true, bool InsertOrReplace = true, CancellationToken cancellationToken = default) where T : class, ITableEntity
     {
-        var partitions = entities.GroupBy(l => l.PartitionKey)
+        var partitions = entities.GroupBy(e => e.PartitionKey)
             .Select(g => new
             {
                 PartitionKey = g.Key,
-                Entities = g.Select(p => p).ToList()
+                Entities = g.ToList()
             }).ToList();
 
-        var retval = new List<T>(entities.Count);
-        //var batch = new List<TableTransactionAction>();
+        var retval = new ConcurrentBag<T>();
         var po = new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 };
         await Parallel.ForEachAsync(partitions, po, async (p, ct) =>
         {
             await RunBatches(p.PartitionKey, p.Entities, ct);
         });
 
-        return retval;
+        return retval.ToList();
 
-        async Task RunBatches(string _partitionKey, List<T> _entities, CancellationToken cancellationToken)
+        async Task RunBatches(string partitionKey, List<T> partitionEntities, CancellationToken cancellationToken)
         {
-            while (_entities.Count > 0)
+            while (partitionEntities.Count > 0)
             {
-                //count how many remaining records
-                var count = _entities.Count;
+                var count = partitionEntities.Count;
                 var batchSize = Math.Min(100, count);
-                var top100 = _entities.Take(batchSize).ToList();
-                var _retval = await ExecuteBatchOperation(top100, cancellationToken);
-                if (_retval.Count > 0)
+                var batch = partitionEntities.Take(batchSize).ToList();
+                var batchResult = await ExecuteBatchOperation(batch, cancellationToken);
+                if (batchResult.Count > 0)
                 {
-                    _entities.RemoveRange(0, batchSize);
-                    retval!.AddRange(_retval);
+                    partitionEntities.RemoveRange(0, batchSize);
+                    foreach (var item in batchResult)
+                        retval.Add(item);
                     _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition}, (1 of {PartitionCount}), {EntityCount} entities handled, {RemainingCount} entities remaining",
-                        nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, _partitionKey, partitions.Count, _retval.Count, count - batchSize);
-                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, _partitionKey, _retval.Count, count - batchSize));
+                        nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
+                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize));
                 }
                 else
                     _logger.LogWarning("{ClassName} table {TableName}, partition {Partition} no changes affected...",
-                        nameof(AzTableStorageBase), tbl.Name, _partitionKey);
+                        nameof(AzTableStorageBase), tbl.Name, partitionKey);
             }
         }
 
@@ -219,11 +218,10 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     }
 
     /// <inheritdoc/>
-    public static async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new()
+    public async Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom}");
-        var entities = await table.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
-        return entities.ToList();
+        return await table.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -237,8 +235,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public async Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new()
     {
         var filter = TableClient.CreateQueryFilter($"PartitionKey eq {partitionKey} and RowKey lt {rowKeyFrom} and RowKey ge {rowKeyTo}");
-        var entities = await tbl.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
-        return entities.ToList();
+        return await tbl.QueryAsync<T>(filter, cancellationToken: cancellationToken).ToListAsync(cancellationToken: cancellationToken);
     }
     #endregion
 
