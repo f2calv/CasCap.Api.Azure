@@ -52,11 +52,4 @@ public interface IAzBlobStorageBase
     /// <param name="stream">The stream content to upload. The caller is responsible for disposing.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Runs a page blob write/read test by creating a 1 GB page blob and uploading the contents of the specified file.
-    /// </summary>
-    /// <param name="path">The local file path whose contents will be written to the page blob. Must be 4 MB or smaller.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-    Task PageBlobTest(string path, CancellationToken cancellationToken = default);
 }
