@@ -77,7 +77,7 @@ public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outpu
         var downloadInfo = await _blobClient.DownloadAsync();
 
         var dir = Path.GetDirectoryName(downloadFilePath);
-        if (dir is not null && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        dir?.EnsureDirectoryExists();
         using (var fs = File.OpenWrite(downloadFilePath))
         {
             await downloadInfo.Value.Content.CopyToAsync(fs);
