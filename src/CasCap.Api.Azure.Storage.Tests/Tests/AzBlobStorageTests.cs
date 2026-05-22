@@ -71,7 +71,7 @@ public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outpu
             Debug.WriteLine("\t" + blobItem.Name);
         }
 
-        var downloadFilePath = Path.Combine("c:/temp", filename);
+        var downloadFilePath = "c:/temp".Extend(filename);
         Console.WriteLine("\nDownloading blob to\n\t{0}\n", downloadFilePath);
         // Download the blob's contents and save it to a file
         var downloadInfo = await _blobClient.DownloadAsync();
