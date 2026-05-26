@@ -118,7 +118,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                         retval.Add(item);
                     _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition}, (1 of {PartitionCount}), {EntityCount} entities handled, {RemainingCount} entities remaining",
                         nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
-                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize));
+                    OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize, DateTime.UtcNow));
                 }
                 else
                     _logger.LogWarning("{ClassName} table {TableName}, partition {Partition} no changes affected...",
