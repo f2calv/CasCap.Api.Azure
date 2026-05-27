@@ -32,7 +32,7 @@ public sealed class SpeechService : ISpeechService
     {
         using var fileOutput = AudioConfig.FromWavFileOutput(path);
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);
-        using var result = await synthesizer.SpeakTextAsync(soundByte);
+        using var result = await synthesizer.SpeakTextAsync(soundByte).ConfigureAwait(false);
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
             _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(SpeechService), soundByte);
         else if (result.Reason == ResultReason.Canceled)
@@ -52,7 +52,7 @@ public sealed class SpeechService : ISpeechService
     {
         using var audioInput = AudioConfig.FromWavFileInput(path);
         using var recognizer = new SpeechRecognizer(_speechConfig, audioInput);
-        var result = await recognizer.RecognizeOnceAsync();
+        var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
         return HandleRecognitionResult(result);
     }
 
@@ -60,7 +60,7 @@ public sealed class SpeechService : ISpeechService
     public async Task<string?> RecognizeFromMicrophone()
     {
         using var recognizer = new SpeechRecognizer(_speechConfig);
-        var result = await recognizer.RecognizeOnceAsync();
+        var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
         return HandleRecognitionResult(result);
     }
 

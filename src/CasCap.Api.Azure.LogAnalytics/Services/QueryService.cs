@@ -23,7 +23,7 @@ public sealed class QueryService(
         //var query = "availabilityResults | summarize count() by name, bin(duration,500) | order by _count desc";
         //var metric = "availabilityResults/duration";
 
-        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange);
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange).ConfigureAwait(false);
         //var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
         foreach (var row in queryResults.Value.Table.Rows)
         {
@@ -49,7 +49,7 @@ public sealed class QueryService(
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
     {
         var query = $"exceptions | limit {limit} | order by timestamp";
-        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1)));
+        var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, new QueryTimeRange(TimeSpan.FromDays(1))).ConfigureAwait(false);
         var l = new List<AppInsightsObject>(queryResults.Value.Table.Rows.Count);
         foreach (var e in queryResults.Value.Table.Rows)
         {

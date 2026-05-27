@@ -63,14 +63,14 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
     {
         try
         {
-            await _checkpointStore.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await _checkpointStore.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             _eventProcessorClient.ProcessEventAsync += ProcessEventHandler;
             _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
             try
             {
                 _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(SubscriberService<T>), _eventProcessorClient.EventHubName);
-                await _eventProcessorClient.StartProcessingAsync(cancellationToken);
-                await Task.Delay(Timeout.Infinite, cancellationToken);
+                await _eventProcessorClient.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
+                await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
             }
             catch (TaskCanceledException)
             {
@@ -79,7 +79,7 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
             finally
             {
                 // This may take up to the length of time defined as part of the configured TryTimeout of the processor; by default, this is 60 seconds.
-                await _eventProcessorClient.StopProcessingAsync(cancellationToken);
+                await _eventProcessorClient.StopProcessingAsync(cancellationToken).ConfigureAwait(false);
             }
         }
         catch
@@ -132,7 +132,7 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
 
             if (eventsSinceLastCheckpoint >= 50)
             {
-                await args.UpdateCheckpointAsync();
+                await args.UpdateCheckpointAsync().ConfigureAwait(false);
                 partitionEventCount[partitionId] = 0;
             }
         }

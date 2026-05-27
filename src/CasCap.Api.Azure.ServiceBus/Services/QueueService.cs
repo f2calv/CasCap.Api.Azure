@@ -34,7 +34,7 @@ public sealed class QueueService : ServiceBase, IQueueService
         var sender = client.CreateSender(_queueName);
 
         // send the message
-        await sender.SendMessageAsync(message);
+        await sender.SendMessageAsync(message).ConfigureAwait(false);
         _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
             nameof(QueueService), _queueName);
     }
@@ -52,7 +52,7 @@ public sealed class QueueService : ServiceBase, IQueueService
         // while all messages are not sent to the Service Bus queue
         while (messages.Count > 0)
         {
-            using var messageBatch = await sender.CreateMessageBatchAsync(cancellationToken);
+            using var messageBatch = await sender.CreateMessageBatchAsync(cancellationToken).ConfigureAwait(false);
             // add the first message to the batch
             if (messageBatch.TryAddMessage(messages.Peek()))
             {
@@ -73,7 +73,7 @@ public sealed class QueueService : ServiceBase, IQueueService
             }
 
             // now, send the batch
-            await sender.SendMessagesAsync(messageBatch, cancellationToken);
+            await sender.SendMessagesAsync(messageBatch, cancellationToken).ConfigureAwait(false);
 
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
@@ -96,11 +96,11 @@ public sealed class QueueService : ServiceBase, IQueueService
         processor.ProcessErrorAsync += ErrorHandler;
 
         // start processing
-        await processor.StartProcessingAsync(cancellationToken);
+        await processor.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
 
         // stop processing
         _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(QueueService));
-        await processor.StopProcessingAsync(cancellationToken);
+        await processor.StopProcessingAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(QueueService));
     }
 }
