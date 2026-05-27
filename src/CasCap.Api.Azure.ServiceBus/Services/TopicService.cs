@@ -1,7 +1,7 @@
 namespace CasCap.Services;
 
 /// <inheritdoc/>
-public class TopicService : ServiceBase, ITopicService
+public sealed class TopicService : ServiceBase, ITopicService
 {
     private readonly string _topicName;
     private readonly string _subscriptionName;

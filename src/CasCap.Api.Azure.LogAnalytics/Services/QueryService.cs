@@ -6,7 +6,7 @@ namespace CasCap.Services;
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public class QueryService(
+public sealed class QueryService(
     ILogger<QueryService> logger,
     IOptions<LogAnalyticsConfig> logAnalyticsConfig,
     TokenCredential credential) : IQueryService

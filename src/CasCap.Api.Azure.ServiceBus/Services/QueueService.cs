@@ -1,7 +1,7 @@
 namespace CasCap.Services;
 
 /// <inheritdoc/>
-public class QueueService : ServiceBase, IQueueService
+public sealed class QueueService : ServiceBase, IQueueService
 {
     private readonly string _queueName;
 

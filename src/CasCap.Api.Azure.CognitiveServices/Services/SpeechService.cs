@@ -1,7 +1,7 @@
 namespace CasCap.Services;
 
 /// <inheritdoc/>
-public class SpeechService : ISpeechService
+public sealed class SpeechService : ISpeechService
 {
     private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(SpeechService));
 
