@@ -1,7 +1,7 @@
 namespace CasCap.Common.Extensions;
 
 /// <summary>Extension methods for Azure Table Storage key and date helpers.</summary>
-public static class StorageExtensions
+public static partial class StorageExtensions
 {
     /// <summary>
     /// Checks whether a table with the specified name exists in the given <see cref="TableServiceClient"/>.
@@ -11,12 +11,13 @@ public static class StorageExtensions
     /// <returns><see langword="true"/> if the table exists; otherwise, <see langword="false"/>.</returns>
     public static async Task<bool> ExistsAsync(this TableServiceClient client, string tableName)
     {
-        await foreach (var tbl in client.QueryAsync(t => t.Name == tableName))
+        await foreach (var tbl in client.QueryAsync(t => t.Name == tableName).ConfigureAwait(false))
             return true;
         return false;
     }
 
-    private static readonly Regex DisallowedCharsInTableKeys = new(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]", RegexOptions.Compiled);
+    [GeneratedRegex(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]")]
+    private static partial Regex DisallowedCharsInTableKeysRegex();
     //private static readonly Regex DisallowedCharsInTableKeys = new("[#]", RegexOptions.Compiled);
     //https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns
     /// <summary>
@@ -27,7 +28,7 @@ public static class StorageExtensions
     /// <seealso href="https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns"/>
     public static bool IsKeyValid(this string tableKey)
     {
-        return !DisallowedCharsInTableKeys.IsMatch(tableKey);
+        return !DisallowedCharsInTableKeysRegex().IsMatch(tableKey);
         //string sanitizedKey = DisallowedCharsInTableKeys.Replace(tableKey, disallowedCharReplacement);
     }
 
@@ -41,7 +42,7 @@ public static class StorageExtensions
     public static DateTime GetDateFromFileName(this string path, DateTimeKind kind = DateTimeKind.Utc)
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
-        var strDt = fileName.Substring(0, 10);
+        var strDt = fileName.AsSpan(0, 10);
         if (DateTime.TryParse(strDt, out var date))
             return DateTime.SpecifyKind(date, kind);
         else
