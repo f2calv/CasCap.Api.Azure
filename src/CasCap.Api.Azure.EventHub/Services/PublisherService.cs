@@ -45,13 +45,13 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
         var l = new List<byte[]>(objs.Count);
         foreach (var obj in objs)
             l.Add(obj.ToMessagePack());
-        await Push(l);
+        await Push(l).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public async Task Push(List<byte[]> bytesCollection)
     {
-        using var eventBatch = await _producerClient.CreateBatchAsync();
+        using var eventBatch = await _producerClient.CreateBatchAsync().ConfigureAwait(false);
         try
         {
             foreach (var bytes in bytesCollection)
@@ -60,7 +60,7 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
                 if (!eventBatch.TryAdd(data))
                     throw new GenericException($"EventHubName={typeof(T).Name}, batch size too big!");
             }
-            await _producerClient.SendAsync(eventBatch);
+            await _producerClient.SendAsync(eventBatch).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -76,7 +76,7 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
         {
             var message = $"Message {i}";
             //_logger.LogDebug("{ClassName} Sending message: {Message}", nameof(PublisherService<T>), message);
-            await Push(Encoding.UTF8.GetBytes(message));
+            await Push(Encoding.UTF8.GetBytes(message)).ConfigureAwait(false);
         }
         _logger.LogDebug("{ClassName} {NumMessagesToSend} messages sent.", nameof(PublisherService<T>), numMessagesToSend);
     }

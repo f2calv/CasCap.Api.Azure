@@ -40,7 +40,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     {
         if (Interlocked.CompareExchange(ref _queueExistsChecked, 1, 0) == 0)
         {
-            if (await _queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken) is not null)
+            if (await _queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false) is not null)
                 _logger.LogDebug("{ClassName} storage queue didn't exist so have now created {QueueName}", nameof(AzQueueStorageBase), _queueClient.Name);
         }
     }
@@ -51,7 +51,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     /// <inheritdoc/>
     public async Task<bool> Enqueue<T>(List<T> objs, CancellationToken cancellationToken = default) where T : class
     {
-        await CreateQueueIfNotExistsAsync(cancellationToken);
+        await CreateQueueIfNotExistsAsync(cancellationToken).ConfigureAwait(false);
         var successCount = 0;
         foreach (var obj in objs)
         {
@@ -65,7 +65,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             Azure.Response<SendReceipt>? result = null;
             try
             {
-                result = await _queueClient.SendMessageAsync(message, default, default, cancellationToken);
+                result = await _queueClient.SendMessageAsync(message, default, default, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -85,8 +85,8 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     /// <inheritdoc/>
     public async Task<(T?, QueueMessage)> DequeueSingle<T>(CancellationToken cancellationToken = default) where T : class
     {
-        await CreateQueueIfNotExistsAsync(cancellationToken);
-        var retrievedMessage = await _queueClient.ReceiveMessageAsync(cancellationToken: cancellationToken);
+        await CreateQueueIfNotExistsAsync(cancellationToken).ConfigureAwait(false);
+        var retrievedMessage = await _queueClient.ReceiveMessageAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         if (retrievedMessage is not null && retrievedMessage.Value is not null)
         {
             var json = retrievedMessage.Value.Body.ToString();
@@ -103,7 +103,7 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             finally
             {
-                _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt, cancellationToken);
+                _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt, cancellationToken).ConfigureAwait(false);
                 if (isCorrupted)
                     _logger.LogWarning("{ClassName} removed corrupted message {MessageId} from queue {QueueName}",
                         nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
@@ -120,8 +120,8 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
     /// <inheritdoc/>
     public async Task<List<T>> DequeueMany<T>(int limit = 1, CancellationToken cancellationToken = default) where T : class
     {
-        await CreateQueueIfNotExistsAsync(cancellationToken);
-        var messages = await Dequeue(limit, cancellationToken);
+        await CreateQueueIfNotExistsAsync(cancellationToken).ConfigureAwait(false);
+        var messages = await Dequeue(limit, cancellationToken).ConfigureAwait(false);
         var l = new List<T>(messages.Count);
         foreach (var retrievedMessage in messages)
         {
@@ -129,19 +129,19 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             var obj = json.FromJson<T>();
             l.Add(obj!);
             //delete each message after processing
-            await _queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt, cancellationToken);
+            await _queueClient.DeleteMessageAsync(retrievedMessage.MessageId, retrievedMessage.PopReceipt, cancellationToken).ConfigureAwait(false);
         }
         return l;
     }
 
     private async Task<List<QueueMessage>> Dequeue(int limit = 1, CancellationToken cancellationToken = default)
     {
-        var properties = await _queueClient.GetPropertiesAsync(cancellationToken);
+        var properties = await _queueClient.GetPropertiesAsync(cancellationToken).ConfigureAwait(false);
         var available = properties.Value.ApproximateMessagesCount;
         var maxMessages = Math.Min(limit, Math.Min(available, 32));
         if (maxMessages <= 0)
             return [];
-        var messages = await _queueClient.ReceiveMessagesAsync(maxMessages, cancellationToken: cancellationToken);
+        var messages = await _queueClient.ReceiveMessagesAsync(maxMessages, cancellationToken: cancellationToken).ConfigureAwait(false);
         return [.. messages.Value];
     }
 }

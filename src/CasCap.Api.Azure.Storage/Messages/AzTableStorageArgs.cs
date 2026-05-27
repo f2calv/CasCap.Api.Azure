@@ -5,7 +5,7 @@ namespace CasCap.Messages;
 /// describing the batch that was just processed.
 /// </summary>
 /// <remarks>Some properties use camelCase naming to preserve backward compatibility with existing consumers.</remarks>
-public class AzTableStorageArgs(string storageAccountName, string tableName, string partitionKey, int count, int countRemaining, DateTime time)
+public sealed class AzTableStorageArgs(string storageAccountName, string tableName, string partitionKey, int count, int countRemaining, DateTime time)
 {
 
     /// <summary>Gets or sets the name of the storage account that owns the table.</summary>

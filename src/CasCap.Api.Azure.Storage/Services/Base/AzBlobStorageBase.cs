@@ -40,25 +40,25 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     /// <inheritdoc/>
     public async Task<bool> CreateContainerIfNotExists(CancellationToken cancellationToken)
     {
-        var response = await _containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+        var response = await _containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return response is not null;
     }
 
     /// <inheritdoc/>
     public async Task DeleteBlob(string blobName, CancellationToken cancellationToken)
-        => _ = await _containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken);
+        => _ = await _containerClient.DeleteBlobIfExistsAsync(blobName, cancellationToken: cancellationToken).ConfigureAwait(false);
 
     /// <inheritdoc/>
     public async Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default)
     {
         var blobClient = _containerClient.GetBlobClient(blobName);
 
-        if (!await blobClient.ExistsAsync(cancellationToken))
+        if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
             _logger.LogWarning("{ClassName} blob {BlobName} does not exist", nameof(AzBlobStorageBase), blobName);
             return null;
         }
-        var response = await blobClient.DownloadContentAsync(cancellationToken);
+        var response = await blobClient.DownloadContentAsync(cancellationToken).ConfigureAwait(false);
         return response.Value.Content.ToArray();
     }
 
@@ -66,7 +66,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public async Task<List<BlobItem>> ListContainerBlobs(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var blobs = new List<BlobItem>();
-        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken))
+        await foreach (var blobItem in _containerClient.GetBlobsAsync(new GetBlobsOptions { Prefix = prefix }, cancellationToken: cancellationToken).ConfigureAwait(false))
             blobs.Add(blobItem);
         return blobs;
     }
@@ -75,7 +75,7 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     public async Task<List<string>> GetBlobPrefixes(string? prefix = null, CancellationToken cancellationToken = default)
     {
         var hs = new HashSet<string>();
-        await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(new GetBlobsByHierarchyOptions { Prefix = prefix, Delimiter = "/" }, cancellationToken: cancellationToken))
+        await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(new GetBlobsByHierarchyOptions { Prefix = prefix, Delimiter = "/" }, cancellationToken: cancellationToken).ConfigureAwait(false))
             hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
         _logger.LogDebug("{ClassName} prefixes returned from blob storage are; {Prefixes}",
@@ -88,13 +88,13 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     {
         var blobClient = _containerClient.GetBlobClient(blobName);
         using var stream = new MemoryStream(bytes, writable: false);
-        _ = await blobClient.UploadAsync(stream, true, cancellationToken);
+        _ = await blobClient.UploadAsync(stream, true, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public async Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken)
     {
         var blobClient = _containerClient.GetBlobClient(blobName);
-        _ = await blobClient.UploadAsync(stream, true, cancellationToken);
+        _ = await blobClient.UploadAsync(stream, true, cancellationToken).ConfigureAwait(false);
     }
 }

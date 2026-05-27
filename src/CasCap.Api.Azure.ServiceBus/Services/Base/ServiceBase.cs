@@ -26,7 +26,7 @@ public abstract class ServiceBase(ILogger<ServiceBase> logger)
         var messageBody = args.Message.Body.ToString();
         _logger.LogInformation("{ClassName} Received: {MessageBody}", nameof(ServiceBase), messageBody);
         OnRaiseMessageReceivedEvent(args);
-        await args.CompleteMessageAsync(args.Message);
+        await args.CompleteMessageAsync(args.Message).ConfigureAwait(false);
     }
 
     /// <summary>Handles a processing error by logging the exception and raising <see cref="ErrorReceivedEvent"/>.</summary>

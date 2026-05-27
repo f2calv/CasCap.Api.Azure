@@ -1,7 +1,7 @@
 namespace CasCap.Services;
 
 /// <inheritdoc/>
-public class TopicService : ServiceBase, ITopicService
+public sealed class TopicService : ServiceBase, ITopicService
 {
     private readonly string _topicName;
     private readonly string _subscriptionName;
@@ -37,7 +37,7 @@ public class TopicService : ServiceBase, ITopicService
         await using var client = _client;
         // create a sender for the topic
         var sender = client.CreateSender(_topicName);
-        await sender.SendMessageAsync(message, cancellationToken);
+        await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
             nameof(TopicService), _topicName);
     }
@@ -56,7 +56,7 @@ public class TopicService : ServiceBase, ITopicService
         while (messages.Count > 0)
         {
             // start a new batch
-            using var messageBatch = await sender.CreateMessageBatchAsync(cancellationToken);
+            using var messageBatch = await sender.CreateMessageBatchAsync(cancellationToken).ConfigureAwait(false);
             // add the first message to the batch
             if (messageBatch.TryAddMessage(messages.Peek()))
             {
@@ -77,7 +77,7 @@ public class TopicService : ServiceBase, ITopicService
             }
 
             // now, send the batch
-            await sender.SendMessagesAsync(messageBatch, cancellationToken);
+            await sender.SendMessagesAsync(messageBatch, cancellationToken).ConfigureAwait(false);
 
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
@@ -100,11 +100,11 @@ public class TopicService : ServiceBase, ITopicService
         processor.ProcessErrorAsync += ErrorHandler;
 
         // start processing
-        await processor.StartProcessingAsync(cancellationToken);
+        await processor.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
 
         // stop processing
         _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
-        await processor.StopProcessingAsync(cancellationToken);
+        await processor.StopProcessingAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
     }
 }
