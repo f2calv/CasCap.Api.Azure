@@ -13,7 +13,7 @@
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageVersion Include="Azure.Monitor.Query" Version="1.7.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.28.0" />
-    <PackageVersion Include="Azure.Storage.Queues" Version="12.26.0" />
+    <PackageVersion Include="Azure.Storage.Queues" Version="12.27.0" />
     <PackageVersion Include="CasCap.Common.Abstractions" Version="4.11.8" />
     <PackageVersion Include="CasCap.Common.Extensions" Version="4.11.8" />
     <PackageVersion Include="CasCap.Common.Logging" Version="4.11.8" />
