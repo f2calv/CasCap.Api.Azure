@@ -13,8 +13,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     protected virtual void OnRaiseBatchCompletedEvent(AzTableStorageArgs args)
         => BatchCompletedEvent?.Invoke(this, args);
 
-    /// <summary>Gets or sets the underlying <see cref="TableServiceClient" />.</summary>
-    protected TableServiceClient _tableSvcClient { get; set; }
+    /// <summary>Gets the underlying <see cref="TableServiceClient" />.</summary>
+    protected TableServiceClient _tableSvcClient { get; }
 
     /// <summary>Initializes a new instance of <see cref="AzTableStorageBase" /> using a connection string.</summary>
     protected AzTableStorageBase(string connectionString, TableClientOptions.ServiceVersion? serviceVersion = null)
@@ -116,7 +116,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     partitionEntities.RemoveRange(0, batchSize);
                     foreach (var item in batchResult)
                         retval.Add(item);
-                    _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition}, (1 of {PartitionCount}), {EntityCount} entities handled, {RemainingCount} entities remaining",
+                    _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition} of {PartitionCount} partitions, {EntityCount} entities handled, {RemainingCount} entities remaining",
                         nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize, DateTime.UtcNow));
                 }
@@ -129,7 +129,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         async Task<List<T>> ExecuteBatchOperation(List<T> entityRows, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tbl);
-            if (entityRows.IsNullOrEmpty()) throw new ArgumentNullException(nameof(entityRows));
+            if (entityRows.IsNullOrEmpty())
+                throw new ArgumentException("Entity rows must not be null or empty.", nameof(entityRows));
             IEnumerable<TableTransactionAction> tableTxnRows;
             if (InsertOrReplace)
                 tableTxnRows = entityRows.Select(p => new TableTransactionAction(TableTransactionActionType.UpsertReplace, p));
@@ -147,7 +148,6 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 if (newTableTxnRows.Count > 0)
                     tableTxnRows = newTableTxnRows;
             }
-            //batch.AddRange(tableTxnRows);
             try
             {
                 var response = await tbl.SubmitTransactionAsync(tableTxnRows, cancellationToken).ConfigureAwait(false);
@@ -180,7 +180,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     public async Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new()
     {
         if (string.IsNullOrWhiteSpace(rowKey))
-            throw new NotImplementedException("TODO: need to create an ODATA query for TOP 1 operations...");
+            throw new NotSupportedException("A row key must be supplied; querying for the first entity in a partition (TOP 1) is not currently supported.");
         var result = await tbl.GetEntityIfExistsAsync<T>(partitionKey, rowKey, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (result.HasValue)
             return result.Value;
@@ -244,7 +244,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
     #endregion
 
     #region D - Delete
-    /// <summary>Deletes the specified table if it exists.</summary>
+    /// <inheritdoc/>
     public async Task DeleteTable(string tableName, CancellationToken cancellationToken)
     {
         if (await _tableSvcClient.ExistsAsync(tableName).ConfigureAwait(false))

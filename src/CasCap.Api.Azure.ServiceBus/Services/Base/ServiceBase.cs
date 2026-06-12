@@ -4,7 +4,7 @@ namespace CasCap.Services;
 public abstract class ServiceBase(ILogger<ServiceBase> logger)
 {
     /// <summary>Logger instance for this class.</summary>
-    protected ILogger _logger = logger;
+    protected readonly ILogger _logger = logger;
 
     /// <summary>Raised when a message is received from the Service Bus.</summary>
     public event EventHandler<ProcessMessageEventArgs>? MessageReceivedEvent;

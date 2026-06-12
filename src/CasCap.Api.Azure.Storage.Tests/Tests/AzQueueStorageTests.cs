@@ -3,7 +3,7 @@ namespace CasCap.Tests;
 /// <summary>Integration tests for <see cref="AzQueueStorageBase"/>.</summary>
 public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(output)*/
 {
-    [Fact]
+    [Fact, Trait("Category", "Integration")]
     public async Task AzQueue()
     {
         string inputTestString = nameof(inputTestString);

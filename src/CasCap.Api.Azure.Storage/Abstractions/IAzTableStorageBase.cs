@@ -76,7 +76,7 @@ public interface IAzTableStorageBase
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
     /// <param name="partitionKey">The partition key of the entity to retrieve.</param>
-    /// <param name="rowKey">The row key of the entity to retrieve. When <see langword="null"/>, the first entity in the partition is returned.</param>
+    /// <param name="rowKey">The row key of the entity to retrieve. Must be supplied; querying without a row key is not currently supported and throws <see cref="System.NotSupportedException"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>The matching entity, or <see langword="null"/> if it does not exist.</returns>
     Task<T?> GetEntity<T>(string tableName, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
@@ -87,7 +87,7 @@ public interface IAzTableStorageBase
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tbl">The <see cref="TableClient"/> targeting the source table.</param>
     /// <param name="partitionKey">The partition key of the entity to retrieve.</param>
-    /// <param name="rowKey">The row key of the entity to retrieve. When <see langword="null"/>, the first entity in the partition is returned.</param>
+    /// <param name="rowKey">The row key of the entity to retrieve. Must be supplied; querying without a row key is not currently supported and throws <see cref="System.NotSupportedException"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>The matching entity, or <see langword="null"/> if it does not exist.</returns>
     Task<T?> GetEntity<T>(TableClient tbl, string partitionKey, string? rowKey = null, CancellationToken cancellationToken = default) where T : class, ITableEntity, new();
@@ -124,6 +124,24 @@ public interface IAzTableStorageBase
     /// <returns>A list of entities in the specified partition.</returns>
     Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, CancellationToken cancellationToken) where T : class, ITableEntity, new();
 
+    /// <summary>Retrieves entities in the specified partition whose row key is strictly less than <paramref name="rowKeyFrom"/>.</summary>
+    /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
+    /// <param name="tableName">The name of the table to query.</param>
+    /// <param name="partitionKey">The partition key to filter entities by.</param>
+    /// <param name="rowKeyFrom">The row key upper bound (exclusive); only entities with a smaller row key are returned.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A list of entities with a row key less than <paramref name="rowKeyFrom"/>.</returns>
+    Task<List<T>> GetEntities<T>(string tableName, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+
+    /// <summary>Retrieves entities in the specified partition whose row key is strictly less than <paramref name="rowKeyFrom"/> using the given <see cref="TableClient"/>.</summary>
+    /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
+    /// <param name="table">The <see cref="TableClient"/> targeting the source table.</param>
+    /// <param name="partitionKey">The partition key to filter entities by.</param>
+    /// <param name="rowKeyFrom">The row key upper bound (exclusive); only entities with a smaller row key are returned.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A list of entities with a row key less than <paramref name="rowKeyFrom"/>.</returns>
+    Task<List<T>> GetEntities<T>(TableClient table, string partitionKey, string rowKeyFrom, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+
     /// <summary>Retrieves entities within a row key range from the specified partition of the given table.</summary>
     /// <typeparam name="T">The entity type, which must implement <see cref="ITableEntity"/>.</typeparam>
     /// <param name="tableName">The name of the table to query.</param>
@@ -145,4 +163,9 @@ public interface IAzTableStorageBase
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A list of entities within the specified row key range.</returns>
     Task<List<T>> GetEntities<T>(TableClient tbl, string partitionKey, string rowKeyFrom, string rowKeyTo, CancellationToken cancellationToken) where T : class, ITableEntity, new();
+
+    /// <summary>Deletes the specified table if it exists.</summary>
+    /// <param name="tableName">The name of the table to delete.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    Task DeleteTable(string tableName, CancellationToken cancellationToken);
 }
