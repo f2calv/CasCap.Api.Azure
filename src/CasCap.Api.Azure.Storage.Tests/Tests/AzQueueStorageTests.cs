@@ -28,7 +28,7 @@ public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outp
         Assert.True(result4);
 
         //dequeue test messages #2 & #3
-        var result5 = await _queueSvc.DequeueMany<TestMessage>(cancellationToken: TestContext.Current.CancellationToken);
+        var result5 = await _queueSvc.DequeueMany<TestMessage>(limit: 10, cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(result5);
         Assert.True(result5.Count >= 2, $"actually found {result5.Count} message(s)");
     }
