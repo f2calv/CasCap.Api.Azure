@@ -20,7 +20,7 @@ dotnet add package CasCap.Api.Azure.LogAnalytics
 ### Key Methods
 
 - `GetExceptions(int limit)` — Returns up to `limit` recent exception records from the workspace.
-- `Query(QueryTimeRange timeRange)` — Queries the workspace for up to 50 results and outputs to console.
+- `Query(QueryTimeRange timeRange)` — Queries the workspace for up to 50 recent records across all tables and logs them.
 
 ## Configuration
 

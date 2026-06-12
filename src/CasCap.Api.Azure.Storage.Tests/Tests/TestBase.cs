@@ -35,7 +35,7 @@ public abstract class TestBase
         services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
 
         //assign services to be tested
-        using var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
         serviceProvider.AddStaticLogging();
         _blobSvc = serviceProvider.GetRequiredService<IAzBlobService>();
         _queueSvc = serviceProvider.GetRequiredService<IAzQueueService>();

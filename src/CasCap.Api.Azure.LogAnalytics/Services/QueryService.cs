@@ -13,37 +13,15 @@ public sealed class QueryService(
 {
     private readonly LogsQueryClient client = new(credential);
 
-    /// <summary>Queries the workspace for up to 50 results and writes them to the console.</summary>
+    /// <inheritdoc/>
     public async Task Query(QueryTimeRange timeRange)
     {
-        //var query = "traces | where operation_Id contains '33f491236bb412419002b006e1c3058b'";
-        //var query = "exceptions | order by timestamp";
-        //var query = "union * | limit 5";
         var query = "union * | limit 50 | order by timestamp";
-        //var query = "availabilityResults | summarize count() by name, bin(duration,500) | order by _count desc";
-        //var metric = "availabilityResults/duration";
 
         var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange).ConfigureAwait(false);
-        //var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
         foreach (var row in queryResults.Value.Table.Rows)
-        {
-            // Do something with query results
-            logger.LogInformation(string.Join("    ", row));
-            Console.WriteLine(string.Join("    ", row));
-        }
+            logger.LogInformation("{ClassName} {Row}", nameof(QueryService), string.Join("    ", row));
     }
-
-    //public async Task GetCustomEvents(string timespan = "P1D")
-    //{
-    //    var query = "customEvents";
-    //    var queryResults = await client.Query.ExecuteAsync(_appInsightsOptions.ApiApplicationId, query, timespan);
-    //    //foreach (var e in queryResults.Results)
-    //    //{
-    //    //    var name = e.Values[0]CustomEvent.Name;
-    //    //    var time = e.Timestamp?.ToString("s") ?? "";
-    //    //    Console.WriteLine($"{time}: {name}");
-    //    //}
-    //}
 
     /// <inheritdoc/>
     public async Task<List<AppInsightsObject>> GetExceptions(int limit = 50)
@@ -55,7 +33,7 @@ public sealed class QueryService(
         {
             var obj = new AppInsightsObject
             {
-                timestamp = DateTime.Parse(e[nameof(AppInsightsObject.timestamp)].ToString()!),
+                timestamp = DateTime.Parse(e[nameof(AppInsightsObject.timestamp)].ToString()!, CultureInfo.InvariantCulture),
                 cloud_RoleInstance = e[nameof(AppInsightsObject.cloud_RoleInstance)].ToString()!,
                 customDimensions = e[nameof(AppInsightsObject.customDimensions)],
                 appId = new Guid(e[nameof(AppInsightsObject.appId)].ToString()!),

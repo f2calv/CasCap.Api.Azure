@@ -31,23 +31,21 @@ public sealed class TopicService : ServiceBase, ITopicService
         _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
-    /// <summary>Sends a single <paramref name="message"/> to the topic.</summary>
+    /// <inheritdoc/>
     public async Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default)
     {
-        await using var client = _client;
         // create a sender for the topic
-        var sender = client.CreateSender(_topicName);
+        var sender = _client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
             nameof(TopicService), _topicName);
     }
 
-    /// <summary>Sends a batch of <paramref name="messages"/> to the topic.</summary>
+    /// <inheritdoc/>
     public async Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default)
     {
-        await using var client = _client;
         // create a sender for the topic
-        var sender = client.CreateSender(_topicName);
+        var sender = _client.CreateSender(_topicName);
 
         // total number of messages to be sent to the Service Bus topic
         var messageCount = messages.Count;
@@ -86,12 +84,11 @@ public sealed class TopicService : ServiceBase, ITopicService
             nameof(TopicService), messageCount, _topicName);
     }
 
-    /// <summary>Starts receiving messages from the topic subscription until processing is stopped.</summary>
+    /// <inheritdoc/>
     public async Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default)
     {
-        await using var client = _client;
         // create a processor that we can use to process the messages
-        var processor = client.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions());
+        var processor = _client.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions());
 
         // add handler to process messages
         processor.ProcessMessageAsync += MessageHandler;
@@ -99,12 +96,31 @@ public sealed class TopicService : ServiceBase, ITopicService
         // add handler to process any errors
         processor.ProcessErrorAsync += ErrorHandler;
 
-        // start processing
-        await processor.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            // start processing and keep running until cancellation is requested
+            await processor.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
+            await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // expected when the caller cancels to stop receiving
+        }
+        finally
+        {
+            _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
+            await processor.StopProcessingAsync(CancellationToken.None).ConfigureAwait(false);
+            processor.ProcessMessageAsync -= MessageHandler;
+            processor.ProcessErrorAsync -= ErrorHandler;
+            await processor.DisposeAsync().ConfigureAwait(false);
+            _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
+        }
+    }
 
-        // stop processing
-        _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
-        await processor.StopProcessingAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
+    /// <inheritdoc/>
+    public async ValueTask DisposeAsync()
+    {
+        await _client.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
     }
 }

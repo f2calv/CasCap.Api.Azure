@@ -18,8 +18,7 @@ public static partial class StorageExtensions
 
     [GeneratedRegex(@"[\\\\#%/?\^\u0000-\u001F\u007F-\u009F]")]
     private static partial Regex DisallowedCharsInTableKeysRegex();
-    //private static readonly Regex DisallowedCharsInTableKeys = new("[#]", RegexOptions.Compiled);
-    //https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns
+
     /// <summary>
     /// Determines whether the specified string is a valid Azure Table Storage partition or row key by checking for disallowed characters.
     /// </summary>
@@ -29,7 +28,6 @@ public static partial class StorageExtensions
     public static bool IsKeyValid(this string tableKey)
     {
         return !DisallowedCharsInTableKeysRegex().IsMatch(tableKey);
-        //string sanitizedKey = DisallowedCharsInTableKeys.Replace(tableKey, disallowedCharReplacement);
     }
 
     /// <summary>
@@ -43,10 +41,10 @@ public static partial class StorageExtensions
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
         var strDt = fileName.AsSpan(0, 10);
-        if (DateTime.TryParse(strDt, out var date))
+        if (DateTime.TryParse(strDt, CultureInfo.InvariantCulture, out var date))
             return DateTime.SpecifyKind(date, kind);
         else
-            throw new ArgumentException("unable to parse {path} to retrieve date", path);
+            throw new ArgumentException($"unable to parse '{path}' to retrieve date", nameof(path));
     }
 
     /// <summary>A sentinel maximum date value (2050-01-01 UTC) used to represent "no expiry".</summary>
@@ -130,7 +128,7 @@ public static partial class StorageExtensions
     {
         thisRowKey = thisRowKey ?? throw new ArgumentNullException(nameof(thisRowKey));
         if (!long.TryParse(thisRowKey, out long rowKeyValue))
-            throw new ArgumentException("unable to parse {rowKey} to retrieve tick count", thisRowKey);
+            throw new ArgumentException($"unable to parse '{thisRowKey}' to retrieve tick count", nameof(thisRowKey));
         return GetDateTimeFromRowKey(rowKeyValue, dt, lexicalOrder);
     }
 

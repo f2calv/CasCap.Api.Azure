@@ -1,21 +1,49 @@
 # CasCap.Api.Azure.Storage.Tests
 
-xUnit integration tests for the `CasCap.Api.Azure.Storage` library. Tests cover Blob Storage and Queue Storage operations against an Azurite emulator.
+xUnit tests for the `CasCap.Api.Azure.Storage` library. Covers Blob Storage and Queue Storage operations against an Azurite emulator, plus self-contained unit tests for the storage key/date helper extensions.
 
-> **Note:** Tests require the Azurite storage emulator running via `docker compose up -d` from the repository root. See the root [README.md](../../README.md) for details.
+> **Note:** Integration tests require the Azurite storage emulator running via `docker compose up -d` from the repository root. See the root [README.md](../../README.md) for details. The `AzStorageHelpersTests` unit tests have no external dependency.
 
 ## Test Classes
+
+| Class | Methods | Cases | Description |
+| --- | --- | --- | --- |
+| `AzStorageHelpersTests` | 10 | 18 | Unit tests for `StorageExtensions` key/date helpers (partition key, row key, validation, file-name parsing). |
+| `AzBlobStorageTests` | 1 | 1 | Integration test for `AzBlobStorageBase` (container creation, upload, round-trip download). |
+| `AzQueueStorageTests` | 1 | 1 | Integration test for `AzQueueStorageBase` (enqueue, dequeue single/many). |
+| **Total** | **12** | **20** | |
+
+Test case counts exceed method counts because `[Theory]` methods expand to multiple cases via `[InlineData]`.
+
+## Trait Categories
+
+| Category | Applies To |
+| --- | --- |
+| `Storage Keys` | `AzStorageHelpersTests` (self-contained unit tests) |
+| `Integration` | `AzBlobStorageTests`, `AzQueueStorageTests` (require Azurite) |
+
+## Skipped Tests
+
+None.
+
+## File Structure
+
+```text
+Tests/
+├── TestBase.cs              # DI + logging + Azurite connection string from appsettings.Test.json
+├── AzStorageHelpersTests.cs # Unit tests (no external dependency)
+├── AzBlobStorageTests.cs    # Integration tests (Azurite)
+├── AzQueueStorageTests.cs   # Integration tests (Azurite)
+├── AzBlobService.cs         # Concrete AzBlobStorageBase test helper
+├── AzQueueService.cs        # Concrete AzQueueStorageBase test helper
+└── TestMessage.cs           # Queue message payload DTO
+```
+
+## Test Support Types
 
 | Class | Description |
 | --- | --- |
 | `TestBase` | Abstract base configuring DI, logging, and Azurite connection string from `appsettings.Test.json`. |
-| `AzBlobStorageTests` | Integration tests for `AzBlobStorageBase` (container creation, upload, download, list, delete). |
-| `AzQueueStorageTests` | Integration tests for `AzQueueStorageBase` (enqueue, dequeue single/many). |
-
-## Test Services
-
-| Class | Description |
-| --- | --- |
 | `AzBlobService` | Concrete `AzBlobStorageBase` implementation for test blob operations. |
 | `AzQueueService` | Concrete `AzQueueStorageBase` implementation for test queue operations. |
 | `TestMessage` | Simple DTO with `Id`, `Dt`, and `TestString` used as a queue message payload. |

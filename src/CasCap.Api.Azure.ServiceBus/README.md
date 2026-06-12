@@ -20,15 +20,17 @@ dotnet add package CasCap.Api.Azure.ServiceBus
 
 ### Key Methods — `QueueService`
 
-- `SendMessageAsync(ServiceBusMessage)` — Sends a single message to the queue.
+- `SendMessageAsync(ServiceBusMessage, CancellationToken)` — Sends a single message to the queue.
 - `SendMessageBatchAsync(Queue<ServiceBusMessage>, CancellationToken)` — Sends a batch of messages.
-- `ReceiveMessagesAsync(CancellationToken)` — Receives and processes messages from the queue.
+- `ReceiveMessagesAsync(CancellationToken)` — Receives and processes messages from the queue until cancelled.
+- `DisposeAsync()` — Disposes the underlying `ServiceBusClient` (`IAsyncDisposable`).
 
 ### Key Methods — `TopicService`
 
 - `SendMessageToTopicAsync(ServiceBusMessage, CancellationToken)` — Sends a single message to the topic.
 - `SendMessageBatchToTopicAsync(Queue<ServiceBusMessage>, CancellationToken)` — Sends a batch of messages.
-- `ReceiveFromSubscriptionAsync(CancellationToken)` — Receives and processes messages from a subscription.
+- `ReceiveMessagesFromSubscriptionAsync(CancellationToken)` — Receives and processes messages from a subscription until cancelled.
+- `DisposeAsync()` — Disposes the underlying `ServiceBusClient` (`IAsyncDisposable`).
 
 ## Class Hierarchy
 
@@ -54,25 +56,28 @@ classDiagram
 
     class IQueueService {
         <<interface>>
-        +SendMessageAsync(message) Task
+        +SendMessageAsync(message, token) Task
         +SendMessageBatchAsync(messages, token) Task
         +ReceiveMessagesAsync(token) Task
+        +DisposeAsync() ValueTask
     }
 
     class QueueService {
         -ServiceBusClient Client
         -ServiceBusSender Sender
         -ServiceBusProcessor Processor
-        +SendMessageAsync(message) Task
+        +SendMessageAsync(message, token) Task
         +SendMessageBatchAsync(messages, token) Task
         +ReceiveMessagesAsync(token) Task
+        +DisposeAsync() ValueTask
     }
 
     class ITopicService {
         <<interface>>
         +SendMessageToTopicAsync(message, token) Task
         +SendMessageBatchToTopicAsync(messages, token) Task
-        +ReceiveFromSubscriptionAsync(token) Task
+        +ReceiveMessagesFromSubscriptionAsync(token) Task
+        +DisposeAsync() ValueTask
     }
 
     class TopicService {
@@ -81,7 +86,8 @@ classDiagram
         -ServiceBusProcessor Processor
         +SendMessageToTopicAsync(message, token) Task
         +SendMessageBatchToTopicAsync(messages, token) Task
-        +ReceiveFromSubscriptionAsync(token) Task
+        +ReceiveMessagesFromSubscriptionAsync(token) Task
+        +DisposeAsync() ValueTask
     }
 
     QueueService ..> ServiceBusClient : uses
@@ -98,7 +104,7 @@ classDiagram
 2. Subscribe to `MessageReceivedEvent` for incoming messages
 3. Subscribe to `ErrorReceivedEvent` for error handling
 4. Use `SendMessageAsync` / `SendMessageBatchAsync` for sending
-5. Use `ReceiveMessagesAsync` / `ReceiveFromSubscriptionAsync` to start listening
+5. Use `ReceiveMessagesAsync` / `ReceiveMessagesFromSubscriptionAsync` to start listening
 
 ## Configuration
 

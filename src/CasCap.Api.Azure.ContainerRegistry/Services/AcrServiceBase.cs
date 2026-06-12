@@ -6,6 +6,8 @@ public abstract class AcrServiceBase
     /// <summary>Logger instance for this class.</summary>
     protected readonly ILogger _logger;
 
+    private readonly ContainerRegistryClient _client;
+
     /// <summary>Initializes a new instance of <see cref="AcrServiceBase" /> using a service endpoint and token credential.</summary>
     protected AcrServiceBase(ILogger<AcrServiceBase> logger, Uri endpoint, TokenCredential credential)
     {
@@ -15,8 +17,6 @@ public abstract class AcrServiceBase
         _client = new ContainerRegistryClient(endpoint, credential);
     }
 
-    private readonly ContainerRegistryClient _client;
-
     /// <summary>Lists all repositories and their manifests in the registry.</summary>
     /// <remarks>
     /// See <see href="https://docs.microsoft.com/en-us/dotnet/api/overview/azure/containers.containerregistry-readme-pre" /> and
@@ -24,7 +24,6 @@ public abstract class AcrServiceBase
     /// </remarks>
     public async Task ListRepos()
     {
-        // Perform an operation
         AsyncPageable<string> repositories = _client.GetRepositoryNamesAsync();
         await foreach (var repositoryName in repositories.ConfigureAwait(false))
         {
@@ -34,9 +33,7 @@ public abstract class AcrServiceBase
 
             var manifests = repo.GetAllManifestPropertiesAsync(ArtifactManifestOrder.LastUpdatedOnDescending);
             await foreach (var manifest in manifests.ConfigureAwait(false))
-            {
                 _logger.LogInformation("{ClassName} {RepositoryName} tags={Tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
-            }
         }
     }
 }
