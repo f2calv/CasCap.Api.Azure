@@ -31,7 +31,7 @@ public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outpu
 
         await _blobSvc.UploadBlob(blobName, fileBytes, cts.Token);
 
-        var downloadedBytes = await _blobSvc.DownloadBlobAsync(blobName);
+        var downloadedBytes = await _blobSvc.DownloadBlobAsync(blobName, cts.Token);
         Assert.NotNull(downloadedBytes);
         Assert.Equal(fileBytes, downloadedBytes);
     }
