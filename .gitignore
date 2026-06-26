@@ -431,3 +431,6 @@ FodyWeavers.xsd
 .docker/*
 !.docker/p3x.json
 !.docker/redis.conf
+
+# HVE / Copilot runtime artefacts
+.copilot-tracking/
