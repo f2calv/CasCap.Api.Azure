@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" />
+    <PackageReference Include="Azure.Core" />
 	<PackageReference Include="Azure.Identity" />
   </ItemGroup>
 
