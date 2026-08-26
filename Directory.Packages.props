@@ -12,7 +12,7 @@
     <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.12.2" />
     <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.2" />
     <PackageVersion Include="Azure.Monitor.Query" Version="1.7.1" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.2" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.27.1" />
     <PackageVersion Include="CasCap.Common.Abstractions" Version="4.12.5" />
     <PackageVersion Include="CasCap.Common.Extensions" Version="4.12.5" />
