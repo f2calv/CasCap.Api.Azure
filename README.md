@@ -376,14 +376,6 @@ All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making
 - [ ] Properties separated by blank lines
 - [ ] `ServiceProvider` instances are disposed in tests
 
-## Contributing
-
-1. Fork the repository and create a feature branch
-2. Follow all conventions documented above
-3. Run the full validation checklist before submitting a PR
-4. PRs target the `main` branch and require CI to pass
-5. Versioning is automated via GitVersion — do not manually edit version numbers
-
 ## Common Gotchas
 
 1. **Debug vs Release solution:**
