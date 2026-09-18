@@ -1,3 +1,4 @@
+global using Azure.AI.Speech.Transcription;
 global using Azure.Core;
 global using CasCap.Abstractions;
 global using Microsoft.CognitiveServices.Speech;

@@ -7,6 +7,11 @@ public sealed class SpeechService : ISpeechService
 
     private readonly SpeechConfig _speechConfig;
 
+    //The fast transcription API is reached over its own endpoint rather than through SpeechConfig,
+    //so the coordinates are kept for TranscribeAsync to build a client from.
+    private readonly Uri? _endpoint;
+    private readonly TokenCredential? _credential;
+
     /// <summary>Initializes a new instance of <see cref="SpeechService"/> using a subscription key.</summary>
     public SpeechService(string subscriptionKey, string region = "westeurope")
     {
@@ -25,6 +30,40 @@ public sealed class SpeechService : ISpeechService
         ArgumentNullException.ThrowIfNull(endpoint);
         ArgumentNullException.ThrowIfNull(credential);
         _speechConfig = SpeechConfig.FromEndpoint(endpoint, credential);
+        _endpoint = endpoint;
+        _credential = credential;
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> TranscribeAsync(Stream audio, IReadOnlyList<string>? locales = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(audio);
+        if (_endpoint is null || _credential is null)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(TranscribeAsync)} requires the endpoint and credential constructor; the " +
+                "subscription-key constructor does not carry the resource endpoint the fast transcription API needs.");
+        }
+
+        //TODO: alternatives to the fast transcription API, should it prove unsuitable:
+        //  - Continuous recognition via SpeechRecognizer. Works on the free tier, handles any length, but is
+        //    event-driven and needs its own completion handling.
+        //  - RecognizeOnceAsync, as used by RecognizeFromWAV. Simplest, but stops at the first utterance and so
+        //    silently truncates anything beyond roughly 15 seconds.
+        var client = new TranscriptionClient(_endpoint, _credential);
+        var options = new TranscriptionOptions(audio);
+        if (locales is { Count: > 0 })
+        {
+            foreach (var locale in locales)
+                options.Locales.Add(locale);
+        }
+
+        var response = await client.TranscribeAsync(options, cancellationToken).ConfigureAwait(false);
+        var text = response.Value.CombinedPhrases.FirstOrDefault()?.Text;
+        _logger.LogDebug("{ClassName} transcribed {PhraseCount} phrase(s)", nameof(SpeechService),
+            response.Value.Phrases.Count);
+        return string.IsNullOrWhiteSpace(text) ? null : text;
     }
 
     /// <inheritdoc/>
