@@ -11,11 +11,15 @@ public sealed class SpeechService : ISpeechService
     //so the coordinates are kept for TranscribeAsync to build a client from.
     private readonly Uri? _endpoint;
     private readonly TokenCredential? _credential;
+    private readonly string? _subscriptionKey;
+    private readonly string _region;
 
     /// <summary>Initializes a new instance of <see cref="SpeechService"/> using a subscription key.</summary>
     public SpeechService(string subscriptionKey, string region = "westeurope")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionKey);
+        _subscriptionKey = subscriptionKey;
+        _region = region;
         //note: WSL 2 w/Ubuntu 18.04 needs 'sudo apt-get update && sudo apt-get -y install libasound2'
         _speechConfig = SpeechConfig.FromSubscription(subscriptionKey, region);
         //_speechConfig.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm);
@@ -32,7 +36,44 @@ public sealed class SpeechService : ISpeechService
         _speechConfig = SpeechConfig.FromEndpoint(endpoint, credential);
         _endpoint = endpoint;
         _credential = credential;
+        _region = string.Empty;
     }
+
+    /// <inheritdoc/>
+    public async Task<byte[]?> SynthesizeAsync(string text, string? voice = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(text);
+
+        //A dedicated config, because the synthesis output format would otherwise put Opus bytes inside
+        //  the WAV file that CreateWAV writes.
+        var config = _endpoint is not null && _credential is not null
+            ? SpeechConfig.FromEndpoint(_endpoint, _credential)
+            : SpeechConfig.FromSubscription(_subscriptionKey!, _region);
+        config.SetSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Ogg48Khz16BitMonoOpus);
+
+        //A null AudioConfig keeps the result in memory rather than reaching for an audio device.
+        using var synthesizer = new SpeechSynthesizer(config, null);
+        //The voice is selected through SSML rather than by mutating the shared SpeechConfig, which
+        //  would not be safe for concurrent callers.
+        using var result = voice is { Length: > 0 }
+            ? await synthesizer.SpeakSsmlAsync(BuildSsml(text, voice)).ConfigureAwait(false)
+            : await synthesizer.SpeakTextAsync(text).ConfigureAwait(false);
+
+        if (result.Reason == ResultReason.SynthesizingAudioCompleted)
+            return result.AudioData is { Length: > 0 } audio ? audio : null;
+
+        if (result.Reason == ResultReason.Canceled)
+        {
+            var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
+            _logger.LogError("{ClassName} synthesis CANCELED: Reason={Reason}, ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}",
+                nameof(SpeechService), cancellation.Reason, cancellation.ErrorCode, cancellation.ErrorDetails);
+        }
+        return null;
+    }
+
+    private static string BuildSsml(string text, string voice) =>
+        $"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-GB"><voice name="{voice}">{System.Security.SecurityElement.Escape(text)}</voice></speak>""";
 
     /// <inheritdoc/>
     public async Task<string?> TranscribeAsync(Stream audio, IReadOnlyList<string>? locales = null,

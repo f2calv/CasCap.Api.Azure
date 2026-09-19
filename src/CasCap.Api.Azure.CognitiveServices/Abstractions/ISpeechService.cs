@@ -7,6 +7,20 @@ public interface ISpeechService
     /// <summary>Synthesizes <paramref name="soundByte"/> as speech and writes the result to a WAV file at <paramref name="path"/>.</summary>
     Task CreateWAV(string soundByte, string path);
 
+    /// <summary>Synthesizes <paramref name="text"/> as speech and returns the encoded audio.</summary>
+    /// <param name="text">The text to speak.</param>
+    /// <param name="voice">
+    /// Full voice name such as <c>en-GB-SoniaNeural</c>. When <see langword="null"/> the resource default is used.
+    /// </param>
+    /// <param name="cancellationToken">Cancels the request.</param>
+    /// <returns>Ogg Opus audio, or <see langword="null"/> when synthesis produced nothing.</returns>
+    /// <remarks>
+    /// Unlike <see cref="CreateWAV"/> this returns the bytes, so no temporary file is required. Opus in
+    /// an Ogg container is chosen because it is what messaging clients use for voice notes.
+    /// </remarks>
+    Task<byte[]?> SynthesizeAsync(string text, string? voice = null,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Recognizes speech from a WAV file at <paramref name="path"/> and returns the transcribed text.</summary>
     /// <returns>The recognized text, or <see langword="null"/> if recognition failed or no speech was detected.</returns>
     Task<string?> RecognizeFromWAV(string path);
