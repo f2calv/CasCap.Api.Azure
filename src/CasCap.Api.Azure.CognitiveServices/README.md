@@ -18,9 +18,14 @@ dotnet add package CasCap.Api.Azure.CognitiveServices
 ### Key Methods
 
 - `CreateWAV(string soundByte, string path)` — Synthesizes text to a WAV file.
+- `SynthesizeAsync(string text, string? voice, CancellationToken)` — Synthesizes text and returns Ogg Opus audio, or `null` when synthesis produced nothing.
 - `TranscribeAsync(Stream audio, IReadOnlyList<string>? locales, CancellationToken)` — Transcribes an audio stream through the fast transcription API.
 - `RecognizeFromWAV(string path)` — Transcribes speech from a WAV file.
 - `RecognizeFromMicrophone()` — Transcribes speech from the default microphone.
+
+Prefer `SynthesizeAsync` over `CreateWAV` for synthesis. It returns the bytes, so no temporary file is
+needed, and it emits Opus in an Ogg container, which is the format messaging clients expect for voice
+notes. Pass `voice` as a full name such as `en-GB-SoniaNeural`; omit it to use the resource default.
 
 Prefer `TranscribeAsync` for recorded audio. It takes a stream, so no temporary file is needed, and it
 transcribes the whole recording, where the `Recognize*` methods stop at the first utterance and so
