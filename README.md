@@ -307,7 +307,7 @@ dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
 
 ### Suppressed Warnings
 
-Configured in `Directory.Build.props`: `IDE1006`, `IDE0079`, `IDE0042`, `CS0162`, `CS1574`, `S125`, `NETSDK1233`, `NU1901`, `NU1902`, `NU1903`
+Configured in `Directory.Build.props`: `IDE1006`, `IDE0042`, `NETSDK1233`, `NU1901`, `NU1902`, `NU1903`
 
 ## CI/CD Pipeline (.github/workflows/ci.yml)
 
@@ -375,14 +375,6 @@ All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making
 - [ ] Public API has XML documentation
 - [ ] Properties separated by blank lines
 - [ ] `ServiceProvider` instances are disposed in tests
-
-## Contributing
-
-1. Fork the repository and create a feature branch
-2. Follow all conventions documented above
-3. Run the full validation checklist before submitting a PR
-4. PRs target the `main` branch and require CI to pass
-5. Versioning is automated via GitVersion — do not manually edit version numbers
 
 ## Common Gotchas
 
