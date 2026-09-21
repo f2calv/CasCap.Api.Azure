@@ -51,8 +51,8 @@ jobs:
       contents: read #checkout
       packages: write #push to nuget.pkg.github.com
     services:
-      redis:
-        image: mcr.microsoft.com/azure-storage/azurite
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite:3.37.0
         ports:
           - 10000:10000 #blob
           - 10001:10001 #queue
@@ -68,7 +68,6 @@ jobs:
           push-preview: ${{ inputs.push-preview }}
           version: ${{ needs.versioning.outputs.version }}
           solution-name: CasCap.Api.Azure.Release.slnx
-          execute-tests: false #TODO: remove this when Azurite container is updated
 
   release:
     needs: [lint, versioning, build]
