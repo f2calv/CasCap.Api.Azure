@@ -3,8 +3,7 @@ services:
   #https://github.com/azure/azurite
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.37.0 #formerly arafato/azurite
-    #--skipApiVersionCheck: the Azure Storage SDK can send a newer x-ms-version than the latest Azurite image supports.
-    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --skipApiVersionCheck --location /data
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data
     volumes:
       - ./.docker/azurite:/data
     ports:

@@ -113,6 +113,7 @@ No configuration model. Services are constructed directly with connection string
 | --- |
 | [Azure.Messaging.EventHubs](https://www.nuget.org/packages/azure.messaging.eventhubs) |
 | [Azure.Messaging.EventHubs.Processor](https://www.nuget.org/packages/azure.messaging.eventhubs.processor) |
+| [Azure.Storage.Blobs](https://www.nuget.org/packages/azure.storage.blobs) |
 | [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
 | [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
 | [CasCap.Common.Serialization.MessagePack](https://www.nuget.org/packages/cascap.common.serialization.messagepack) |

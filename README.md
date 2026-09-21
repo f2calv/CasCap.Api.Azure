@@ -253,8 +253,6 @@ dotnet test CasCap.Api.Azure.Release.slnx --configuration Release --no-build --v
 docker compose down
 ```
 
-> **KNOWN ISSUE:** Tests currently fail with "API version 2026-02-06 is not supported by Azurite" errors. This is a known compatibility issue documented in `.github/workflows/ci.yml` (`execute-tests: false`). The CI explicitly skips tests.
-
 ### Quick Reference
 
 **Full build from scratch:**
@@ -321,7 +319,7 @@ Configured in `Directory.Build.props`: `IDE1006`, `IDE0042`, `NETSDK1233`, `NU19
    - Azurite service container (ports 10000-10002)
    - Reusable workflow `f2calv/gha-dotnet-nuget@v2`
    - Configuration: Release (default) or Debug (manual)
-   - **Tests are disabled** (`execute-tests: false`) due to Azurite API version incompatibility
+   - Blob, Queue, and storage helper tests run against Azurite 3.37.0
 4. **release** - Creates GitHub releases (only on main or preview branches)
 
 ## Multi-Targeting Notes
@@ -388,10 +386,9 @@ All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making
    - Never add version attributes to `<PackageReference>` in .csproj files
    - Update versions only in Directory.Packages.props
 
-3. **Azurite Test Failures:**
-   - Tests fail with API version errors - this is EXPECTED
-   - Don't spend time trying to fix this unless specifically tasked
-   - CI intentionally skips tests
+3. **Azurite Tests:**
+   - Keep local Compose and CI on the same Azurite version
+   - Run the storage tests against Azurite before changing storage behavior
 
 4. **Docker Compose Command:**
    - Use `docker compose` (not `docker-compose`)
