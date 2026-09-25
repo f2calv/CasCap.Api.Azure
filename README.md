@@ -244,7 +244,7 @@ docker compose up -d
 **Run tests:**
 
 ```bash
-dotnet test CasCap.Api.Azure.Release.slnx --configuration Release --no-build --verbosity normal
+dotnet test --solution CasCap.Api.Azure.Release.slnx --configuration Release --no-build --verbosity normal
 ```
 
 **Stop Azurite after testing:**
@@ -269,7 +269,7 @@ dotnet format CasCap.Api.Azure.Release.slnx --no-restore
 docker compose up -d
 dotnet restore CasCap.Api.Azure.Release.slnx
 dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-dotnet test CasCap.Api.Azure.Release.slnx --configuration Release --no-build
+dotnet test --solution CasCap.Api.Azure.Release.slnx --configuration Release --no-build
 docker compose down
 ```
 
