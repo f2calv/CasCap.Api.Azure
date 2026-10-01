@@ -1,6 +1,36 @@
 # CasCap.Api.Azure.Auth
 
-Helper library for Azure authentication. Provides a factory for creating `TokenCredential` instances from certificate-based configuration properties and an abstraction for Azure Key Vault and Entra ID settings.
+Azure authentication helpers that give applications one configuration model and credential factory
+across development, Edge, and Azure-hosted environments:
+
+- **Developer workstations** can load a client certificate from the current user's certificate
+  store, a combined PEM file, or a PFX file.
+- **Edge and self-managed deployments** can mount one combined PEM or PFX client certificate without
+  requiring Azure Arc, cluster membership in Entra ID, or a cloud-managed node identity.
+- **Azure-hosted Kubernetes workloads** can use federated workload identity. The library detects the
+  injected Azure environment and creates a `WorkloadIdentityCredential` without a certificate or
+  client secret.
+- **Local or disconnected environments** can disable Key Vault integration explicitly and use other
+  configuration providers.
+
+Every enabled path produces an Azure SDK `TokenCredential`, so the application can use the same
+startup and dependency-injection flow for Key Vault, Storage, Event Hubs, Service Bus, and other
+token-aware Azure clients.
+
+```mermaid
+flowchart LR
+    DEV["Developer workstation"] --> STORE["Certificate store"]
+    DEV --> FILE["Combined PEM or PFX"]
+    EDGE["Edge / self-managed"] --> FILE
+    AZURE["Azure-hosted Kubernetes"] --> FEDERATED["Federated service-account token"]
+
+    STORE --> CLIENT_CERT["ClientCertificateCredential"]
+    FILE --> CLIENT_CERT
+    FEDERATED --> WORKLOAD["WorkloadIdentityCredential"]
+
+    CLIENT_CERT --> SDK["Azure SDK clients"]
+    WORKLOAD --> SDK
+```
 
 ## Installation
 
@@ -15,12 +45,12 @@ dotnet add package CasCap.Api.Azure.Auth
 | Type | Name | Description |
 | --- | --- | --- |
 | Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint, combined PEM path, or PFX path/password, and a lazily-resolved `TokenCredential`. Provides `IsKeyVaultEnabled` to allow Key Vault-free operation. |
-| Static factory | `TokenCredentialExtensions` | Creates `ClientCertificateCredential` from one configured certificate source: certificate thumbprint, combined PEM file, or PFX file. |
+| Static factory | `TokenCredentialExtensions` | Creates `WorkloadIdentityCredential` from injected Kubernetes workload-identity environment variables, or `ClientCertificateCredential` from one configured certificate source. |
 
 ### Key Methods
 
 - `TokenCredentialExtensions.IsPodManagedIdentity` — Checks whether the current pod is using Azure workload identity (federated tokens).
-- `TokenCredentialExtensions.CreateTokenCredential(IAzureAuthConfig)` — Creates a `ClientCertificateCredential` from the certificate properties in the configuration, or returns `null` if no certificate is available.
+- `TokenCredentialExtensions.CreateTokenCredential(IAzureAuthConfig)` — Creates a `WorkloadIdentityCredential` when the Kubernetes workload-identity environment is present; otherwise creates a `ClientCertificateCredential` from the configured certificate source, or returns `null`.
 
 ## Configuration
 
@@ -29,6 +59,12 @@ dotnet add package CasCap.Api.Azure.Auth
 | `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `IsKeyVaultEnabled` (computed), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPemPath`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
 
 `AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
+
+Azure workload identity is selected when `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`,
+`AZURE_FEDERATED_TOKEN_FILE`, and `AZURE_AUTHORITY_HOST` are all present. The injected
+`AZURE_CLIENT_ID` is used by default; `AzureEntraPodManagedIdentityClientId` can explicitly select a
+different registered client ID. Certificate configuration is ignored in this environment because
+workload identity has priority.
 
 Configure exactly one certificate source. Supplying more than one fails explicitly rather than
 silently selecting one:
@@ -55,65 +91,7 @@ Override via any configuration source:
 - **User secrets**: `{ "AppConfig": { "KeyVaultName": "skip" } }`
 - **appsettings override**: same JSON shape
 
-## Data Flow
-
-TokenCredential creation from configuration:
-
-```mermaid
-flowchart TD
-    CONFIG["AzureAuthConfig<br/>(IAzureAuthConfig)"]
-
-    subgraph Detection["Environment Detection"]
-        POD_CHECK{"IsPodManagedIdentity()?<br/>(Azure Workload Identity)"}
-        WORKLOAD["WorkloadIdentityCredential<br/>(Federated token from pod)"]
-    end
-
-    subgraph CertificateSource["Certificate Source"]
-        THUMBPRINT{"CertThumbprint<br/>provided?"}
-        PEM{"PemPath<br/>provided?"}
-        PFX{"PfxPath +<br/>PfxPassword<br/>provided?"}
-        STORE["X509Store<br/>(LocalMachine\\My)"]
-        PEM_FILE["X509Certificate2<br/>(from combined PEM file)"]
-        FILE["X509Certificate2<br/>(from PFX file)"]
-    end
-
-    CREDENTIAL["ClientCertificateCredential"]
-    NULL["null<br/>(no credential)"]
-
-    subgraph AzureServices["Azure Services"]
-        KV["Key Vault"]
-        STORAGE["Storage"]
-        EH["Event Hub"]
-        SB["Service Bus"]
-    end
-
-    CONFIG --> SKIP_CHECK{"KeyVaultName<br/>= 'skip'?"}
-    SKIP_CHECK -->|"Yes"| NULL
-    SKIP_CHECK -->|"No"| POD_CHECK
-    POD_CHECK -->|"Yes"| WORKLOAD
-    POD_CHECK -->|"No"| THUMBPRINT
-
-    THUMBPRINT -->|"Yes"| STORE
-    THUMBPRINT -->|"No"| PEM
-
-    PEM -->|"Yes"| PEM_FILE
-    PEM -->|"No"| PFX
-    PFX -->|"Yes"| FILE
-    PFX -->|"No"| NULL
-
-    STORE --> CREDENTIAL
-    PEM_FILE --> CREDENTIAL
-    FILE --> CREDENTIAL
-    WORKLOAD --> KV
-    WORKLOAD --> STORAGE
-    WORKLOAD --> EH
-    WORKLOAD --> SB
-
-    CREDENTIAL --> KV
-    CREDENTIAL --> STORAGE
-    CREDENTIAL --> EH
-    CREDENTIAL --> SB
-```
+## Credential Resolution
 
 **Credential Resolution Priority:**
 

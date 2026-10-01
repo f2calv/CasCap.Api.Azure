@@ -25,8 +25,11 @@ public interface IAzureAuthConfig
     /// <summary>Full URI of the Azure Key Vault derived from <see cref="KeyVaultName"/>.</summary>
     Uri KeyVaultUri { get; }
 
-    /// <summary>Azure managed identity client id for in-AKS workload identity.</summary>
-    /// <remarks>Used when <see cref="TokenCredentialExtensions.IsPodManagedIdentity"/> returns <see langword="true"/>.</remarks>
+    /// <summary>Optional Azure managed identity client ID for Kubernetes workload identity.</summary>
+    /// <remarks>
+    /// Overrides the injected <c>AZURE_CLIENT_ID</c> when
+    /// <see cref="TokenCredentialExtensions.IsPodManagedIdentity"/> returns <see langword="true"/>.
+    /// </remarks>
     Guid? AzureEntraPodManagedIdentityClientId { get; }
 
     /// <summary>Azure Entra tenant id for certificate-based authentication from the Edge.</summary>

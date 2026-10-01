@@ -1,3 +1,4 @@
+global using Azure.Identity;
 global using CasCap.Abstractions;
 global using CasCap.Common.Exceptions;
 global using CasCap.Models;

@@ -6,7 +6,7 @@ Unit tests for certificate-backed Azure token credential creation.
 
 | Test class | Method count | Expanded cases | Coverage |
 | --- | ---: | ---: | --- |
-| `TokenCredentialExtensionsTests` | 4 | 4 | No source, combined PEM, PFX, and conflicting sources |
+| `TokenCredentialExtensionsTests` | 5 | 5 | No source, workload identity, combined PEM, PFX, and conflicting sources |
 
 ## Traits
 

@@ -17,13 +17,26 @@ public static class TokenCredentialExtensions
         && Environment.GetEnvironmentVariable("AZURE_AUTHORITY_HOST") is not null;
 
     /// <summary>
-    /// Creates a <see cref="ClientCertificateCredential"/> from the certificate
-    /// properties in <paramref name="config"/>.
+    /// Creates a <see cref="WorkloadIdentityCredential"/> from the injected Kubernetes environment,
+    /// or a <see cref="ClientCertificateCredential"/> from the certificate properties in
+    /// <paramref name="config"/>.
     /// </summary>
     /// <param name="config">Azure authentication configuration.</param>
-    /// <returns>A <see cref="TokenCredential"/> or <see langword="null"/> if no certificate is available.</returns>
+    /// <returns>
+    /// A <see cref="TokenCredential"/>, or <see langword="null"/> when neither workload identity nor
+    /// a certificate source is available.
+    /// </returns>
     public static TokenCredential? CreateTokenCredential(IAzureAuthConfig config)
     {
+        if (IsPodManagedIdentity)
+        {
+            return new WorkloadIdentityCredential(
+                new WorkloadIdentityCredentialOptions
+                {
+                    ClientId = config.AzureEntraPodManagedIdentityClientId?.ToString(),
+                });
+        }
+
         var certificateSourceCount = new[]
         {
             config.AzureEntraCertThumbprint,
