@@ -76,6 +76,17 @@ silently selecting one:
 
 PEM and PFX are alternative representations, not files to deploy together.
 
+### Developer Certificate Selection
+
+For workstation development, install the certificate and private key into the current user's
+Personal certificate store and keep `AzureEntraCertThumbprint` in the application's user-secrets
+store. Each repository can have a different `UserSecretsId`, so rotating one shared certificate
+requires updating every consuming repository's `secrets.json`.
+
+Do not place workstation thumbprints or paths in tracked configuration. Also remove
+deployment-only PEM/PFX path values from local providers loaded on the workstation: configuring a
+thumbprint and a file path together fails explicitly instead of silently selecting one.
+
 ### Running Without Key Vault
 
 Set `KeyVaultName` to `"skip"` (case-insensitive) to disable Key Vault integration entirely. When `IsKeyVaultEnabled` returns `false`:
