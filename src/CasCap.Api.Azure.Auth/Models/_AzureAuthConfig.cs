@@ -39,6 +39,9 @@ public record AzureAuthConfig : IAppConfig, IAzureAuthConfig
     /// <inheritdoc/>
     public string? AzureEntraPfxPassword { get; init; }
 
+    /// <inheritdoc/>
+    public string? AzureEntraPemPath { get; init; }
+
     private TokenCredential? tokenCredential;
 
     /// <inheritdoc/>

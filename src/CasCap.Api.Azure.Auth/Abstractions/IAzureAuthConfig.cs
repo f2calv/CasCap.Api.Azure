@@ -46,6 +46,9 @@ public interface IAzureAuthConfig
     /// <summary>Password protecting the PFX file at <see cref="AzureEntraPfxPath"/>.</summary>
     string? AzureEntraPfxPassword { get; }
 
+    /// <summary>Path to a combined PEM file containing the certificate and private key.</summary>
+    string? AzureEntraPemPath { get; }
+
     /// <summary>Lazily-resolved <see cref="TokenCredential"/> built from the certificate properties.</summary>
     TokenCredential? TokenCredential { get; }
 }
