@@ -17,13 +17,38 @@ public static class TokenCredentialExtensions
         && Environment.GetEnvironmentVariable("AZURE_AUTHORITY_HOST") is not null;
 
     /// <summary>
-    /// Creates a <see cref="ClientCertificateCredential"/> from the certificate
-    /// properties in <paramref name="config"/>.
+    /// Creates a <see cref="WorkloadIdentityCredential"/> from the injected Kubernetes environment,
+    /// or a <see cref="ClientCertificateCredential"/> from the certificate properties in
+    /// <paramref name="config"/>.
     /// </summary>
     /// <param name="config">Azure authentication configuration.</param>
-    /// <returns>A <see cref="TokenCredential"/> or <see langword="null"/> if no certificate is available.</returns>
+    /// <returns>
+    /// A <see cref="TokenCredential"/>, or <see langword="null"/> when neither workload identity nor
+    /// a certificate source is available.
+    /// </returns>
     public static TokenCredential? CreateTokenCredential(IAzureAuthConfig config)
     {
+        if (IsPodManagedIdentity)
+        {
+            return new WorkloadIdentityCredential(
+                new WorkloadIdentityCredentialOptions
+                {
+                    ClientId = config.AzureEntraPodManagedIdentityClientId?.ToString(),
+                });
+        }
+
+        var certificateSourceCount = new[]
+        {
+            config.AzureEntraCertThumbprint,
+            config.AzureEntraPemPath,
+            config.AzureEntraPfxPath,
+        }.Count(value => !string.IsNullOrWhiteSpace(value));
+
+        if (certificateSourceCount > 1)
+            throw new GenericException(
+                $"Configure only one of {nameof(config.AzureEntraCertThumbprint)}, " +
+                $"{nameof(config.AzureEntraPemPath)}, or {nameof(config.AzureEntraPfxPath)}.");
+
         X509Certificate2? certificate = null;
         if (!string.IsNullOrWhiteSpace(config.AzureEntraCertThumbprint))
         {
@@ -32,6 +57,10 @@ public static class TokenCredentialExtensions
             certificate = store.Certificates.Find(X509FindType.FindByThumbprint, config.AzureEntraCertThumbprint, false)
                 .OfType<X509Certificate2>().SingleOrDefault();
             store.Close();
+        }
+        else if (!string.IsNullOrWhiteSpace(config.AzureEntraPemPath))
+        {
+            certificate = X509Certificate2.CreateFromPemFile(config.AzureEntraPemPath);
         }
         else if (!string.IsNullOrWhiteSpace(config.AzureEntraPfxPath))
         {
@@ -43,6 +72,8 @@ public static class TokenCredentialExtensions
         }
         if (certificate is null)
             return null;
+        if (config.AzureEntraTenantId is null)
+            throw new GenericException($"{nameof(config.AzureEntraTenantId)} is null");
         if (config.AzureEntraApplicationId is null)
             throw new GenericException($"{nameof(config.AzureEntraApplicationId)} is null");
         return new ClientCertificateCredential(config.AzureEntraTenantId.ToString(), config.AzureEntraApplicationId.ToString(), certificate);
