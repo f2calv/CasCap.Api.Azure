@@ -3,8 +3,7 @@ services:
   #https://github.com/azure/azurite
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.37.0 #formerly arafato/azurite
-    # Azure SDK releases can adopt service API versions before Azurite publishes support.
-    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --skipApiVersionCheck
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data
     volumes:
       - ./.docker/azurite:/data
     ports:
