@@ -102,8 +102,11 @@ public sealed class SpeechService : ISpeechService
 
         var response = await client.TranscribeAsync(options, cancellationToken).ConfigureAwait(false);
         var text = response.Value.CombinedPhrases.FirstOrDefault()?.Text;
-        _logger.LogDebug("{ClassName} transcribed {PhraseCount} phrase(s)", nameof(SpeechService),
-            response.Value.Phrases.Count);
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            var phraseCount = response.Value.Phrases.Count;
+            _logger.LogDebug("{ClassName} transcribed {PhraseCount} phrase(s)", nameof(SpeechService), phraseCount);
+        }
         return string.IsNullOrWhiteSpace(text) ? null : text;
     }
 
@@ -114,7 +117,10 @@ public sealed class SpeechService : ISpeechService
         using var synthesizer = new SpeechSynthesizer(_speechConfig, fileOutput);
         using var result = await synthesizer.SpeakTextAsync(soundByte).ConfigureAwait(false);
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
-            _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(SpeechService), soundByte);
+        {
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(SpeechService), soundByte);
+        }
         else if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
@@ -148,7 +154,8 @@ public sealed class SpeechService : ISpeechService
     {
         if (result.Reason is ResultReason.RecognizedSpeech)
         {
-            _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(SpeechService), result.Text);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(SpeechService), result.Text);
             return result.Text;
         }
 

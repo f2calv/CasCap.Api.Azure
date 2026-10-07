@@ -70,12 +70,12 @@ public static class TokenCredentialExtensions
             certificate = new X509Certificate2(config.AzureEntraPfxPath, config.AzureEntraPfxPassword);
 #endif
         }
-        if (certificate is null)
-            return null;
-        if (config.AzureEntraTenantId is null)
-            throw new GenericException($"{nameof(config.AzureEntraTenantId)} is null");
-        if (config.AzureEntraApplicationId is null)
-            throw new GenericException($"{nameof(config.AzureEntraApplicationId)} is null");
-        return new ClientCertificateCredential(config.AzureEntraTenantId.ToString(), config.AzureEntraApplicationId.ToString(), certificate);
+        return certificate is null
+            ? null
+            : config.AzureEntraTenantId is null
+            ? throw new GenericException($"{nameof(config.AzureEntraTenantId)} is null")
+            : config.AzureEntraApplicationId is null
+            ? throw new GenericException($"{nameof(config.AzureEntraApplicationId)} is null")
+            : (TokenCredential)new ClientCertificateCredential(config.AzureEntraTenantId.ToString(), config.AzureEntraApplicationId.ToString(), certificate);
     }
 }

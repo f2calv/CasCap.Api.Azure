@@ -41,7 +41,10 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         if (Interlocked.CompareExchange(ref _queueExistsChecked, 1, 0) == 0)
         {
             if (await _queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false) is not null)
-                _logger.LogDebug("{ClassName} storage queue didn't exist so have now created {QueueName}", nameof(AzQueueStorageBase), _queueClient.Name);
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("{ClassName} storage queue didn't exist so have now created {QueueName}", nameof(AzQueueStorageBase), _queueClient.Name);
+            }
         }
     }
 
@@ -69,14 +72,22 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{ClassName} failed to insert {MessageType} into storage queue {QueueName}, JSON content is {ByteCount} bytes",
-                    nameof(AzQueueStorageBase), typeof(T).Name, _queueClient.Name, message.ToArray().Length);
+                if (_logger.IsEnabled(LogLevel.Error))
+                {
+                    var byteCount = message.ToArray().Length;
+                    _logger.LogError(ex, "{ClassName} failed to insert {MessageType} into storage queue {QueueName}, JSON content is {ByteCount} bytes",
+                        nameof(AzQueueStorageBase), typeof(T).Name, _queueClient.Name, byteCount);
+                }
             }
             if (result is not null && result.Value is not null)
             {
                 successCount++;
-                _logger.LogDebug("{ClassName} {MessageType} {Iteration} of {MessageCount} inserted into storage queue {QueueName}, MessageId={MessageId}",
-                    nameof(AzQueueStorageBase), typeof(T).Name, successCount, objs.Count, _queueClient.Name, result.Value.MessageId);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    var messageType = typeof(T).Name;
+                    _logger.LogDebug("{ClassName} {MessageType} {Iteration} of {MessageCount} inserted into storage queue {QueueName}, MessageId={MessageId}",
+                        nameof(AzQueueStorageBase), messageType, successCount, objs.Count, _queueClient.Name, result.Value.MessageId);
+                }
             }
         }
         return successCount > 0;
@@ -105,11 +116,17 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
             {
                 _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt, cancellationToken).ConfigureAwait(false);
                 if (isCorrupted)
-                    _logger.LogWarning("{ClassName} removed corrupted message {MessageId} from queue {QueueName}",
-                        nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
+                {
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                        _logger.LogWarning("{ClassName} removed corrupted message {MessageId} from queue {QueueName}",
+                            nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
+                }
                 else
-                    _logger.LogDebug("{ClassName} dequeued message {MessageId} from queue {QueueName}",
-                        nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
+                {
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                        _logger.LogDebug("{ClassName} dequeued message {MessageId} from queue {QueueName}",
+                            nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
+                }
             }
             return (obj, retrievedMessage.Value);
         }

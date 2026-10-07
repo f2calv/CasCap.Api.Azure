@@ -77,10 +77,7 @@ public class AzStorageHelpersTests
     [InlineData("abc/def", false)]
     [InlineData("abc\\def", false)]
     [InlineData("abc?def", false)]
-    public void IsKeyValid(string key, bool expected)
-    {
-        Assert.Equal(expected, key.IsKeyValid());
-    }
+    public void IsKeyValid(string key, bool expected) => Assert.Equal(expected, key.IsKeyValid());
 
     [Fact, Trait("Category", "Storage Keys")]
     public void GetDateFromFileName()
@@ -91,8 +88,5 @@ public class AzStorageHelpersTests
     }
 
     [Fact, Trait("Category", "Storage Keys")]
-    public void GetDateFromFileNameRejectsUnparseable()
-    {
-        Assert.Throws<ArgumentException>(() => "not-a-date-prefix.log".GetDateFromFileName());
-    }
+    public void GetDateFromFileNameRejectsUnparseable() => Assert.Throws<ArgumentException>(() => "not-a-date-prefix.log".GetDateFromFileName());
 }

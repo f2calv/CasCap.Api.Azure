@@ -4,7 +4,7 @@ namespace CasCap.Services;
 /// <remarks>See <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/eventhub/Azure.Messaging.EventHubs/MigrationGuide.md" />.</remarks>
 public abstract class SubscriberService<T> : ISubscriberService<T>
 {
-    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(SubscriberService<T>));
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(SubscriberService<>));
 
     private readonly BlobContainerClient _checkpointStore;
     private readonly EventProcessorClient _eventProcessorClient;
@@ -68,7 +68,8 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
             _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
             try
             {
-                _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(SubscriberService<T>), _eventProcessorClient.EventHubName);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("{ClassName} _eventProcessorClient.StartProcessingAsync... for {EventHubName}", nameof(SubscriberService<>), _eventProcessorClient.EventHubName);
                 await _eventProcessorClient.StartProcessingAsync(cancellationToken).ConfigureAwait(false);
                 await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
             }
@@ -118,12 +119,18 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
             if (bytes is not null)
             {
                 var obj = bytes.FromMessagePack<T>();
-                _logger.LogInformation("{ClassName} Message received. Partition: {PartitionId}, Data: {Obj}",
-                    nameof(SubscriberService<T>), partitionId, obj);
+                if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    _logger.LogInformation("{ClassName} Message received. Partition: {PartitionId}, Data: {Obj}",
+                        nameof(SubscriberService<>), partitionId, obj);
+                }
             }
             else
-                _logger.LogWarning("{ClassName} Message received. Partition: {PartitionId}, Data: null",
-                    nameof(SubscriberService<T>), partitionId);
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning("{ClassName} Message received. Partition: {PartitionId}, Data: null",
+                        nameof(SubscriberService<>), partitionId);
+            }
 
             var eventsSinceLastCheckpoint = partitionEventCount.AddOrUpdate(
                 key: partitionId,
@@ -148,7 +155,7 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
         try
         {
             _logger.LogError(args.Exception, "{ClassName} error detected in operation {Operation}",
-                nameof(SubscriberService<T>), args.Operation);
+                nameof(SubscriberService<>), args.Operation);
         }
         catch
         {

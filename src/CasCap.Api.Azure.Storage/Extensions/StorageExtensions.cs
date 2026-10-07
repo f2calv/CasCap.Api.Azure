@@ -25,10 +25,7 @@ public static partial class StorageExtensions
     /// <param name="tableKey">The key string to validate.</param>
     /// <returns><see langword="true"/> if the key contains no disallowed characters; otherwise, <see langword="false"/>.</returns>
     /// <seealso href="https://stackoverflow.com/questions/11514707/azure-table-storage-rowkey-restricted-character-patterns"/>
-    public static bool IsKeyValid(this string tableKey)
-    {
-        return !DisallowedCharsInTableKeysRegex().IsMatch(tableKey);
-    }
+    public static bool IsKeyValid(this string tableKey) => !DisallowedCharsInTableKeysRegex().IsMatch(tableKey);
 
     /// <summary>
     /// Extracts a <see cref="DateTime"/> from the first 10 characters of a file name (expected format: <c>yyyy-MM-dd</c>).
@@ -41,10 +38,9 @@ public static partial class StorageExtensions
     {
         var fileName = Path.GetFileNameWithoutExtension(path);
         var strDt = fileName.AsSpan(0, 10);
-        if (DateTime.TryParse(strDt, CultureInfo.InvariantCulture, out var date))
-            return DateTime.SpecifyKind(date, kind);
-        else
-            throw new ArgumentException($"unable to parse '{path}' to retrieve date", nameof(path));
+        return DateTime.TryParse(strDt, CultureInfo.InvariantCulture, out var date)
+            ? DateTime.SpecifyKind(date, kind)
+            : throw new ArgumentException($"unable to parse '{path}' to retrieve date", nameof(path));
     }
 
     /// <summary>A sentinel maximum date value (2050-01-01 UTC) used to represent "no expiry".</summary>
@@ -58,11 +54,7 @@ public static partial class StorageExtensions
     /// <param name="format">The date format string used to produce the partition key. Defaults to <see cref="yyMMdd"/>.</param>
     /// <returns>A string representation of the date in the specified format, suitable for use as a partition key.</returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="thisDate"/> represents a year before 2000.</exception>
-    public static string GetPartitionKey(this DateTime thisDate, string format = yyMMdd)
-    {
-        if (thisDate.Year < 2000) throw new ArgumentException("partitionKey only supports > year 2000");
-        return thisDate.ToString(format);
-    }
+    public static string GetPartitionKey(this DateTime thisDate, string format = yyMMdd) => thisDate.Year < 2000 ? throw new ArgumentException("partitionKey only supports > year 2000") : thisDate.ToString(format);
 
     /// <summary>
     /// Parses an Azure Table Storage partition key back into a <see cref="DateTime"/> using the specified format.
@@ -127,9 +119,9 @@ public static partial class StorageExtensions
     public static DateTime GetDateTimeFromRowKey(this string thisRowKey, DateTime dt, bool lexicalOrder = true)
     {
         thisRowKey = thisRowKey ?? throw new ArgumentNullException(nameof(thisRowKey));
-        if (!long.TryParse(thisRowKey, out long rowKeyValue))
-            throw new ArgumentException($"unable to parse '{thisRowKey}' to retrieve tick count", nameof(thisRowKey));
-        return GetDateTimeFromRowKey(rowKeyValue, dt, lexicalOrder);
+        return !long.TryParse(thisRowKey, out var rowKeyValue)
+            ? throw new ArgumentException($"unable to parse '{thisRowKey}' to retrieve tick count", nameof(thisRowKey))
+            : GetDateTimeFromRowKey(rowKeyValue, dt, lexicalOrder);
     }
 
     private static DateTime GetDateTimeFromRowKey(long rowKeyValue, DateTime dt, bool lexicalOrder = true)

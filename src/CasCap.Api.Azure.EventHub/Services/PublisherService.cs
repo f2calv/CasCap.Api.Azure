@@ -3,7 +3,7 @@ namespace CasCap.Services;
 /// <inheritdoc/>
 public abstract class PublisherService<T> : IPublisherService<T>// where T : IEvent
 {
-    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(PublisherService<T>));
+    private static readonly ILogger _logger = ApplicationLogging.CreateLogger(nameof(PublisherService<>));
 
     private readonly EventHubProducerClient _producerClient;
 
@@ -64,7 +64,7 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{ClassName} {MethodName} failure", nameof(PublisherService<T>), nameof(Push));
+            _logger.LogError(ex, "{ClassName} {MethodName} failure", nameof(PublisherService<>), nameof(Push));
             throw;
         }
     }
@@ -78,6 +78,7 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
             //_logger.LogDebug("{ClassName} Sending message: {Message}", nameof(PublisherService<T>), message);
             await Push(Encoding.UTF8.GetBytes(message)).ConfigureAwait(false);
         }
-        _logger.LogDebug("{ClassName} {NumMessagesToSend} messages sent.", nameof(PublisherService<T>), numMessagesToSend);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("{ClassName} {NumMessagesToSend} messages sent.", nameof(PublisherService<>), numMessagesToSend);
     }
 }

@@ -96,12 +96,9 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
 
         var retval = new ConcurrentBag<T>();
         var po = new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = useParallelism ? Environment.ProcessorCount : 1 };
-        await Parallel.ForEachAsync(partitions, po, async (p, ct) =>
-        {
-            await RunBatches(p.PartitionKey, p.Entities, ct).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+        await Parallel.ForEachAsync(partitions, po, async (p, ct) => await RunBatches(p.PartitionKey, p.Entities, ct).ConfigureAwait(false)).ConfigureAwait(false);
 
-        return retval.ToList();
+        return [.. retval];
 
         async Task RunBatches(string partitionKey, List<T> partitionEntities, CancellationToken cancellationToken)
         {
@@ -116,8 +113,11 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                     partitionEntities.RemoveRange(0, batchSize);
                     foreach (var item in batchResult)
                         retval.Add(item);
-                    _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition} of {PartitionCount} partitions, {EntityCount} entities handled, {RemainingCount} entities remaining",
-                        nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                    {
+                        _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition} of {PartitionCount} partitions, {EntityCount} entities handled, {RemainingCount} entities remaining",
+                            nameof(AzTableStorageBase), _tableSvcClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
+                    }
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(_tableSvcClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize, DateTime.UtcNow));
                 }
                 else
@@ -182,9 +182,7 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         if (string.IsNullOrWhiteSpace(rowKey))
             throw new NotSupportedException("A row key must be supplied; querying for the first entity in a partition (TOP 1) is not currently supported.");
         var result = await tbl.GetEntityIfExistsAsync<T>(partitionKey, rowKey, cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (result.HasValue)
-            return result.Value;
-        return null;
+        return result.HasValue ? result.Value : null;
     }
 
     /// <inheritdoc/>
@@ -250,7 +248,8 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
         if (await _tableSvcClient.ExistsAsync(tableName).ConfigureAwait(false))
         {
             var response = await _tableSvcClient.DeleteTableAsync(tableName, cancellationToken).ConfigureAwait(false);
-            _logger.LogDebug("{ClassName} {TableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} {TableName} {ReasonPhrase}", nameof(AzTableStorageBase), tableName, response.ReasonPhrase);
         }
     }
 

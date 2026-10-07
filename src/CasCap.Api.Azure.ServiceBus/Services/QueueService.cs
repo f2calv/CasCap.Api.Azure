@@ -34,8 +34,11 @@ public sealed class QueueService : ServiceBase, IQueueService
 
         // send the message
         await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
-            nameof(QueueService), _queueName);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
+                nameof(QueueService), _queueName);
+        }
     }
 
     /// <inheritdoc/>
@@ -76,8 +79,11 @@ public sealed class QueueService : ServiceBase, IQueueService
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
 
-        _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the queue: {QueueName}",
-            nameof(QueueService), messageCount, _queueName);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the queue: {QueueName}",
+                nameof(QueueService), messageCount, _queueName);
+        }
     }
 
     /// <inheritdoc/>
@@ -104,12 +110,14 @@ public sealed class QueueService : ServiceBase, IQueueService
         }
         finally
         {
-            _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(QueueService));
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(QueueService));
             await processor.StopProcessingAsync(CancellationToken.None).ConfigureAwait(false);
             processor.ProcessMessageAsync -= MessageHandler;
             processor.ProcessErrorAsync -= ErrorHandler;
             await processor.DisposeAsync().ConfigureAwait(false);
-            _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(QueueService));
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(QueueService));
         }
     }
 

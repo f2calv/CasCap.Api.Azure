@@ -10,12 +10,12 @@ public interface ITopicService : IAsyncDisposable
     /// <summary>Sends a single <paramref name="message"/> to the topic.</summary>
     /// <param name="message">The Service Bus message to send.</param>
     /// <param name="cancellationToken">Token to cancel the send operation.</param>
-    Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default);
+    public Task SendMessageToTopicAsync(ServiceBusMessage message, CancellationToken cancellationToken = default);
 
     /// <summary>Sends a batch of <paramref name="messages"/> to the topic, splitting into multiple batches as required.</summary>
     /// <param name="messages">The messages to send; dequeued as they are added to a batch.</param>
     /// <param name="cancellationToken">Token to cancel the send operation.</param>
-    Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default);
+    public Task SendMessageBatchToTopicAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts receiving messages from the topic subscription and processes them until
@@ -26,5 +26,5 @@ public interface ITopicService : IAsyncDisposable
     /// errors raise <see cref="CasCap.Services.ServiceBase.ErrorReceivedEvent"/>.
     /// </remarks>
     /// <param name="cancellationToken">Token used to stop receiving.</param>
-    Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default);
+    public Task ReceiveMessagesFromSubscriptionAsync(CancellationToken cancellationToken = default);
 }

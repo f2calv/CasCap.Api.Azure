@@ -37,8 +37,11 @@ public sealed class TopicService : ServiceBase, ITopicService
         // create a sender for the topic
         var sender = _client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
-            nameof(TopicService), _topicName);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
+                nameof(TopicService), _topicName);
+        }
     }
 
     /// <inheritdoc/>
@@ -80,8 +83,11 @@ public sealed class TopicService : ServiceBase, ITopicService
             // if there are any remaining messages in the .NET queue, the while loop repeats
         }
 
-        _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {TopicName}",
-            nameof(TopicService), messageCount, _topicName);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{ClassName} Sent a batch of {MessageCount} messages to the topic: {TopicName}",
+                nameof(TopicService), messageCount, _topicName);
+        }
     }
 
     /// <inheritdoc/>
@@ -108,12 +114,14 @@ public sealed class TopicService : ServiceBase, ITopicService
         }
         finally
         {
-            _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
             await processor.StopProcessingAsync(CancellationToken.None).ConfigureAwait(false);
             processor.ProcessMessageAsync -= MessageHandler;
             processor.ProcessErrorAsync -= ErrorHandler;
             await processor.DisposeAsync().ConfigureAwait(false);
-            _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("{ClassName} Stopped receiving messages", nameof(TopicService));
         }
     }
 

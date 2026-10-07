@@ -6,7 +6,7 @@ namespace CasCap.Services;
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public sealed class QueryService(
+public sealed partial class QueryService(
     ILogger<QueryService> logger,
     IOptions<LogAnalyticsConfig> logAnalyticsConfig,
     TokenCredential credential) : IQueryService
@@ -20,7 +20,13 @@ public sealed class QueryService(
 
         var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange).ConfigureAwait(false);
         foreach (var row in queryResults.Value.Table.Rows)
-            logger.LogInformation("{ClassName} {Row}", nameof(QueryService), string.Join("    ", row));
+        {
+            if (!logger.IsEnabled(LogLevel.Information))
+                continue;
+
+            var formattedRow = string.Join("    ", row);
+            LogRow(logger, nameof(QueryService), formattedRow);
+        }
     }
 
     /// <inheritdoc/>
@@ -49,4 +55,7 @@ public sealed class QueryService(
         }
         return l;
     }
+
+    [LoggerMessage(LogLevel.Information, "{ClassName} {Row}")]
+    private static partial void LogRow(ILogger logger, string className, string row);
 }

@@ -4,5 +4,5 @@ namespace CasCap.Abstractions;
 public interface ISubscriberService<T>
 {
     /// <summary>Begins processing events from the Event Hub until the <paramref name="cancellationToken"/> is signalled.</summary>
-    Task InitiateReceive(CancellationToken cancellationToken);
+    public Task InitiateReceive(CancellationToken cancellationToken);
 }
