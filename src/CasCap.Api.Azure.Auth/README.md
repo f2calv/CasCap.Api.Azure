@@ -46,6 +46,7 @@ dotnet add package CasCap.Api.Azure.Auth
 | --- | --- | --- |
 | Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint, combined PEM path, or PFX path/password, and a lazily-resolved `TokenCredential`. Provides `IsKeyVaultEnabled` to allow Key Vault-free operation. |
 | Static factory | `TokenCredentialExtensions` | Creates `WorkloadIdentityCredential` from injected Kubernetes workload-identity environment variables, or `ClientCertificateCredential` from one configured certificate source. |
+| HTTP handler | `TokenCredentialBearerHandler` | Acquires an Azure access token for configured scopes and adds it to requests without replacing caller-owned authorization. |
 
 ### Key Methods
 
@@ -57,6 +58,7 @@ dotnet add package CasCap.Api.Azure.Auth
 | Class | Section | Properties |
 | --- | --- | --- |
 | `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `IsKeyVaultEnabled` (computed), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPemPath`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
+| `AgentRuntimeAzureAuthConfig` | `CasCap:AgentRuntimeAzureAuthConfig` | `Enabled`, `TenantId`, `ClientId`, combined PEM `Certificate`, and Agent Runtime `Scope` |
 
 `AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
 
@@ -75,6 +77,12 @@ silently selecting one:
 - `AzureEntraPfxPath` loads a PKCS#12/PFX file, with `AzureEntraPfxPassword` when it is protected.
 
 PEM and PFX are alternative representations, not files to deploy together.
+
+`AgentRuntimeAzureAuthConfig` is separate from `AppConfig`: an application can continue using its
+existing Azure identity for Key Vault and storage while presenting a narrower certificate identity
+to the Agent Runtime. Its `Certificate` property contains the combined PEM value loaded by private
+configuration rather than a file path. Register `TokenCredentialBearerHandler` on the Agent Runtime
+typed client only when `Enabled` is true.
 
 ### Developer Certificate Selection
 
