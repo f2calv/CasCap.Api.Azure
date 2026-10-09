@@ -106,7 +106,7 @@ classDiagram
 
     class AzTableStorageBase {
         <<abstract>>
-        #TableServiceClient _tableSvcClient
+        #TableServiceClient TableServiceClient
         #ILogger Logger
         +event BatchCompletedEvent
         +GetTables() AsyncPageable~TableItem~

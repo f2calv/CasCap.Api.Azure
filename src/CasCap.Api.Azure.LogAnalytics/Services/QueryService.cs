@@ -39,17 +39,17 @@ public sealed partial class QueryService(
         {
             var obj = new AppInsightsObject
             {
-                timestamp = DateTime.Parse(e[nameof(AppInsightsObject.timestamp)].ToString()!, CultureInfo.InvariantCulture),
-                cloud_RoleInstance = e[nameof(AppInsightsObject.cloud_RoleInstance)].ToString()!,
-                customDimensions = e[nameof(AppInsightsObject.customDimensions)],
-                appId = new Guid(e[nameof(AppInsightsObject.appId)].ToString()!),
-                iKey = new Guid(e[nameof(AppInsightsObject.iKey)].ToString()!),
-                problemId = e[nameof(AppInsightsObject.problemId)].ToString()!,
-                message = e[nameof(AppInsightsObject.message)].ToString()!,
-                outerMessage = e[nameof(AppInsightsObject.outerMessage)].ToString()!,
-                innermostMessage = e[nameof(AppInsightsObject.innermostMessage)].ToString()!,
-                method = e[nameof(AppInsightsObject.method)].ToString()!,
-                assembly = e[nameof(AppInsightsObject.assembly)].ToString()!,
+                Timestamp = DateTime.Parse(e["timestamp"].ToString()!, CultureInfo.InvariantCulture),
+                CloudRoleInstance = e["cloud_RoleInstance"].ToString()!,
+                CustomDimensions = e["customDimensions"],
+                AppId = new Guid(e["appId"].ToString()!),
+                InstrumentationKey = new Guid(e["iKey"].ToString()!),
+                ProblemId = e["problemId"].ToString()!,
+                Message = e["message"].ToString()!,
+                OuterMessage = e["outerMessage"].ToString()!,
+                InnermostMessage = e["innermostMessage"].ToString()!,
+                Method = e["method"].ToString()!,
+                Assembly = e["assembly"].ToString()!,
             };
             l.Add(obj);
         }

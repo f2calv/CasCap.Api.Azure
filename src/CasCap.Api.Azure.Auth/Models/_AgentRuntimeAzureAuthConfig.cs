@@ -3,8 +3,6 @@ namespace CasCap.Models;
 /// <summary>Certificate identity and OAuth scope used to call the Agent Runtime.</summary>
 public sealed record AgentRuntimeAzureAuthConfig : IAppConfig, IValidatableObject
 {
-    private TokenCredential? _tokenCredential;
-
     /// <inheritdoc/>
     public static string ConfigurationSectionName => $"{nameof(CasCap)}:{nameof(AgentRuntimeAzureAuthConfig)}";
 
@@ -24,7 +22,7 @@ public sealed record AgentRuntimeAzureAuthConfig : IAppConfig, IValidatableObjec
     public string? Scope { get; init; }
 
     /// <summary>Gets the lazily constructed certificate credential.</summary>
-    public TokenCredential TokenCredential => _tokenCredential ??= CreateTokenCredential();
+    public TokenCredential TokenCredential => field ??= CreateTokenCredential();
 
     /// <inheritdoc/>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
