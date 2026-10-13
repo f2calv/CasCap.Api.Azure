@@ -47,6 +47,7 @@ dotnet add package CasCap.Api.Azure.Auth
 | Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint, combined PEM path, or PFX path/password, and a lazily-resolved `TokenCredential`. Provides `IsKeyVaultEnabled` to allow Key Vault-free operation. |
 | Static factory | `TokenCredentialExtensions` | Creates `WorkloadIdentityCredential` from injected Kubernetes workload-identity environment variables, or `ClientCertificateCredential` from one configured certificate source. |
 | HTTP handler | `TokenCredentialBearerHandler` | Acquires an Azure access token for configured scopes and adds it to requests without replacing caller-owned authorization. |
+| `IHttpClientBuilder` extension | `AddAgentRuntimeAzureAuthentication(IConfiguration)` | Binds `AgentRuntimeAzureAuthConfig` and, when `Enabled`, adds a `TokenCredentialBearerHandler` for its `Scope` to the Agent Runtime client. |
 
 ### Key Methods
 
@@ -58,7 +59,7 @@ dotnet add package CasCap.Api.Azure.Auth
 | Class | Section | Properties |
 | --- | --- | --- |
 | `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `IsKeyVaultEnabled` (computed), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPemPath`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
-| `AgentRuntimeAzureAuthConfig` | `CasCap:AgentRuntimeAzureAuthConfig` | `Enabled`, `TenantId`, `ClientId`, combined PEM `Certificate`, and Agent Runtime `Scope` |
+| `AgentRuntimeAzureAuthConfig` | `CasCap:AgentRuntimeAzureAuthConfig` | `Enabled`, `TenantId`, `ClientId`, combined PEM `Certificate`, and Agent Runtime `Scope`; `GetTokenCredential()` builds the certificate credential on first use |
 
 `AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
 

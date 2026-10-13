@@ -6,7 +6,7 @@ namespace CasCap.Tests.Unit;
 public sealed class AgentRuntimeAzureAuthConfigTests
 {
     [Fact]
-    public void TokenCredential_CombinedPemCreatesCredential()
+    public void GetTokenCredential_CombinedPemCreatesCredential()
     {
         using var rsa = RSA.Create(2048);
         var request = new CertificateRequest(
@@ -29,7 +29,7 @@ public sealed class AgentRuntimeAzureAuthConfigTests
             Scope = "api://agent-runtime/.default",
         };
 
-        var credential = config.TokenCredential;
+        var credential = config.GetTokenCredential();
 
         Assert.IsType<ClientCertificateCredential>(credential);
     }

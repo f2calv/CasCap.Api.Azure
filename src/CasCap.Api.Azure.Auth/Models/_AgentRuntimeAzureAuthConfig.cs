@@ -21,8 +21,11 @@ public sealed record AgentRuntimeAzureAuthConfig : IAppConfig, IValidatableObjec
     /// <summary>Gets the Agent Runtime OAuth scope, normally its application ID URI plus <c>/.default</c>.</summary>
     public string? Scope { get; init; }
 
+    private TokenCredential? _tokenCredential;
+
     /// <summary>Gets the lazily constructed certificate credential.</summary>
-    public TokenCredential TokenCredential => field ??= CreateTokenCredential();
+    /// <remarks>A method rather than a property, because options validation reads every property.</remarks>
+    public TokenCredential GetTokenCredential() => _tokenCredential ??= CreateTokenCredential();
 
     /// <inheritdoc/>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
