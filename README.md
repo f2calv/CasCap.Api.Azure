@@ -403,3 +403,7 @@ All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making
    - Configured in `.pre-commit-config.yaml` but requires manual installation
    - Not automatically enforced in standard environments
    - Checks: YAML, JSON5, markdown linting, large files, whitespace
+
+## License
+
+This project is released under the [MIT License](LICENSE).
