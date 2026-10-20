@@ -1,185 +1,87 @@
 # CasCap.Api.Azure.Storage
 
-Helper library for Azure Storage Services. Provides abstract base service classes for Blob, Queue, and Table storage operations with both connection string and `TokenCredential` authentication.
+Abstract Azure Blob, Queue and Table Storage services for .NET applications. Derive a concrete
+service to reuse the corresponding
+[`IAzBlobStorageBase`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.Storage/Abstractions/IAzBlobStorageBase.cs),
+[`IAzQueueStorageBase`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.Storage/Abstractions/IAzQueueStorageBase.cs)
+or [`IAzTableStorageBase`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.Storage/Abstractions/IAzTableStorageBase.cs) implementation.
 
 ## Installation
 
-```bash
+Targets `net8.0`, `net9.0` and `net10.0`.
+
+```powershell
 dotnet add package CasCap.Api.Azure.Storage
 ```
 
-## Services / Extensions
+## Usage
 
-| Type | Name | Description |
-| --- | --- | --- |
-| Interface | [`IAzBlobStorageBase`](Abstractions/IAzBlobStorageBase.cs) | Contract for Azure Blob Storage container operations (upload, download, list, delete). |
-| Interface | [`IAzQueueStorageBase`](Abstractions/IAzQueueStorageBase.cs) | Contract for Azure Queue Storage operations (enqueue, dequeue). |
-| Interface | [`IAzTableStorageBase`](Abstractions/IAzTableStorageBase.cs) | Contract for Azure Table Storage CRUD operations with batch support. |
-| Service | [`AzBlobStorageBase`](Services/Base/AzBlobStorageBase.cs) | Abstract base implementing `IAzBlobStorageBase`. Supports block blobs and append blobs. |
-| Service | [`AzQueueStorageBase`](Services/Base/AzQueueStorageBase.cs) | Abstract base implementing `IAzQueueStorageBase`. Handles Base64 message encoding and JSON serialization. |
-| Service | [`AzTableStorageBase`](Services/Base/AzTableStorageBase.cs) | Abstract base implementing `IAzTableStorageBase`. Supports batch upsert, delete, and query with parallel partition processing. |
-| Extension | [`StorageExtensions`](Extensions/StorageExtensions.cs) | Extension methods for Table Storage key validation (`IsKeyValid`), `TableServiceClient.ExistsAsync`, and date-from-filename parsing. |
-| Message | [`AzTableStorageArgs`](Messages/AzTableStorageArgs.cs) | Event args for `BatchCompletedEvent`, carrying batch metadata (table name, partition key, count, remaining). |
-
-### Key Methods — [`AzBlobStorageBase`](Services/Base/AzBlobStorageBase.cs)
-
-- `CreateContainerIfNotExists(CancellationToken)` — Creates the blob container if it does not exist.
-- `DownloadBlobAsync(string blobName, CancellationToken)` — Downloads blob content as a byte array.
-- `ListContainerBlobs(string? prefix, CancellationToken)` — Lists blobs in the container.
-- `GetBlobPrefixes(string? prefix, CancellationToken)` — Retrieves virtual directory prefixes.
-- `DeleteBlob(string blobName, CancellationToken)` — Deletes a blob.
-- `UploadBlob(string blobName, byte[] | Stream, CancellationToken)` — Uploads blob content.
-
-### Key Methods — [`AzQueueStorageBase`](Services/Base/AzQueueStorageBase.cs)
-
-- `Enqueue<T>(T obj)` / `Enqueue<T>(List<T> objs)` — Serializes and enqueues messages.
-- `DequeueSingle<T>()` — Dequeues and deserializes a single message.
-- `DequeueMany<T>(int limit)` — Dequeues and deserializes multiple messages.
-
-### Key Methods — [`AzTableStorageBase`](Services/Base/AzTableStorageBase.cs)
-
-- `GetTables(CancellationToken)` — Lists all tables in the storage account.
-- `GetTableClient(string tableName, bool CreateIfNotExists, CancellationToken)` — Gets a `TableClient` for a table.
-- `UploadData<T>(TableClient, List<T>, bool useParallelism, CancellationToken)` — Batch upsert entities (thread-safe via `ConcurrentBag<T>`).
-- `UpsertEntity<T>(string tableName, T entity, CancellationToken)` — Upserts a single entity.
-- `DeleteData<T>(TableClient, List<T>, CancellationToken)` — Batch delete entities.
-- `GetEntities<T>(TableClient, ...)` — Queries entities with optional filtering and paging.
-
-## Class Hierarchy
-
-Abstract base classes for Azure Storage services:
-
-```mermaid
-classDiagram
-    direction TB
-
-    IAzBlobStorageBase <|.. AzBlobStorageBase
-    IAzQueueStorageBase <|.. AzQueueStorageBase
-    IAzTableStorageBase <|.. AzTableStorageBase
-
-    AzBlobStorageBase <|-- YourBlobService
-    AzQueueStorageBase <|-- YourQueueService
-    AzTableStorageBase <|-- YourTableService
-
-    class IAzBlobStorageBase {
-        <<interface>>
-        +CreateContainerIfNotExists() Task
-        +DownloadBlobAsync(name) Task~byte[]~
-        +ListContainerBlobs(prefix) IAsyncEnumerable~BlobItem~
-        +DeleteBlob(name) Task
-    }
-
-    class AzBlobStorageBase {
-        <<abstract>>
-        #BlobContainerClient _containerClient
-        #ILogger Logger
-        +CreateContainerIfNotExists() Task
-        +DownloadBlobAsync(name) Task~byte[]~
-        +UploadBlob(name, data) Task
-        +ListContainerBlobs(prefix) Task~List~BlobItem~~
-        +GetBlobPrefixes(prefix) Task~List~string~~
-    }
-
-    class IAzQueueStorageBase {
-        <<interface>>
-        +Enqueue~T~(obj) Task
-        +DequeueSingle~T~() Task~T~
-        +DequeueMany~T~(limit) Task~List~T~~
-    }
-
-    class AzQueueStorageBase {
-        <<abstract>>
-        #QueueClient _queueClient
-        #ILogger Logger
-        +Enqueue~T~(obj) Task~bool~
-        +Enqueue~T~(objs) Task~bool~
-        +DequeueSingle~T~() Task~T~
-        +DequeueMany~T~(limit) Task~List~T~~
-    }
-
-    class IAzTableStorageBase {
-        <<interface>>
-        +GetTables() AsyncPageable~TableItem~
-        +UpsertEntity~T~(table, entity) Task
-        +GetEntities~T~(table) AsyncPageable~T~
-    }
-
-    class AzTableStorageBase {
-        <<abstract>>
-        #TableServiceClient TableServiceClient
-        #ILogger Logger
-        +event BatchCompletedEvent
-        +GetTables() AsyncPageable~TableItem~
-        +UploadData~T~(client, entities, parallel) Task
-        +UpsertEntity~T~(table, entity) Task
-        +DeleteData~T~(client, entities) Task
-        +GetEntities~T~(client, filter) Task~List~T~~
-    }
-
-    class YourBlobService {
-        +UploadImage(bytes) Task
-        +GetImage(id) Task~byte[]~
-    }
-
-    class YourQueueService {
-        +EnqueueMessage(msg) Task
-        +ProcessMessages() Task
-    }
-
-    class YourTableService {
-        +SaveEntity(entity) Task
-        +QueryEntities(filter) Task~List~
-    }
-
-    AzBlobStorageBase ..> BlobContainerClient : uses
-    AzQueueStorageBase ..> QueueClient : uses
-    AzTableStorageBase ..> TableServiceClient : uses
-```
-
-**Usage Pattern:**
-
-1. Inherit from the appropriate abstract base class
-2. Pass connection string or `TokenCredential` (and optional `ServiceVersion`) to base constructor
-3. Use protected client and logger fields
-4. Call base methods or add domain-specific operations
-
-## Configuration
-
-No `IAppConfig` model — services are constructed directly via their base class constructors.
-
-All three base classes accept an optional `ServiceVersion?` parameter to pin the Azure Storage API version (useful for compatibility with [Azurite](https://github.com/Azure/Azurite) or older service endpoints):
+Supply a connection string from secret-backed application configuration:
 
 ```csharp
-// Pin to a specific Blob API version (e.g. for Azurite compatibility)
-public class MyBlobService(string connectionString, string containerName)
-    : AzBlobStorageBase(connectionString, containerName, BlobClientOptions.ServiceVersion.V2024_11_04)
-{
-}
+using CasCap.Services;
 
-// Use SDK-default (latest) version — omit or pass null
-public class MyTableService(string connectionString)
-    : AzTableStorageBase(connectionString)
+public sealed class DocumentStorage(string connectionString)
+    : AzBlobStorageBase(connectionString, "documents")
 {
 }
 ```
 
-When `null` (the default), each SDK uses its built-in latest `ServiceVersion`.
+```csharp
+var storage = new DocumentStorage(connectionString);
+await storage.UploadBlob("example.txt", "Hello"u8.ToArray(), cancellationToken);
+byte[]? bytes = await storage.DownloadBlobAsync("example.txt", cancellationToken);
+```
 
-## Dependencies
+The blob constructor synchronously creates the container if it does not exist, so constructing or
+resolving the service performs network I/O and requires creation permission when the container is
+absent. Uploads overwrite existing block blobs. `DownloadBlobAsync` returns `null` for a missing blob.
 
-### NuGet Packages
+| Base service | Selected operations | Important behavior |
+| --- | --- | --- |
+| `AzBlobStorageBase` | `UploadBlob`, `DownloadBlobAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | Lists are materialized, not streamed; supports append-blob operations too |
+| `AzQueueStorageBase` | `Enqueue<T>`, `DequeueSingle<T>`, `DequeueMany<T>` | JSON with Base64 queue encoding; creates the queue on first operation |
+| `AzTableStorageBase` | `GetTables`, `GetTableClient`, `UpsertEntity`, `UploadData`, `DeleteData`, `GetEntities` | Batch operations and `BatchCompletedEvent`; queries return materialized collections |
+| `StorageExtensions` | `IsKeyValid`, table existence and date/key conversion helpers | Utility extensions, not service registration |
 
-| Package |
-| --- |
-| [Azure.Core](https://www.nuget.org/packages/azure.core) |
-| [Azure.Storage.Blobs](https://www.nuget.org/packages/azure.storage.blobs) |
-| [Azure.Storage.Queues](https://www.nuget.org/packages/azure.storage.queues) |
-| [Azure.Data.Tables](https://www.nuget.org/packages/azure.data.tables) |
-| [System.Linq.Async](https://www.nuget.org/packages/system.linq.async) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
-| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
-| [CasCap.Common.Serialization.Json](https://www.nuget.org/packages/cascap.common.serialization.json) |
+### Queue Delivery Caution
 
-### Project References
+Dequeue methods deserialize and **delete messages before returning them**, not after your
+application processes them. `DequeueSingle<T>` also deletes malformed JSON messages and returns a
+null object with the message metadata. Use the Azure SDK directly when you need explicit
+acknowledgement, poison-message handling or processing retries.
 
-None.
+`Enqueue(List<T>)` returns `true` when **at least one** send succeeds; it is not an all-items-success
+guarantee. Deserialization failures can log payload content, so configure log destinations accordingly.
+
+## Authentication and Service Versions
+
+All three base classes have connection-string and `TokenCredential` constructors. Token constructors
+take the appropriate service URI; Blob and Queue also take a container/queue name, which is appended
+to that URI. Table takes a table-service endpoint. Grant the caller the storage data-plane roles
+needed for its reads, writes and resource creation.
+
+There is no options model or DI registration helper. Each base constructor accepts an optional SDK
+`ServiceVersion?`, useful when an emulator supports an older service API:
+
+```csharp
+using Azure.Storage.Blobs;
+using CasCap.Services;
+
+public sealed class EmulatorDocuments(string connectionString)
+    : AzBlobStorageBase(
+        connectionString, "documents", BlobClientOptions.ServiceVersion.V2024_11_04)
+{
+}
+```
+
+Omitting the version uses that SDK's default; it does not negotiate emulator compatibility.
+Store connection strings outside tracked configuration.
+
+## Documentation
+
+- [Blob contract](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage/Abstractions/IAzBlobStorageBase.cs)
+- [Queue contract](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage/Abstractions/IAzQueueStorageBase.cs)
+- [Table contract](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage/Abstractions/IAzTableStorageBase.cs)
+- [Storage test prerequisites and inventory](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage.Tests/README.md)
+- [Package catalogue and license](https://github.com/f2calv/CasCap.Api.Azure#packages)

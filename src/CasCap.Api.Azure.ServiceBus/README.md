@@ -1,125 +1,63 @@
 # CasCap.Api.Azure.ServiceBus
 
-Helper library for Azure Service Bus. Provides base service classes for queue and topic send/receive operations with event-driven message handling.
+Azure Service Bus queue and topic helpers for .NET applications. `QueueService` and `TopicService`
+send individual messages or batches and expose synchronous message/error events while receiving.
 
 ## Installation
 
-```bash
+Targets `net8.0`, `net9.0` and `net10.0`.
+
+```powershell
 dotnet add package CasCap.Api.Azure.ServiceBus
 ```
 
-## Services / Extensions
+## Usage
 
-| Type | Name | Description |
-| --- | --- | --- |
-| Interface | `IQueueService` | Abstraction for Service Bus queue send and receive operations. |
-| Interface | `ITopicService` | Abstraction for Service Bus topic send and receive operations. |
-| Service | `ServiceBase` | Abstract base class providing common message and error event handling (`MessageReceivedEvent`, `ErrorReceivedEvent`). |
-| Service | `QueueService` | Implements `IQueueService`. Sends single messages, batches, and receives from queues. Supports connection string and `TokenCredential` authentication. |
-| Service | `TopicService` | Implements `ITopicService`. Sends single messages, batches, and receives from topics/subscriptions. Supports connection string and `TokenCredential` authentication. |
+Supply a logger and either a connection string or a namespace and `TokenCredential`:
 
-### Key Methods — `QueueService`
+```csharp
+using Azure.Messaging.ServiceBus;
+using CasCap.Services;
 
-- `SendMessageAsync(ServiceBusMessage, CancellationToken)` — Sends a single message to the queue.
-- `SendMessageBatchAsync(Queue<ServiceBusMessage>, CancellationToken)` — Sends a batch of messages.
-- `ReceiveMessagesAsync(CancellationToken)` — Receives and processes messages from the queue until cancelled.
-- `DisposeAsync()` — Disposes the underlying `ServiceBusClient` (`IAsyncDisposable`).
-
-### Key Methods — `TopicService`
-
-- `SendMessageToTopicAsync(ServiceBusMessage, CancellationToken)` — Sends a single message to the topic.
-- `SendMessageBatchToTopicAsync(Queue<ServiceBusMessage>, CancellationToken)` — Sends a batch of messages.
-- `ReceiveMessagesFromSubscriptionAsync(CancellationToken)` — Receives and processes messages from a subscription until cancelled.
-- `DisposeAsync()` — Disposes the underlying `ServiceBusClient` (`IAsyncDisposable`).
-
-## Class Hierarchy
-
-Queue and Topic service abstraction for Azure Service Bus:
-
-```mermaid
-classDiagram
-    direction TB
-
-    ServiceBase <|-- QueueService
-    ServiceBase <|-- TopicService
-    IQueueService <|.. QueueService
-    ITopicService <|.. TopicService
-
-    class ServiceBase {
-        <<abstract>>
-        #ILogger Logger
-        +event MessageReceivedEvent
-        +event ErrorReceivedEvent
-        #OnMessageReceived(args) void
-        #OnErrorReceived(args) void
-    }
-
-    class IQueueService {
-        <<interface>>
-        +SendMessageAsync(message, token) Task
-        +SendMessageBatchAsync(messages, token) Task
-        +ReceiveMessagesAsync(token) Task
-        +DisposeAsync() ValueTask
-    }
-
-    class QueueService {
-        -ServiceBusClient Client
-        -ServiceBusSender Sender
-        -ServiceBusProcessor Processor
-        +SendMessageAsync(message, token) Task
-        +SendMessageBatchAsync(messages, token) Task
-        +ReceiveMessagesAsync(token) Task
-        +DisposeAsync() ValueTask
-    }
-
-    class ITopicService {
-        <<interface>>
-        +SendMessageToTopicAsync(message, token) Task
-        +SendMessageBatchToTopicAsync(messages, token) Task
-        +ReceiveMessagesFromSubscriptionAsync(token) Task
-        +DisposeAsync() ValueTask
-    }
-
-    class TopicService {
-        -ServiceBusClient Client
-        -ServiceBusSender Sender
-        -ServiceBusProcessor Processor
-        +SendMessageToTopicAsync(message, token) Task
-        +SendMessageBatchToTopicAsync(messages, token) Task
-        +ReceiveMessagesFromSubscriptionAsync(token) Task
-        +DisposeAsync() ValueTask
-    }
-
-    QueueService ..> ServiceBusClient : uses
-    TopicService ..> ServiceBusClient : uses
-    QueueService ..> ServiceBusSender : uses
-    TopicService ..> ServiceBusSender : uses
-    QueueService ..> ServiceBusProcessor : uses
-    TopicService ..> ServiceBusProcessor : uses
+await using var queue = new QueueService(logger, namespaceName, queueName, credential);
+await queue.SendMessageAsync(new ServiceBusMessage("example"), cancellationToken);
 ```
 
-**Usage Pattern:**
+The application must provision the queue first and grant the credential send/listen access for the
+operations it performs. Constructors do not create queues, topics or subscriptions.
 
-1. Instantiate `QueueService` for queue operations or `TopicService` for topic/subscription operations
-2. Subscribe to `MessageReceivedEvent` for incoming messages
-3. Subscribe to `ErrorReceivedEvent` for error handling
-4. Use `SendMessageAsync` / `SendMessageBatchAsync` for sending
-5. Use `ReceiveMessagesAsync` / `ReceiveMessagesFromSubscriptionAsync` to start listening
+| Service | Send | Receive |
+| --- | --- | --- |
+| `QueueService` / [`IQueueService`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.ServiceBus/Abstractions/IQueueService.cs) | `SendMessageAsync`, `SendMessageBatchAsync` | `ReceiveMessagesAsync` |
+| `TopicService` / [`ITopicService`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.ServiceBus/Abstractions/ITopicService.cs) | `SendMessageToTopicAsync`, `SendMessageBatchToTopicAsync` | `ReceiveMessagesFromSubscriptionAsync` |
+
+`TopicService` additionally requires a topic name and subscription name. Both services implement
+`IAsyncDisposable`; dispose them after use. Receive methods run until their cancellation token is
+cancelled and stop/dispose the processor on exit.
+
+## Receiving Semantics
+
+Subscribe to `MessageReceivedEvent` and `ErrorReceivedEvent` before starting a receiver. The common
+handler raises the message event and then calls `CompleteMessageAsync`.
+These are `EventHandler<T>` events, **not awaited asynchronous callbacks**. Do not attach an
+`async void` subscriber and assume completion waits for its work; use the Azure SDK directly when
+you need explicit asynchronous processing, settlement or retry control.
+
+Information logging includes message bodies. Configure logging so sensitive payloads cannot reach
+unapproved sinks. Error events include Azure SDK processing details.
+
+Batch methods split messages into SDK-sized batches, but they **dequeue entries from the supplied
+`Queue<ServiceBusMessage>` before sending**. A send failure can therefore leave the caller's queue
+without the unsent entries. Preserve your own retry source, and reject individually oversized messages.
 
 ## Configuration
 
-No configuration model. Services are constructed directly with connection strings or `TokenCredential`.
+There is no options model or DI registration helper. Supply constructor arguments from the
+consuming application's configuration and keep connection strings in a secret-backed provider.
 
-## Dependencies
+## Documentation
 
-### NuGet Packages
-
-| Package |
-| --- |
-| [Azure.Messaging.ServiceBus](https://www.nuget.org/packages/azure.messaging.servicebus) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
-| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
-
-### Project References
-
-None.
+- [Queue implementation](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.ServiceBus/Services/QueueService.cs)
+- [Topic implementation](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.ServiceBus/Services/TopicService.cs)
+- [Common event and completion behavior](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.ServiceBus/Services/Base/ServiceBase.cs)
+- [Package catalogue and license](https://github.com/f2calv/CasCap.Api.Azure#packages)

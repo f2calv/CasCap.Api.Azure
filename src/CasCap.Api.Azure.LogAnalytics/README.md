@@ -1,44 +1,70 @@
 # CasCap.Api.Azure.LogAnalytics
 
-Helper library for Azure Log Analytics. Provides a query service for retrieving Application Insights exception data via Azure Monitor Log Analytics, with DI registration and configuration binding.
+Azure Monitor Log Analytics helpers for .NET applications that query Application Insights data.
+[`IQueryService`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.LogAnalytics/Abstractions/IQueryService.cs)
+exposes two fixed queries, not a general-purpose Kusto query interface.
 
 ## Installation
 
-```bash
+Targets `net8.0`, `net9.0` and `net10.0`.
+
+```powershell
 dotnet add package CasCap.Api.Azure.LogAnalytics
 ```
 
-## Services / Extensions
+## Usage
 
-| Type | Name | Description |
-| --- | --- | --- |
-| Interface | `IQueryService` | Abstraction for querying Azure Monitor / Application Insights via Log Analytics. |
-| Service | `QueryService` | Implements `IQueryService` using `LogsQueryClient`. Authenticates via `TokenCredential`. |
-| Extension | `AddCasCapLogAnalyticsServices` | Registers `LogAnalyticsConfig` options and `IQueryService` / `QueryService` with the DI container. |
-| Model | `AppInsightsObject` | Record representing a single exception from an Application Insights Log Analytics query. |
+Register the application's configuration, logger infrastructure and an authorized `TokenCredential`
+before registering this package:
 
-### Key Methods
+```csharp
+using Azure.Core;
+using CasCap.Abstractions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-- `GetExceptions(int limit)` — Returns up to `limit` recent exception records from the workspace.
-- `Query(QueryTimeRange timeRange)` — Queries the workspace for up to 50 recent records across all tables and logs them.
+services.AddSingleton<IConfiguration>(configuration);
+services.AddLogging();
+services.AddSingleton<TokenCredential>(credential);
+services.AddCasCapLogAnalyticsServices();
+```
 
-## Configuration
+Consumers can inject `IQueryService`:
 
-| Class | Section | Properties |
-| --- | --- | --- |
-| `LogAnalyticsConfig` | `CasCap:LogAnalyticsConfig` | `WorkspaceId` (required) |
+```csharp
+var exceptions = await queryService.GetExceptions(limit: 20);
+```
 
-## Dependencies
+- `GetExceptions(limit = 50)` queries the `exceptions` table over the last day and maps rows to
+  `AppInsightsObject`. Its query applies `limit` before ordering by `timestamp`; it does not
+  guarantee the newest records across the entire window.
+- `Query(QueryTimeRange)` runs `union * | limit 50 | order by timestamp` and logs returned values.
+  Use it only where logs may safely contain workspace data.
 
-### NuGet Packages
+Both methods require the table and column names expected by the implementation. Workspaces using
+different schemas need a different query client. Neither method accepts a cancellation token.
 
-| Package |
-| --- |
-| [Azure.Identity](https://www.nuget.org/packages/azure.identity) |
-| [Azure.Monitor.Query](https://www.nuget.org/packages/azure.monitor.query) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
-| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
+## Configuration Examples
 
-### Project References
+`LogAnalyticsConfig.WorkspaceId` is required and binds from `CasCap:LogAnalyticsConfig`.
+Registration binds options but does not add startup validation.
 
-None.
+```json
+{
+  "CasCap": {
+    "LogAnalyticsConfig": {
+      "WorkspaceId": "00000000-0000-0000-0000-000000000000"
+    }
+  }
+}
+```
+
+Replace the placeholder with your workspace ID through your application's configuration. Grant the
+credential permission to query that workspace, such as an appropriate Log Analytics read role.
+This package does not acquire credentials or configure workspace access.
+
+## Documentation
+
+- [Query contract](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.LogAnalytics/Abstractions/IQueryService.cs)
+- [Query implementation and expected schema](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.LogAnalytics/Services/QueryService.cs)
+- [Package catalogue and license](https://github.com/f2calv/CasCap.Api.Azure#packages)
