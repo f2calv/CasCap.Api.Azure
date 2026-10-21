@@ -23,8 +23,11 @@ public abstract class ServiceBase(ILogger<ServiceBase> logger)
     /// <summary>Handles an incoming message by logging, raising <see cref="MessageReceivedEvent"/>, and completing the message.</summary>
     protected async Task MessageHandler(ProcessMessageEventArgs args)
     {
-        var messageBody = args.Message.Body.ToString();
-        _logger.LogInformation("{ClassName} Received: {MessageBody}", nameof(ServiceBase), messageBody);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            var messageBody = args.Message.Body.ToString();
+            _logger.LogInformation("{ClassName} Received: {MessageBody}", nameof(ServiceBase), messageBody);
+        }
         OnRaiseMessageReceivedEvent(args);
         await args.CompleteMessageAsync(args.Message).ConfigureAwait(false);
     }
@@ -32,7 +35,8 @@ public abstract class ServiceBase(ILogger<ServiceBase> logger)
     /// <summary>Handles a processing error by logging the exception and raising <see cref="ErrorReceivedEvent"/>.</summary>
     protected Task ErrorHandler(ProcessErrorEventArgs args)
     {
-        _logger.LogError(args.Exception, "{ClassName} error args {@Args}", nameof(ServiceBase), args);
+        if (_logger.IsEnabled(LogLevel.Error))
+            _logger.LogError(args.Exception, "{ClassName} error args {@Args}", nameof(ServiceBase), args);
         OnRaiseErrorReceivedEvent(args);
         return Task.CompletedTask;
     }

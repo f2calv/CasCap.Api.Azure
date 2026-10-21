@@ -1,78 +1,63 @@
 # CasCap.Api.Azure.Storage.Tests
 
-xUnit tests for the `CasCap.Api.Azure.Storage` library. Covers Blob Storage and Queue Storage operations against an Azurite emulator, plus self-contained unit tests for the storage key/date helper extensions.
+xUnit v3 tests for Azure Blob and Queue helpers against Azurite, plus offline storage key/date tests.
+The Microsoft.Testing.Platform executable targets .NET 8, .NET 9 and .NET 10.
 
-> **Note:** Integration tests require the Azurite storage emulator running via `docker compose up -d` from the repository root. See the root [README.md](../../README.md) for details. The `AzStorageHelpersTests` unit tests have no external dependency.
+## Tests
 
-## Test Classes
+Counts are source-declared methods and expanded `InlineData` cases, **per target framework**.
+They are not observed execution results.
 
-| Class | Methods | Cases | Description |
-| --- | --- | --- | --- |
-| `AzStorageHelpersTests` | 10 | 18 | Unit tests for `StorageExtensions` key/date helpers (partition key, row key, validation, file-name parsing). |
-| `AzBlobStorageTests` | 1 | 1 | Integration test for `AzBlobStorageBase` (container creation, upload, round-trip download). |
-| `AzQueueStorageTests` | 1 | 1 | Integration test for `AzQueueStorageBase` (enqueue, dequeue single/many). |
-| **Total** | **12** | **20** | |
+| Class | Methods | Expanded cases | Category | Scope |
+| --- | ---: | ---: | --- | --- |
+| `AzStorageHelpersTests` | 10 | 18 | `Storage Keys` | Partition/row keys, validation and file-name dates |
+| `AzBlobStorageTests` | 1 | 1 | `Integration` | Container creation, upload and round-trip download |
+| `AzQueueStorageTests` | 1 | 1 | `Integration` | Enqueue and destructive dequeue |
+| **Total** | **12** | **20** | | |
 
-Test case counts exceed method counts because `[Theory]` methods expand to multiple cases via `[InlineData]`.
-
-## Trait Categories
-
-| Category | Applies To |
-| --- | --- |
-| `Storage Keys` | `AzStorageHelpersTests` (self-contained unit tests) |
-| `Integration` | `AzBlobStorageTests`, `AzQueueStorageTests` (require Azurite) |
+These are all the trait categories. There is no Azure Table integration test in this project.
 
 ## Skipped Tests
 
-None.
+No declared skips. Integration tests do **not** skip when Azurite is absent; they fail to connect.
 
-## File Structure
+## Prerequisites and Execution
+
+Use a stable .NET 10 SDK and install runtimes for the target frameworks you select.
+Integration tests read `ConnectionStrings:storage` from `appsettings.Test.json` and require the
+repository's Azurite Compose environment, with Blob/Queue/Table ports 10000–10002 available.
+The test fixture does not load user secrets or environment-variable configuration.
+
+Start the existing repository Compose definition only when you intend to run integration tests.
+They create containers and queues, upload data and delete dequeued messages. Keep the supplied
+emulator configuration; never substitute a shared production storage account.
+
+From the repository root, after explicit approval:
+
+```powershell
+dotnet test --project .\src\CasCap.Api.Azure.Storage.Tests\CasCap.Api.Azure.Storage.Tests.csproj --configuration Release --filter-not-trait Category=Integration
+```
+
+Omit the filter only when Azurite is running and integration execution is approved. Release consumes
+published shared dependencies; Debug additionally needs an adjacent
+[CasCap.Common checkout](https://github.com/f2calv/CasCap.Common).
+
+## Layout
 
 ```text
 Tests/
-├── TestBase.cs              # DI + logging + Azurite connection string from appsettings.Test.json
-├── AzStorageHelpersTests.cs # Unit tests (no external dependency)
-├── AzBlobStorageTests.cs    # Integration tests (Azurite)
-├── AzQueueStorageTests.cs   # Integration tests (Azurite)
-├── AzBlobService.cs         # Concrete AzBlobStorageBase test helper
-├── AzQueueService.cs        # Concrete AzQueueStorageBase test helper
-└── TestMessage.cs           # Queue message payload DTO
+├── TestBase.cs
+├── AzStorageHelpersTests.cs
+├── AzBlobStorageTests.cs
+├── AzQueueStorageTests.cs
+├── AzBlobService.cs
+├── AzQueueService.cs
+└── TestMessage.cs
 ```
 
-## Test Support Types
+`TestBase` builds the configuration and service container. `AzBlobService` and `AzQueueService`
+provide concrete test implementations of the library base classes; `TestMessage` is the queue
+payload. Test-specific interfaces live under `Abstractions/`.
 
-| Class | Description |
-| --- | --- |
-| `TestBase` | Abstract base configuring DI, logging, and Azurite connection string from `appsettings.Test.json`. |
-| `AzBlobService` | Concrete `AzBlobStorageBase` implementation for test blob operations. |
-| `AzQueueService` | Concrete `AzQueueStorageBase` implementation for test queue operations. |
-| `TestMessage` | Simple DTO with `Id`, `Dt`, and `TestString` used as a queue message payload. |
-
-## Test Interfaces
-
-| Interface | Description |
-| --- | --- |
-| `IAzBlobService` | Test-specific blob storage abstraction extending `IAzBlobStorageBase`. |
-| `IAzQueueService` | Test-specific queue storage abstraction extending `IAzQueueStorageBase`. |
-
-## Dependencies
-
-### NuGet Packages
-
-| Package |
-| --- |
-| [Microsoft.NET.Test.Sdk](https://www.nuget.org/packages/microsoft.net.test.sdk) |
-| [xunit](https://www.nuget.org/packages/xunit) |
-| [xunit.runner.visualstudio](https://www.nuget.org/packages/xunit.runner.visualstudio) |
-| [coverlet.collector](https://www.nuget.org/packages/coverlet.collector) |
-| [coverlet.msbuild](https://www.nuget.org/packages/coverlet.msbuild) |
-| [Serilog.Sinks.XUnit](https://www.nuget.org/packages/serilog.sinks.xunit) |
-| [Microsoft.Extensions.Configuration.Json](https://www.nuget.org/packages/microsoft.extensions.configuration.json) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
-| [CasCap.Common.Testing](https://www.nuget.org/packages/cascap.common.testing) |
-
-### Project References
-
-| Project | Description |
-| --- | --- |
-| `CasCap.Api.Azure.Storage` | The library under test |
+See the [Storage package README](../CasCap.Api.Azure.Storage/README.md) for consumer APIs and
+queue-delivery cautions.

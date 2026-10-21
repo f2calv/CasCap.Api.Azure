@@ -1,33 +1,20 @@
 # CasCap.Api.Azure.EventGrid
 
-Helper library for Azure Event Grid. Provides foundational package references for Event Grid messaging integration.
+An Azure Event Grid dependency package targeting `net8.0`, `net9.0` and `net10.0`.
+It currently contains **no public service classes, interfaces, configuration or registration API**.
 
 ## Installation
 
-```bash
+```powershell
 dotnet add package CasCap.Api.Azure.EventGrid
 ```
 
-> **Note:** This project currently contains no service classes or interfaces. It serves as a packaging placeholder with the `Azure.Messaging.EventGrid` SDK dependency ready for consumption by downstream projects.
+This package references `Azure.Messaging.EventGrid` and shared logging/extension dependencies.
+Installation does not provide a CasCap publisher or subscriber. For an Event Grid implementation,
+use the Azure SDK directly and follow its
+[Event Grid client guidance](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme).
 
-## Services / Extensions
+## Documentation
 
-None.
-
-## Configuration
-
-None.
-
-## Dependencies
-
-### NuGet Packages
-
-| Package |
-| --- |
-| [Azure.Messaging.EventGrid](https://www.nuget.org/packages/azure.messaging.eventgrid) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
-| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
-
-### Project References
-
-None.
+- [Project contents](https://github.com/f2calv/CasCap.Api.Azure/tree/main/src/CasCap.Api.Azure.EventGrid)
+- [Package catalogue and license](https://github.com/f2calv/CasCap.Api.Azure#packages)

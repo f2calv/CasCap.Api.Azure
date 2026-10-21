@@ -19,9 +19,9 @@ public class AzQueueStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outp
         Assert.True(result2);
 
         //dequeue test message #1
-        var result3 = await _queueSvc.DequeueSingle<TestMessage>(TestContext.Current.CancellationToken);
-        Assert.NotNull(result3.obj);
-        Assert.Equal(result3.obj.TestString, inputTestString);
+        var (dequeuedObj, _) = await _queueSvc.DequeueSingle<TestMessage>(TestContext.Current.CancellationToken);
+        Assert.NotNull(dequeuedObj);
+        Assert.Equal(dequeuedObj.TestString, inputTestString);
 
         //queue test message #3
         var result4 = await _queueSvc.Enqueue(testObj, TestContext.Current.CancellationToken);

@@ -5,7 +5,7 @@ namespace CasCap.Abstractions;
 public interface ISpeechService
 {
     /// <summary>Synthesizes <paramref name="soundByte"/> as speech and writes the result to a WAV file at <paramref name="path"/>.</summary>
-    Task CreateWAV(string soundByte, string path);
+    public Task CreateWAV(string soundByte, string path);
 
     /// <summary>Synthesizes <paramref name="text"/> as speech and returns the encoded audio.</summary>
     /// <param name="text">The text to speak.</param>
@@ -18,12 +18,12 @@ public interface ISpeechService
     /// Unlike <see cref="CreateWAV"/> this returns the bytes, so no temporary file is required. Opus in
     /// an Ogg container is chosen because it is what messaging clients use for voice notes.
     /// </remarks>
-    Task<byte[]?> SynthesizeAsync(string text, string? voice = null,
+    public Task<byte[]?> SynthesizeAsync(string text, string? voice = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>Recognizes speech from a WAV file at <paramref name="path"/> and returns the transcribed text.</summary>
     /// <returns>The recognized text, or <see langword="null"/> if recognition failed or no speech was detected.</returns>
-    Task<string?> RecognizeFromWAV(string path);
+    public Task<string?> RecognizeFromWAV(string path);
 
     /// <summary>Transcribes an audio stream through the fast transcription API and returns the transcribed text.</summary>
     /// <param name="audio">The audio to transcribe, in any format the service accepts. Read from the current position.</param>
@@ -37,10 +37,10 @@ public interface ISpeechService
     /// Unlike <see cref="RecognizeFromWAV"/> this accepts a stream, so no temporary file is required, and it
     /// transcribes the whole recording rather than stopping at the first utterance.
     /// </remarks>
-    Task<string?> TranscribeAsync(Stream audio, IReadOnlyList<string>? locales = null,
+    public Task<string?> TranscribeAsync(Stream audio, IReadOnlyList<string>? locales = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>Recognizes speech from the default microphone input and returns the transcribed text.</summary>
     /// <returns>The recognized text, or <see langword="null"/> if recognition failed or no speech was detected.</returns>
-    Task<string?> RecognizeFromMicrophone();
+    public Task<string?> RecognizeFromMicrophone();
 }

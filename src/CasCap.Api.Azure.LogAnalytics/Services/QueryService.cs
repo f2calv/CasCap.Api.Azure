@@ -6,7 +6,7 @@ namespace CasCap.Services;
 /// <see href="https://zimmergren.net/retrieve-logs-from-application-insights-programmatically-with-net-core-c/" />,
 /// and <see href="https://learn.microsoft.com/en-us/dotnet/api/overview/azure/monitor.query-readme?view=azure-dotnet" />.
 /// </remarks>
-public sealed class QueryService(
+public sealed partial class QueryService(
     ILogger<QueryService> logger,
     IOptions<LogAnalyticsConfig> logAnalyticsConfig,
     TokenCredential credential) : IQueryService
@@ -20,7 +20,13 @@ public sealed class QueryService(
 
         var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange).ConfigureAwait(false);
         foreach (var row in queryResults.Value.Table.Rows)
-            logger.LogInformation("{ClassName} {Row}", nameof(QueryService), string.Join("    ", row));
+        {
+            if (!logger.IsEnabled(LogLevel.Information))
+                continue;
+
+            var formattedRow = string.Join("    ", row);
+            LogRow(logger, nameof(QueryService), formattedRow);
+        }
     }
 
     /// <inheritdoc/>
@@ -33,20 +39,23 @@ public sealed class QueryService(
         {
             var obj = new AppInsightsObject
             {
-                timestamp = DateTime.Parse(e[nameof(AppInsightsObject.timestamp)].ToString()!, CultureInfo.InvariantCulture),
-                cloud_RoleInstance = e[nameof(AppInsightsObject.cloud_RoleInstance)].ToString()!,
-                customDimensions = e[nameof(AppInsightsObject.customDimensions)],
-                appId = new Guid(e[nameof(AppInsightsObject.appId)].ToString()!),
-                iKey = new Guid(e[nameof(AppInsightsObject.iKey)].ToString()!),
-                problemId = e[nameof(AppInsightsObject.problemId)].ToString()!,
-                message = e[nameof(AppInsightsObject.message)].ToString()!,
-                outerMessage = e[nameof(AppInsightsObject.outerMessage)].ToString()!,
-                innermostMessage = e[nameof(AppInsightsObject.innermostMessage)].ToString()!,
-                method = e[nameof(AppInsightsObject.method)].ToString()!,
-                assembly = e[nameof(AppInsightsObject.assembly)].ToString()!,
+                Timestamp = DateTime.Parse(e["timestamp"].ToString()!, CultureInfo.InvariantCulture),
+                CloudRoleInstance = e["cloud_RoleInstance"].ToString()!,
+                CustomDimensions = e["customDimensions"],
+                AppId = new Guid(e["appId"].ToString()!),
+                InstrumentationKey = new Guid(e["iKey"].ToString()!),
+                ProblemId = e["problemId"].ToString()!,
+                Message = e["message"].ToString()!,
+                OuterMessage = e["outerMessage"].ToString()!,
+                InnermostMessage = e["innermostMessage"].ToString()!,
+                Method = e["method"].ToString()!,
+                Assembly = e["assembly"].ToString()!,
             };
             l.Add(obj);
         }
         return l;
     }
+
+    [LoggerMessage(LogLevel.Information, "{ClassName} {Row}")]
+    private static partial void LogRow(ILogger logger, string className, string row);
 }

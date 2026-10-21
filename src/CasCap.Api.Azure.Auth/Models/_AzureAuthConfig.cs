@@ -42,15 +42,15 @@ public record AzureAuthConfig : IAppConfig, IAzureAuthConfig
     /// <inheritdoc/>
     public string? AzureEntraPemPath { get; init; }
 
-    private TokenCredential? tokenCredential;
-
     /// <inheritdoc/>
     public TokenCredential? TokenCredential
     {
         get
         {
-            tokenCredential ??= TokenCredentialExtensions.CreateTokenCredential(this);
-            return tokenCredential;
+            field ??= TokenCredentialExtensions.CreateTokenCredential(this);
+            return field;
         }
+
+        private set;
     }
 }

@@ -1,405 +1,87 @@
 # CasCap.Api.Azure
 
-[cascap.api.azure.appinsights-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.AppInsights?color=blue
-[cascap.api.azure.appinsights-url]: https://nuget.org/packages/CasCap.Api.Azure.AppInsights
-[cascap.api.azure.auth-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Auth?color=blue
-[cascap.api.azure.auth-url]: https://nuget.org/packages/CasCap.Api.Azure.Auth
-[cascap.api.azure.cognitiveservices-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices?color=blue
-[cascap.api.azure.cognitiveservices-url]: https://nuget.org/packages/CasCap.Api.Azure.CognitiveServices
-[cascap.api.azure.containerregistry-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry?color=blue
-[cascap.api.azure.containerregistry-url]: https://nuget.org/packages/CasCap.Api.Azure.ContainerRegistry
-[cascap.api.azure.eventgrid-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid?color=blue
-[cascap.api.azure.eventgrid-url]: https://nuget.org/packages/CasCap.Api.Azure.EventGrid
-[cascap.api.azure.eventhub-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.EventHub?color=blue
-[cascap.api.azure.eventhub-url]: https://nuget.org/packages/CasCap.Api.Azure.EventHub
-[cascap.api.azure.loganalytics-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.LogAnalytics?color=blue
-[cascap.api.azure.loganalytics-url]: https://nuget.org/packages/CasCap.Api.Azure.LogAnalytics
-[cascap.api.azure.servicebus-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.ServiceBus?color=blue
-[cascap.api.azure.servicebus-url]: https://nuget.org/packages/CasCap.Api.Azure.ServiceBus
-[cascap.api.azure.storage-badge]: https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage?color=blue
-[cascap.api.azure.storage-url]: https://nuget.org/packages/CasCap.Api.Azure.Storage
+CasCap.Api.Azure is a collection of .NET libraries for Azure authentication, storage, messaging,
+speech and monitoring. Choose a package for the Azure service your application uses; the libraries
+target .NET 8, .NET 9 and .NET 10.
 
-A collection of .NET helper class libraries for interacting with Azure PaaS services. The repository contains 10 projects (9 libraries + 1 test project) targeting net8.0, net9.0, and net10.0.
+## Packages
 
-| Library | Package |
-| --- | --- |
-| CasCap.Api.Azure.AppInsights | [![Nuget][cascap.api.azure.appinsights-badge]][cascap.api.azure.appinsights-url] |
-| CasCap.Api.Azure.Auth | [![Nuget][cascap.api.azure.auth-badge]][cascap.api.azure.auth-url] |
-| CasCap.Api.Azure.CognitiveServices | [![Nuget][cascap.api.azure.cognitiveservices-badge]][cascap.api.azure.cognitiveservices-url] |
-| CasCap.Api.Azure.ContainerRegistry | [![Nuget][cascap.api.azure.containerregistry-badge]][cascap.api.azure.containerregistry-url] |
-| CasCap.Api.Azure.EventGrid | [![Nuget][cascap.api.azure.eventgrid-badge]][cascap.api.azure.eventgrid-url] |
-| CasCap.Api.Azure.EventHub | [![Nuget][cascap.api.azure.eventhub-badge]][cascap.api.azure.eventhub-url] |
-| CasCap.Api.Azure.LogAnalytics | [![Nuget][cascap.api.azure.loganalytics-badge]][cascap.api.azure.loganalytics-url] |
-| CasCap.Api.Azure.ServiceBus | [![Nuget][cascap.api.azure.servicebus-badge]][cascap.api.azure.servicebus-url] |
-| CasCap.Api.Azure.Storage | [![Nuget][cascap.api.azure.storage-badge]][cascap.api.azure.storage-url] |
+Each package's README includes its installation, authentication requirements and current API contract.
 
-## Projects
-
-| Project | Description | README |
+| Package documentation | Purpose | NuGet |
 | --- | --- | --- |
-| **CasCap.Api.Azure.AppInsights** | Application Insights configuration & DI registration | [README](src/CasCap.Api.Azure.AppInsights/README.md) |
-| **CasCap.Api.Azure.Auth** | Azure authentication credential factory for Key Vault and certificate-based access | [README](src/CasCap.Api.Azure.Auth/README.md) |
-| **CasCap.Api.Azure.CognitiveServices** | Speech-to-text and text-to-speech via Azure Speech SDK | [README](src/CasCap.Api.Azure.CognitiveServices/README.md) |
-| **CasCap.Api.Azure.ContainerRegistry** | Azure Container Registry repository/manifest listing | [README](src/CasCap.Api.Azure.ContainerRegistry/README.md) |
-| **CasCap.Api.Azure.EventGrid** | Azure Event Grid messaging (placeholder) | [README](src/CasCap.Api.Azure.EventGrid/README.md) |
-| **CasCap.Api.Azure.EventHub** | Event Hub publisher/subscriber with MessagePack serialization | [README](src/CasCap.Api.Azure.EventHub/README.md) |
-| **CasCap.Api.Azure.LogAnalytics** | Log Analytics query service for Application Insights | [README](src/CasCap.Api.Azure.LogAnalytics/README.md) |
-| **CasCap.Api.Azure.ServiceBus** | Service Bus queue and topic send/receive operations | [README](src/CasCap.Api.Azure.ServiceBus/README.md) |
-| **CasCap.Api.Azure.Storage** | Blob, Queue, and Table storage base services | [README](src/CasCap.Api.Azure.Storage/README.md) |
-| **CasCap.Api.Azure.Storage.Tests** | xUnit integration tests for Storage (requires Azurite) | [README](src/CasCap.Api.Azure.Storage.Tests/README.md) |
+| [AppInsights](src/CasCap.Api.Azure.AppInsights/README.md) | Bind Application Insights options; does not install telemetry instrumentation | [![AppInsights NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.AppInsights)](https://www.nuget.org/packages/CasCap.Api.Azure.AppInsights) |
+| [Auth](src/CasCap.Api.Azure.Auth/README.md) | Certificate and workload-identity credentials; HTTP bearer authentication | [![Auth NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.Auth)](https://www.nuget.org/packages/CasCap.Api.Azure.Auth) |
+| [CognitiveServices](src/CasCap.Api.Azure.CognitiveServices/README.md) | Speech synthesis, single-utterance recognition and fast transcription | [![CognitiveServices NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices)](https://www.nuget.org/packages/CasCap.Api.Azure.CognitiveServices) |
+| [ContainerRegistry](src/CasCap.Api.Azure.ContainerRegistry/README.md) | List registry repositories and manifests to a logger | [![ContainerRegistry NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry)](https://www.nuget.org/packages/CasCap.Api.Azure.ContainerRegistry) |
+| [EventGrid](src/CasCap.Api.Azure.EventGrid/README.md) | SDK dependency package; no wrapper API | [![EventGrid NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid)](https://www.nuget.org/packages/CasCap.Api.Azure.EventGrid) |
+| [EventHub](src/CasCap.Api.Azure.EventHub/README.md) | MessagePack publishing and checkpointed diagnostic receiving | [![EventHub NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.EventHub)](https://www.nuget.org/packages/CasCap.Api.Azure.EventHub) |
+| [LogAnalytics](src/CasCap.Api.Azure.LogAnalytics/README.md) | Fixed workspace and Application Insights exception queries | [![LogAnalytics NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.LogAnalytics)](https://www.nuget.org/packages/CasCap.Api.Azure.LogAnalytics) |
+| [ServiceBus](src/CasCap.Api.Azure.ServiceBus/README.md) | Queue and topic sending and event-based receiving | [![ServiceBus NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.ServiceBus)](https://www.nuget.org/packages/CasCap.Api.Azure.ServiceBus) |
+| [Storage](src/CasCap.Api.Azure.Storage/README.md) | Blob, Queue and Table Storage base classes | [![Storage NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage)](https://www.nuget.org/packages/CasCap.Api.Azure.Storage) |
 
-## Dependency Graph
+## Quick Start
 
-### NuGet Package Dependencies
+For example, install the Storage package in a consuming application:
 
-```mermaid
-graph TD
-    subgraph "CasCap.Common (external)"
-        Logging["CasCap.Common.Logging"]
-        Ext["CasCap.Common.Extensions"]
-        SerJson["CasCap.Common.Serialization.Json"]
-        SerMsgPack["CasCap.Common.Serialization.MessagePack"]
-        Testing["CasCap.Common.Testing"]
-    end
-
-    subgraph "CasCap.Api.Azure Libraries"
-        AI["AppInsights"]
-        AU["Auth"]
-        CS["CognitiveServices"]
-        CR["ContainerRegistry"]
-        EG["EventGrid"]
-        EH["EventHub"]
-        LA["LogAnalytics"]
-        SB["ServiceBus"]
-        ST["Storage"]
-    end
-
-    Tests["Storage.Tests"]
-
-    AI --> Logging
-    AI --> Ext
-
-    AU --> Logging
-    AU --> Ext
-
-    CS --> Logging
-    CS --> Ext
-
-    CR --> Logging
-    CR --> Ext
-
-    EG --> Logging
-    EG --> Ext
-
-    EH --> Logging
-    EH --> Ext
-    EH --> SerMsgPack
-
-    LA --> Logging
-    LA --> Ext
-
-    SB --> Logging
-    SB --> Ext
-
-    ST --> Logging
-    ST --> Ext
-    ST --> SerJson
-
-    Tests --> ST
-    Tests --> Logging
-    Tests --> Testing
+```powershell
+dotnet add package CasCap.Api.Azure.Storage
 ```
 
-### Azure SDK Dependencies
+Derive a concrete service and supply a connection string from the application's secret-backed
+configuration. Constructing the blob service contacts storage and creates the container if absent.
 
-```mermaid
-graph LR
-    subgraph "Azure SDKs"
-        AzCore["Azure.Core"]
-        AzIdentity["Azure.Identity"]
-        AzBlobs["Azure.Storage.Blobs"]
-        AzQueues["Azure.Storage.Queues"]
-        AzTables["Azure.Data.Tables"]
-        AzEG["Azure.Messaging.EventGrid"]
-        AzEH["Azure.Messaging.EventHubs"]
-        AzEHP["Azure.Messaging.EventHubs.Processor"]
-        AzSB["Azure.Messaging.ServiceBus"]
-        AzMQ["Azure.Monitor.Query"]
-        AzACR["Azure.Containers.ContainerRegistry"]
-        CogSpeech["Microsoft.CognitiveServices.Speech"]
-    end
+```csharp
+using CasCap.Services;
 
-    AI["AppInsights"]
-    AU["Auth"] --> AzIdentity
-    CS["CognitiveServices"] --> CogSpeech
-    CR["ContainerRegistry"] --> AzACR
-    CR --> AzIdentity
-    EG["EventGrid"] --> AzEG
-    EH["EventHub"] --> AzEH
-    EH --> AzEHP
-    LA["LogAnalytics"] --> AzIdentity
-    LA --> AzMQ
-    SB["ServiceBus"] --> AzSB
-    ST["Storage"] --> AzCore
-    ST --> AzBlobs
-    ST --> AzQueues
-    ST --> AzTables
+public sealed class DocumentStorage(string connectionString)
+    : AzBlobStorageBase(connectionString, "documents")
+{
+}
 ```
 
-### Project Reference Graph
+```csharp
+using Microsoft.Extensions.Configuration;
 
-```mermaid
-graph TD
-    Tests["Storage.Tests"] --> ST["Storage"]
+var connectionString = configuration.GetConnectionString("Storage")
+    ?? throw new InvalidOperationException("Configure the Storage connection string.");
+var storage = new DocumentStorage(connectionString);
+await storage.UploadBlob("example.txt", "Hello"u8.ToArray(), cancellationToken);
 ```
 
-## Project Structure
+See the [Storage README](src/CasCap.Api.Azure.Storage/README.md) for token credentials, service-version
+selection and queue deletion semantics.
 
-```text
-/
-├── .github/
-│   ├── workflows/
-│   │   └── ci.yml              # Main CI pipeline (lint, version, build)
-│   └── dependabot.yml          # Auto-updates for nuget, github-actions, devcontainers
-├── src/
-│   ├── CasCap.Api.Azure.AppInsights/          # Application Insights helpers
-│   ├── CasCap.Api.Azure.Auth/                 # Azure authentication credential factory
-│   ├── CasCap.Api.Azure.CognitiveServices/    # Cognitive Services (e.g., Speech)
-│   ├── CasCap.Api.Azure.ContainerRegistry/    # Azure Container Registry client
-│   ├── CasCap.Api.Azure.EventGrid/            # Event Grid messaging
-│   ├── CasCap.Api.Azure.EventHub/             # Event Hub streaming
-│   ├── CasCap.Api.Azure.LogAnalytics/         # Log Analytics query service
-│   ├── CasCap.Api.Azure.ServiceBus/           # Service Bus messaging
-│   ├── CasCap.Api.Azure.Storage/              # Blob, Queue, Table storage
-│   └── CasCap.Api.Azure.Storage.Tests/        # xUnit tests for Storage
-├── Directory.Build.props       # Common MSBuild properties for all projects
-├── Directory.Packages.props    # Centralized package version management (CPM)
-├── .editorconfig               # Code style rules (4-space indent, LF line endings)
-├── GitVersion.yml              # Semantic versioning configuration
-├── global.json                 # .NET SDK version (allowPrerelease: false)
-└── docker-compose.yml          # Azurite storage emulator setup
+## Authentication and Service Requirements
+
+Provision the relevant Azure resource and grant the caller the data-plane permissions required for
+its operations. SDK-backed services accept `TokenCredential` where documented; other overloads take
+connection strings or subscription keys. Keep credentials, private keys and connection strings in
+user secrets or a deployment secret provider, not source control.
+
+The [Auth package](src/CasCap.Api.Azure.Auth/README.md) creates certificate or workload-identity
+credentials. Authentication does not grant resource access by itself. Check the selected package's
+requirements before running examples, which can create resources, send messages or incur charges.
+
+## Development
+
+A stable .NET 10 SDK can build all target frameworks. From the repository root:
+
+```powershell
+dotnet build .\CasCap.Api.Azure.Release.slnx --configuration Release
 ```
 
-**Typical Project Structure:**
-
-- `Abstractions/` - Interfaces
-- `Services/` - Service implementations
-- `Extensions/` - Dependency injection extensions
-- `Models/` - DTOs and options classes
-- `Usings.cs` - Global using statements
-
-## Prerequisites
-
-- **.NET SDK**: 10.0.x stable (see `global.json` — `allowPrerelease: false`)
-- **Docker**: Required for Azurite storage emulator during testing
-
-## Build and Test
-
-### 1. Restore Dependencies (REQUIRED FIRST STEP)
-
-```bash
-dotnet restore CasCap.Api.Azure.Release.slnx
-```
-
-### 2. Build the Solution
-
-```bash
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-```
-
-Builds all 10 projects for net8.0, net9.0, and net10.0 (30 DLLs total).
-
-### 3. Clean Build Artifacts
-
-```bash
-dotnet clean CasCap.Api.Azure.Release.slnx
-```
-
-**Alternative:** PowerShell script `./clean.ps1` (removes all bin/obj folders recursively)
-
-### 4. Format Code (REQUIRED BEFORE COMMIT)
-
-```bash
-dotnet format CasCap.Api.Azure.Release.slnx --no-restore
-```
-
-**Verify formatting:**
-
-```bash
-dotnet format CasCap.Api.Azure.Release.slnx --verify-no-changes --no-restore
-```
-
-CI will fail if code is not properly formatted.
-
-### 5. Run Tests (REQUIRES AZURITE)
-
-**Start Azurite storage emulator FIRST:**
-
-```bash
-docker compose up -d
-```
-
-**Ports:** 10000 (blob), 10001 (queue), 10002 (table)
-
-**Run tests:**
-
-```bash
-dotnet test --solution CasCap.Api.Azure.Release.slnx --configuration Release --no-build --verbosity normal
-```
-
-**Stop Azurite after testing:**
-
-```bash
-docker compose down
-```
-
-### Quick Reference
-
-**Full build from scratch:**
-
-```bash
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-dotnet format CasCap.Api.Azure.Release.slnx --no-restore
-```
-
-**Build + Test (with Azurite):**
-
-```bash
-docker compose up -d
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-dotnet test --solution CasCap.Api.Azure.Release.slnx --configuration Release --no-build
-docker compose down
-```
-
-**Clean + Rebuild:**
-
-```bash
-dotnet clean CasCap.Api.Azure.Release.slnx
-dotnet restore CasCap.Api.Azure.Release.slnx
-dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore
-```
-
-## Project Configuration
-
-### Solution Files
-
-| File | Purpose |
-| --- | --- |
-| `CasCap.Api.Azure.Debug.slnx` | Development — references local `CasCap.Common` repo |
-| `CasCap.Api.Azure.Release.slnx` | Release builds — consumes `CasCap.Common` as NuGet packages |
-
-**Dependency:** Debug builds require [CasCap.Common](https://github.com/f2calv/CasCap.Common) cloned at the same directory level.
-
-### Key Files
-
-| File | Purpose |
-| --- | --- |
-| `Directory.Build.props` | C# 14.0, `ImplicitUsings`, `Nullable: enable`, `TreatWarningsAsErrors: true`, `IsPackable: false` by default |
-| `Directory.Packages.props` | Central package version management (`ManagePackageVersionsCentrally: true`) |
-| `.editorconfig` | Code style rules (4-space indent, LF line endings, full formatting rules) |
-| `global.json` | SDK constraint — stable releases only |
-| `docker-compose.yml` | Azurite storage emulator setup |
-| `GitVersion.yml` | Semantic versioning configuration |
-
-### Suppressed Warnings
-
-Configured in `Directory.Build.props`: `IDE1006`, `IDE0042`, `NETSDK1233`, `NU1901`, `NU1902`, `NU1903`
-
-## CI/CD Pipeline (.github/workflows/ci.yml)
-
-**Triggers:** push (except preview branches), pull_request to main, workflow_dispatch
-
-**Jobs:**
-
-1. **lint** - Uses reusable workflow `f2calv/gha-workflows/.github/workflows/lint.yml@v1`
-2. **versioning** - GitVersion for semantic versioning (uses GitVersion.yml)
-3. **build** - Ubuntu runner with:
-   - Azurite service container (ports 10000-10002)
-   - Reusable workflow `f2calv/gha-dotnet-nuget@v2`
-   - Configuration: Release (default) or Debug (manual)
-   - Blob, Queue, and storage helper tests run against Azurite 3.37.0
-4. **release** - Creates GitHub releases (only on main or preview branches)
-
-## Multi-Targeting Notes
-
-All libraries target **net8.0, net9.0, and net10.0** simultaneously. When making changes:
-
-- Test builds across all target frameworks
-- Some packages (like `System.Linq.Async`) are only referenced for net8.0/net9.0
-- Build output generates separate DLLs for each framework
-
-## Packaging & Versioning
-
-- **IsPackable:** Explicitly set per project (default is `false` in Directory.Build.props)
-- **Versioning:** Automated via GitVersion (MainLine mode)
-- **NuGet Push:** Handled by CI on main branch (requires NUGET_API_KEY secret)
-- **Package metadata:** Defined in Directory.Build.props (author, license, icon, source link)
-
-## Making Changes
-
-### Adding Code
-
-1. Place code in the correct project by functionality
-2. Follow `.editorconfig` style rules
-3. Add XML documentation to all public API surface
-4. Add tests in the corresponding `.Tests` project
-5. Validate: `dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore` → 0 errors
-
-### Adding Dependencies
-
-1. Add version to `Directory.Packages.props`
-2. Reference in `.csproj` **without** a version attribute:
-
-   ```xml
-   <PackageReference Include="PackageName" />
-   ```
-
-3. Run `dotnet restore`
-
-### Creating New Projects
-
-- Library projects inherit `Directory.Build.props` automatically
-- Set `<IsPackable>true</IsPackable>` explicitly only for NuGet packages
-- Test projects must **not** be packable (default) and must target `net8.0;net9.0;net10.0`
-
-## Validation Checklist
-
-- [ ] `dotnet restore CasCap.Api.Azure.Release.slnx` succeeds
-- [ ] `dotnet build CasCap.Api.Azure.Release.slnx --configuration Release --no-restore` completes with 0 errors
-- [ ] `dotnet format CasCap.Api.Azure.Release.slnx --verify-no-changes --no-restore` passes
-- [ ] Docker dependencies running for tests (`docker compose up -d`)
-- [ ] Public API has XML documentation
-- [ ] Properties separated by blank lines
-- [ ] `ServiceProvider` instances are disposed in tests
-
-## Common Gotchas
-
-1. **Debug vs Release solution:**
-   - Debug solution references local `../CasCap.Common` repo (must be cloned)
-   - Release solution uses NuGet packages
-   - Always use Release solution unless actively developing CasCap.Common integration
-
-2. **Central Package Management:**
-   - Package versions are centralized in `Directory.Packages.props`
-   - Never add version attributes to `<PackageReference>` in .csproj files
-   - Update versions only in Directory.Packages.props
-
-3. **Azurite Tests:**
-   - Keep local Compose and CI on the same Azurite version
-   - Run the storage tests against Azurite before changing storage behavior
-
-4. **Docker Compose Command:**
-   - Use `docker compose` (not `docker-compose`)
-   - Older hyphenated command may not be available
-
-5. **Formatting is Mandatory:**
-   - CI will fail if code is not formatted
-   - Always run `dotnet format` before committing
-   - CI uses `--verify-no-changes` flag
-
-6. **Pre-commit Hooks:**
-   - Configured in `.pre-commit-config.yaml` but requires manual installation
-   - Not automatically enforced in standard environments
-   - Checks: YAML, JSON5, markdown linting, large files, whitespace
+Release configuration consumes published dependencies. Debug configuration additionally requires an
+adjacent [CasCap.Common checkout](https://github.com/f2calv/CasCap.Common). When restoring separately,
+pass `-p:Configuration=Release`; a Debug restore followed by a Release `--no-restore` build does not
+validate the published dependency graph.
+
+The repository has **11 projects: nine packages and two test projects**.
+[Auth tests](src/CasCap.Api.Azure.Auth.Tests/README.md) are offline;
+[Storage tests](src/CasCap.Api.Azure.Storage.Tests/README.md) include Azurite-backed integration tests
+that create and change emulator data. Their READMEs document inventories and prerequisites.
+Do not point the storage test configuration at a shared Azure account.
+
+## License
+
+Released under the [MIT License](LICENSE).

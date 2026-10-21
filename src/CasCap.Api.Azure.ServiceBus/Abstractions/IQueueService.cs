@@ -10,12 +10,12 @@ public interface IQueueService : IAsyncDisposable
     /// <summary>Sends a single <paramref name="message"/> to the queue.</summary>
     /// <param name="message">The Service Bus message to send.</param>
     /// <param name="cancellationToken">Token to cancel the send operation.</param>
-    Task SendMessageAsync(ServiceBusMessage message, CancellationToken cancellationToken = default);
+    public Task SendMessageAsync(ServiceBusMessage message, CancellationToken cancellationToken = default);
 
     /// <summary>Sends a batch of <paramref name="messages"/> to the queue, splitting into multiple batches as required.</summary>
     /// <param name="messages">The messages to send; dequeued as they are added to a batch.</param>
     /// <param name="cancellationToken">Token to cancel the send operation.</param>
-    Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default);
+    public Task SendMessageBatchAsync(Queue<ServiceBusMessage> messages, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Starts receiving messages from the queue and processes them until <paramref name="cancellationToken"/> is cancelled.
@@ -25,5 +25,5 @@ public interface IQueueService : IAsyncDisposable
     /// errors raise <see cref="CasCap.Services.ServiceBase.ErrorReceivedEvent"/>.
     /// </remarks>
     /// <param name="cancellationToken">Token used to stop receiving.</param>
-    Task ReceiveMessagesAsync(CancellationToken cancellationToken = default);
+    public Task ReceiveMessagesAsync(CancellationToken cancellationToken = default);
 }

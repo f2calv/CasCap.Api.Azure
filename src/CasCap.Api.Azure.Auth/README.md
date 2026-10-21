@@ -1,132 +1,177 @@
 # CasCap.Api.Azure.Auth
 
-Azure authentication helpers that give applications one configuration model and credential factory
-across development, Edge, and Azure-hosted environments:
-
-- **Developer workstations** can load a client certificate from the current user's certificate
-  store, a combined PEM file, or a PFX file.
-- **Edge and self-managed deployments** can mount one combined PEM or PFX client certificate without
-  requiring Azure Arc, cluster membership in Entra ID, or a cloud-managed node identity.
-- **Azure-hosted Kubernetes workloads** can use federated workload identity. The library detects the
-  injected Azure environment and creates a `WorkloadIdentityCredential` without a certificate or
-  client secret.
-- **Local or disconnected environments** can disable Key Vault integration explicitly and use other
-  configuration providers.
-
-Every enabled path produces an Azure SDK `TokenCredential`, so the application can use the same
-startup and dependency-injection flow for Key Vault, Storage, Event Hubs, Service Bus, and other
-token-aware Azure clients.
-
-```mermaid
-flowchart LR
-    DEV["Developer workstation"] --> STORE["Certificate store"]
-    DEV --> FILE["Combined PEM or PFX"]
-    EDGE["Edge / self-managed"] --> FILE
-    AZURE["Azure-hosted Kubernetes"] --> FEDERATED["Federated service-account token"]
-
-    STORE --> CLIENT_CERT["ClientCertificateCredential"]
-    FILE --> CLIENT_CERT
-    FEDERATED --> WORKLOAD["WorkloadIdentityCredential"]
-
-    CLIENT_CERT --> SDK["Azure SDK clients"]
-    WORKLOAD --> SDK
-```
+Azure credential helpers for .NET applications using client certificates or Kubernetes workload
+identity. The package also supplies an HTTP bearer handler and optional certificate-authentication
+registration for an Agent Runtime client.
 
 ## Installation
 
-```bash
+Targets `net8.0`, `net9.0` and `net10.0`.
+
+```powershell
 dotnet add package CasCap.Api.Azure.Auth
 ```
 
-**Target frameworks:** `net8.0`, `net9.0`, `net10.0`
+## Usage
 
-## Services / Extensions
+Bind the application's configuration to `AzureAuthConfig`, then explicitly decide whether to use
+Key Vault before resolving a credential:
 
-| Type | Name | Description |
-| --- | --- | --- |
-| Interface | `IAzureAuthConfig` | Exposes Azure authentication configuration: Key Vault name/URI, Entra ID tenant/application IDs, certificate thumbprint, combined PEM path, or PFX path/password, and a lazily-resolved `TokenCredential`. Provides `IsKeyVaultEnabled` to allow Key Vault-free operation. |
-| Static factory | `TokenCredentialExtensions` | Creates `WorkloadIdentityCredential` from injected Kubernetes workload-identity environment variables, or `ClientCertificateCredential` from one configured certificate source. |
+```csharp
+using CasCap.Models;
+using Microsoft.Extensions.Configuration;
 
-### Key Methods
+var auth = configuration.GetSection(AzureAuthConfig.ConfigurationSectionName)
+    .Get<AzureAuthConfig>()
+    ?? throw new InvalidOperationException("Configure AppConfig.");
 
-- `TokenCredentialExtensions.IsPodManagedIdentity` — Checks whether the current pod is using Azure workload identity (federated tokens).
-- `TokenCredentialExtensions.CreateTokenCredential(IAzureAuthConfig)` — Creates a `WorkloadIdentityCredential` when the Kubernetes workload-identity environment is present; otherwise creates a `ClientCertificateCredential` from the configured certificate source, or returns `null`.
+if (auth.IsKeyVaultEnabled)
+{
+    var credential = auth.TokenCredential
+        ?? throw new InvalidOperationException("Configure an Azure identity.");
+    // Pass credential to an Azure SDK client or a Key Vault configuration provider.
+}
+```
 
-## Configuration
+`AzureAuthConfig` implements
+[`IAppConfig`](https://github.com/f2calv/CasCap.Common/blob/main/src/CasCap.Common.Abstractions/Abstractions/_IAppConfig.cs)
+and [`IAzureAuthConfig`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.Auth/Abstractions/IAzureAuthConfig.cs). Its `TokenCredential` property
+lazily calls `TokenCredentialExtensions.CreateTokenCredential`. This package does not install a
+Key Vault configuration provider or automatically grant access to Azure resources.
 
-| Class | Section | Properties |
-| --- | --- | --- |
-| `AzureAuthConfig` | `AppConfig` | `KeyVaultName` (required), `IsKeyVaultEnabled` (computed), `AzureEntraPodManagedIdentityClientId`, `AzureEntraTenantId`, `AzureEntraApplicationId`, `AzureEntraCertThumbprint`, `AzureEntraPemPath`, `AzureEntraPfxPath`, `AzureEntraPfxPassword` |
+## Configuration Examples
 
-`AzureAuthConfig` implements both `IAppConfig` and `IAzureAuthConfig`. The `TokenCredential` property is lazily created from the certificate properties via `TokenCredentialExtensions`.
+Minimal configuration for an application that deliberately does not use Key Vault:
 
-Azure workload identity is selected when `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`,
-`AZURE_FEDERATED_TOKEN_FILE`, and `AZURE_AUTHORITY_HOST` are all present. The injected
-`AZURE_CLIENT_ID` is used by default; `AzureEntraPodManagedIdentityClientId` can explicitly select a
-different registered client ID. Certificate configuration is ignored in this environment because
-workload identity has priority.
+```json
+{
+  "AppConfig": {
+    "KeyVaultName": "skip"
+  }
+}
+```
 
-Configure exactly one certificate source. Supplying more than one fails explicitly rather than
-silently selecting one:
+`"skip"` is case-insensitive and makes `IsKeyVaultEnabled` false. **The caller must check that flag**:
+reading `TokenCredential` directly still invokes the factory, even when Key Vault is disabled.
+Supply other secrets through user secrets, environment variables or a secret-backed provider.
 
-- `AzureEntraCertThumbprint` selects a certificate from the current user's certificate store.
-- `AzureEntraPemPath` loads one combined PEM file containing the certificate and private key. This
-  is the preferred format when the same credential is also consumed by External Secrets Operator.
-- `AzureEntraPfxPath` loads a PKCS#12/PFX file, with `AzureEntraPfxPassword` when it is protected.
+Certificate authentication uses the same section:
 
-PEM and PFX are alternative representations, not files to deploy together.
+```json
+{
+  "AppConfig": {
+    "KeyVaultName": "your-vault-name",
+    "AzureEntraTenantId": "00000000-0000-0000-0000-000000000000",
+    "AzureEntraApplicationId": "00000000-0000-0000-0000-000000000000",
+    "AzureEntraPemPath": "C:\\credentials\\client.pem"
+  }
+}
+```
 
-### Developer Certificate Selection
+Replace placeholders through private configuration. Configure **exactly one** certificate source:
 
-For workstation development, install the certificate and private key into the current user's
-Personal certificate store and keep `AzureEntraCertThumbprint` in the application's user-secrets
-store. Each repository can have a different `UserSecretsId`, so rotating one shared certificate
-requires updating every consuming repository's `secrets.json`.
+| Property | Source |
+| --- | --- |
+| `AzureEntraCertThumbprint` | Current user's Personal certificate store (`CurrentUser\My`) |
+| `AzureEntraPemPath` | One combined PEM file containing the certificate and private key |
+| `AzureEntraPfxPath` | PKCS#12/PFX file; optional password in `AzureEntraPfxPassword` |
 
-Do not place workstation thumbprints or paths in tracked configuration. Also remove
-deployment-only PEM/PFX path values from local providers loaded on the workstation: configuring a
-thumbprint and a file path together fails explicitly instead of silently selecting one.
+Multiple sources cause an exception rather than fallback selection. A missing matching certificate
+or no configured source returns `null`; a loaded certificate without tenant/application IDs throws.
+Upload the corresponding public certificate to the Entra application and grant that identity the
+required resource permissions. Protect private keys, passwords, cache/state and local paths; never
+commit them.
 
-### Running Without Key Vault
+For workstation use, install the certificate with its private key in the current user's store and
+keep the thumbprint in the consuming application's user secrets. Remove deployment-only PEM/PFX
+settings from local providers so they do not conflict with the thumbprint.
 
-Set `KeyVaultName` to `"skip"` (case-insensitive) to disable Key Vault integration entirely. When `IsKeyVaultEnabled` returns `false`:
+### Workload Identity
 
-- The application skips adding Azure Key Vault as a configuration source at startup.
-- `TokenCredential` is not resolved (no certificate lookup is attempted).
-- Secrets must be supplied via alternative configuration sources (environment variables, user secrets, or `appsettings.json`).
-- Sink services that use `StorageExtensions.CreateTableClient()` automatically fall back to connection strings when the connection string contains `;` (e.g. Azurite emulator).
+The factory selects `WorkloadIdentityCredential` when **all four** environment variables are present:
+`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_FEDERATED_TOKEN_FILE` and `AZURE_AUTHORITY_HOST`.
+It checks presence, not whether the values are valid.
 
-Override via any configuration source:
+Workload identity takes priority over certificate settings. `AzureEntraPodManagedIdentityClientId`
+optionally overrides the injected client ID. The cluster's identity federation and resource
+permissions must already be configured; this package does not provision them.
 
-- **Environment variable**: `AppConfig__KeyVaultName=skip`
-- **User secrets**: `{ "AppConfig": { "KeyVaultName": "skip" } }`
-- **appsettings override**: same JSON shape
+### HTTP Client Authentication
 
-## Credential Resolution
+`TokenCredentialBearerHandler` requests tokens for its supplied scopes and preserves an existing
+caller-owned Authorization header. `AddAgentRuntimeAzureAuthentication(configuration)` binds
+`CasCap:AgentRuntimeAzureAuthConfig` on an `IHttpClientBuilder` and adds the handler only when enabled:
 
-**Credential Resolution Priority:**
+```csharp
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-0. **Skip sentinel** — `KeyVaultName = "skip"` → `null` (no credential, no Key Vault)
-1. **Azure Workload Identity** (Kubernetes pod with federated token) — auto-detected
-2. **Certificate thumbprint** — searches `LocalMachine\My` certificate store
-3. **Combined PEM file** — loads the certificate and private key from one file
-4. **PFX file** — loads certificate from path with optional password
-5. **null** — no credential available
+services.AddSingleton<IConfiguration>(configuration);
+services.AddHttpClient("runtime")
+    .AddAgentRuntimeAzureAuthentication(configuration);
+```
 
-Certificate source configuration is mutually exclusive; the numbered list documents supported
-sources, not fallback precedence between simultaneously configured values.
+Use the same registered `IConfiguration` for options binding. The extension reads its argument once
+to decide whether to add the handler; changing `Enabled` later does not rebuild that registration.
 
-## Dependencies
+The minimal configuration leaves authentication disabled:
 
-### NuGet Packages
+```json
+{
+  "CasCap": {
+    "AgentRuntimeAzureAuthConfig": {
+      "Enabled": false
+    }
+  }
+}
+```
 
-| Package |
-| --- |
-| [Azure.Identity](https://www.nuget.org/packages/azure.identity) |
-| [CasCap.Common.Abstractions](https://www.nuget.org/packages/cascap.common.abstractions) |
-| [CasCap.Common.Extensions](https://www.nuget.org/packages/cascap.common.extensions) |
-| [CasCap.Common.Logging](https://www.nuget.org/packages/cascap.common.logging) |
+An enabled configuration requires a separate identity and API scope:
 
-### Project References
+```json
+{
+  "CasCap": {
+    "AgentRuntimeAzureAuthConfig": {
+      "Enabled": true,
+      "TenantId": "00000000-0000-0000-0000-000000000000",
+      "ClientId": "00000000-0000-0000-0000-000000000000",
+      "Certificate": "your-combined-pem-certificate-and-private-key",
+      "Scope": "api://00000000-0000-0000-0000-000000000000/.default"
+    }
+  }
+}
+```
 
-None.
+`Certificate` is **PEM content**, not a file path. Supply real content from a secret provider.
+`GetTokenCredential()` creates the certificate credential lazily; validation requires the identity,
+certificate and scope when enabled. These options are separate from `AppConfig`.
+
+## Data Flow
+
+Certificate sources are alternatives, while detected workload identity takes priority:
+
+```mermaid
+flowchart LR
+    ENV{"Workload identity environment present?"}
+    ENV -->|Yes| WI["WorkloadIdentityCredential"]
+    ENV -->|No| CERT["Exactly one certificate source"]
+    CERT --> STORE["CurrentUser certificate store"]
+    CERT --> PEM["Combined PEM"]
+    CERT --> PFX["PFX"]
+    STORE --> CC["ClientCertificateCredential"]
+    PEM --> CC
+    PFX --> CC
+    WI --> SDK["Azure SDK clients"]
+    CC --> SDK
+    classDef credential fill:#dbeafe,stroke:#2563eb,color:#111827
+    class WI,CC credential
+```
+
+The same selection is described above for readers whose registry does not render Mermaid.
+
+## Documentation
+
+- [Credential factory](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Auth/Extensions/TokenCredentialExtensions.cs)
+- [HTTP client registration](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Auth/Extensions/AgentRuntimeAzureAuthHttpClientBuilderExtensions.cs)
+- [Offline authentication tests](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Auth.Tests/README.md)
+- [Package catalogue and license](https://github.com/f2calv/CasCap.Api.Azure#packages)

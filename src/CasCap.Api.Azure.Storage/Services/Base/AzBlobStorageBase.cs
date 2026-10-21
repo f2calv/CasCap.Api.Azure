@@ -78,8 +78,9 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         await foreach (var hierarchyItem in _containerClient.GetBlobsByHierarchyAsync(new GetBlobsByHierarchyOptions { Prefix = prefix, Delimiter = "/" }, cancellationToken: cancellationToken).ConfigureAwait(false))
             hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
-        _logger.LogDebug("{ClassName} prefixes returned from blob storage are; {Prefixes}",
-            nameof(AzBlobStorageBase), prefixes);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("{ClassName} prefixes returned from blob storage are; {Prefixes}",
+                nameof(AzBlobStorageBase), prefixes);
         return prefixes;
     }
 
