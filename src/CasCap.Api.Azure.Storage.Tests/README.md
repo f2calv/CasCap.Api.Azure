@@ -13,9 +13,22 @@ They are not observed execution results.
 | `AzStorageHelpersTests` | 10 | 18 | `Storage Keys` | Partition/row keys, validation and file-name dates |
 | `AzBlobStorageTests` | 1 | 1 | `Integration` | Container creation, upload and round-trip download |
 | `AzQueueStorageTests` | 1 | 1 | `Integration` | Enqueue and destructive dequeue |
-| **Total** | **12** | **20** | | |
+| `AzBlobConditionalReadTests` | 6 | 12 | `Blob Conditional Read` | Offline SDK HTTP pipeline: non-provisioning construction, conditional metadata/ranges, revision changes during reading, failures, validation, cancellation and stream ownership |
+| **Total** | **18** | **32** | | |
 
 These are all the trait categories. There is no Azure Table integration test in this project.
+
+The conditional-read cases use synthetic responses through an in-memory HTTP handler; they do not
+start Azurite or contact Azure. They verify SDK request behavior, not live identity, RBAC, networking
+or emulator compatibility. Run only this group from the repository root:
+
+```powershell
+dotnet test --project .\src\CasCap.Api.Azure.Storage.Tests --configuration Debug --framework net10.0 --filter-class '*AzBlobConditionalReadTests'
+```
+
+Observed focused Debug result on .NET 10: **12 passed, zero failed/skipped**. The library also built
+for all three target frameworks with zero warnings/errors. No integration or full-suite result is
+claimed.
 
 ## Skipped Tests
 
@@ -52,6 +65,8 @@ published shared dependencies; Debug additionally needs an adjacent
 
 ```text
 Tests/
+├── Unit/
+│   └── AzBlobConditionalReadTests.cs
 ├── TestBase.cs
 ├── AzStorageHelpersTests.cs
 ├── AzBlobStorageTests.cs

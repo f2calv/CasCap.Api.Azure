@@ -23,6 +23,15 @@ public interface IAzBlobStorageBase
     /// <returns>The blob content as a byte array, or <see langword="null"/> if the blob does not exist.</returns>
     public Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default);
 
+    /// <summary>Opens a caller-owned read stream pinned to one non-wildcard entity tag.</summary>
+    /// <param name="blobName">The name of the blob to read.</param>
+    /// <param name="ifMatch">The exact admitted entity tag; weak tags and wildcards are not supported.</param>
+    /// <param name="cancellationToken">Cancellation for opening the stream; pass cancellation separately to subsequent reads.</param>
+    /// <returns>A stream that must be disposed by the caller. Later range reads remain conditional on the same entity tag.</returns>
+    /// <remarks>No existence probe, container creation or whole-file buffering is performed.
+    /// Azure failures, including 404 and 412 during opening or later reads, propagate to the caller.</remarks>
+    public Task<Stream> OpenBlobReadAsync(string blobName, ETag ifMatch, CancellationToken cancellationToken = default);
+
     /// <summary>Lists all blobs in the container, optionally filtered by a name prefix.</summary>
     /// <param name="prefix">An optional prefix used to filter the blobs returned. Pass <see langword="null"/> to list all blobs.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
