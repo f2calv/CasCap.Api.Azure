@@ -21,6 +21,7 @@
     <Project Path="src/CasCap.Api.Azure.Auth.Tests/CasCap.Api.Azure.Auth.Tests.csproj" />
     <Project Path="src/CasCap.Api.Azure.Auth/CasCap.Api.Azure.Auth.csproj" />
     <Project Path="src/CasCap.Api.Azure.CognitiveServices/CasCap.Api.Azure.CognitiveServices.csproj" />
+    <Project Path="src/CasCap.Api.Azure.CognitiveServices.Tests/CasCap.Api.Azure.CognitiveServices.Tests.csproj" />
     <Project Path="src/CasCap.Api.Azure.ContainerRegistry/CasCap.Api.Azure.ContainerRegistry.csproj" />
     <Project Path="src/CasCap.Api.Azure.EventGrid/CasCap.Api.Azure.EventGrid.csproj" />
     <Project Path="src/CasCap.Api.Azure.EventHub/CasCap.Api.Azure.EventHub.csproj" />
