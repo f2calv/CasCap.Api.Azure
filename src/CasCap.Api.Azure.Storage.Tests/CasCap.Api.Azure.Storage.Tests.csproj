@@ -7,15 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="appsettings.Test.json" CopyToOutputDirectory="Always" />
+    <None Update="appsettings*.json" CopyToOutputDirectory="Always" />
+    <None Update="appsettings.Local*.json;appsettings.*.Local.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" Pack="false" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\CasCap.Common\src\CasCap.Common.Configuration\CasCap.Common.Configuration.csproj" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CasCap.Common.Configuration" />
     <ProjectReference Include="..\CasCap.Api.Azure.Storage\CasCap.Api.Azure.Storage.csproj" />
   </ItemGroup>
 

@@ -10,6 +10,14 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
     /// <inheritdoc/>
     public string ContainerName { get; private set; }
 
+    /// <summary>Uses an existing client without network I/O or provisioning; client configuration remains caller-owned.</summary>
+    protected AzBlobStorageBase(BlobContainerClient containerClient)
+    {
+        ArgumentNullException.ThrowIfNull(containerClient);
+        _containerClient = containerClient;
+        ContainerName = containerClient.Name;
+    }
+
     /// <summary>Initializes a new instance of <see cref="AzBlobStorageBase" /> using a connection string.</summary>
     protected AzBlobStorageBase(string connectionString, string containerName, BlobClientOptions.ServiceVersion? serviceVersion = null)
     {
@@ -60,6 +68,24 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         }
         var response = await blobClient.DownloadContentAsync(cancellationToken).ConfigureAwait(false);
         return response.Value.Content.ToArray();
+    }
+
+    /// <inheritdoc/>
+    public Task<Stream> OpenBlobReadAsync(string blobName, ETag ifMatch, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
+        var tag = ifMatch.ToString();
+        ArgumentException.ThrowIfNullOrWhiteSpace(tag, nameof(ifMatch));
+        if (tag == "*" || tag.StartsWith("W/", StringComparison.OrdinalIgnoreCase)
+            || tag.Contains('\r') || tag.Contains('\n') || tag.Contains(','))
+            throw new ArgumentException("A single exact, strong entity tag is required.", nameof(ifMatch));
+        cancellationToken.ThrowIfCancellationRequested();
+        return _containerClient.GetBlobClient(blobName).OpenReadAsync(
+            new BlobOpenReadOptions(allowModifications: false)
+            {
+                BufferSize = 65_536,
+                Conditions = new BlobRequestConditions { IfMatch = ifMatch },
+            }, cancellationToken);
     }
 
     /// <inheritdoc/>

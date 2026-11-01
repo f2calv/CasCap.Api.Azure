@@ -77,20 +77,6 @@ jobs:
     permissions:
       contents: write
     with:
-      semVer: ${{ needs.versioning.outputs.version }}
+      semVer: ${{ format('{0}.{1}.{2}', needs.versioning.outputs.major, needs.versioning.outputs.minor, needs.versioning.outputs.patch) }}
       tag-prefix: ''
       move-major-tag: false
-
-  # SonarQube:
-  #   runs-on: ubuntu-24.04
-  #   needs: build
-  #   steps:
-  #     - uses: actions/checkout@v7
-  #       with:
-  #         fetch-depth: 0
-  #
-  #     - uses: f2calv/gha-sonarqube-dotnet@v2
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         sonar-token: ${{ secrets.SONAR_TOKEN }}
-  #         build-configuration: ${{ inputs.configuration }}

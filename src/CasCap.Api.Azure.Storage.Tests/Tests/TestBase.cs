@@ -1,8 +1,10 @@
 ﻿namespace CasCap.Tests;
 
 /// <summary>Base class for storage integration tests.</summary>
-public abstract class TestBase
+public abstract class TestBase : IAsyncDisposable
 {
+    private readonly ConfigurationManager _configuration = new();
+    private readonly ServiceProvider _serviceProvider;
     /// <summary>Gets the Azure Storage connection string used by the tests.</summary>
     protected string _connectionString;
 
@@ -15,29 +17,34 @@ public abstract class TestBase
     /// <summary>Initializes a new instance of <see cref="TestBase" />.</summary>
     protected TestBase(/*ITestOutputHelper output*/)
     {
-        var configuration = new ConfigurationBuilder()
-            //.AddCasCapConfiguration()
-            .AddJsonFile($"appsettings.Test.json", optional: false, reloadOnChange: false)
-            .Build();
+        _configuration.AddStandardConfiguration("Test", typeof(TestBase).Assembly);
 
         //initiate ServiceCollection w/logging
         var services = new ServiceCollection()
-            .AddSingleton<IConfiguration>(configuration)
+            .AddSingleton<IConfiguration>(_configuration)
             .AddLogging()
             //.AddXUnitLogging(output)
             ;
 
-        var connectionString = configuration["ConnectionStrings:storage"];
-        _connectionString = connectionString ?? throw new NullReferenceException(nameof(_connectionString));
+        _connectionString = _configuration.GetConnectionString("storage")
+            ?? throw new InvalidOperationException("Configure ConnectionStrings:storage for the disposable test emulator.");
 
         //add services
         services.AddTransient<IAzBlobService>(s => new AzBlobService(_connectionString, $"wibble{Environment.Version.Major}"));
         services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
 
         //assign services to be tested
-        var serviceProvider = services.BuildServiceProvider();
-        serviceProvider.AddStaticLogging();
-        _blobSvc = serviceProvider.GetRequiredService<IAzBlobService>();
-        _queueSvc = serviceProvider.GetRequiredService<IAzQueueService>();
+        _serviceProvider = services.BuildServiceProvider();
+        _serviceProvider.AddStaticLogging();
+        _blobSvc = _serviceProvider.GetRequiredService<IAzBlobService>();
+        _queueSvc = _serviceProvider.GetRequiredService<IAzQueueService>();
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask DisposeAsync()
+    {
+        await _serviceProvider.DisposeAsync();
+        _configuration.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
