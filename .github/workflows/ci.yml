@@ -80,4 +80,3 @@ jobs:
       semVer: ${{ format('{0}.{1}.{2}', needs.versioning.outputs.major, needs.versioning.outputs.minor, needs.versioning.outputs.patch) }}
       tag-prefix: ''
       move-major-tag: false
-
