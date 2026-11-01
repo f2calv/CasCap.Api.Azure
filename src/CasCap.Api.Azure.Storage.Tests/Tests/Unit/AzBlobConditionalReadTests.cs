@@ -108,7 +108,7 @@ public sealed class AzBlobConditionalReadTests
 
     private sealed class BlobHandler : HttpMessageHandler
     {
-        public byte[] Bytes { get; } = Enumerable.Range(0, 131_073).Select(index => (byte)(index % 251)).ToArray();
+        public byte[] Bytes { get; } = [.. Enumerable.Range(0, 131_073).Select(index => (byte)(index % 251))];
         public List<string?> Conditions { get; } = [];
         public List<HttpMethod> Methods { get; } = [];
         public int FailureStatus { get; init; }
