@@ -45,7 +45,7 @@ public static class TokenCredentialExtensions
         }.Count(value => !string.IsNullOrWhiteSpace(value));
 
         if (certificateSourceCount > 1)
-            throw new GenericException(
+            throw new ConfigurationException(
                 $"Configure only one of {nameof(config.AzureEntraCertThumbprint)}, " +
                 $"{nameof(config.AzureEntraPemPath)}, or {nameof(config.AzureEntraPfxPath)}.");
 
@@ -73,9 +73,9 @@ public static class TokenCredentialExtensions
         return certificate is null
             ? null
             : config.AzureEntraTenantId is null
-            ? throw new GenericException($"{nameof(config.AzureEntraTenantId)} is null")
+            ? throw new ConfigurationException($"{nameof(config.AzureEntraTenantId)} is null")
             : config.AzureEntraApplicationId is null
-            ? throw new GenericException($"{nameof(config.AzureEntraApplicationId)} is null")
+            ? throw new ConfigurationException($"{nameof(config.AzureEntraApplicationId)} is null")
             : (TokenCredential)new ClientCertificateCredential(config.AzureEntraTenantId.ToString(), config.AzureEntraApplicationId.ToString(), certificate);
     }
 }
