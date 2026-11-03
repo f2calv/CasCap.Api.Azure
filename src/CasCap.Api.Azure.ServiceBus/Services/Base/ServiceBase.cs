@@ -23,10 +23,10 @@ public abstract class ServiceBase(ILogger<ServiceBase> logger)
     /// <summary>Handles an incoming message by logging, raising <see cref="MessageReceivedEvent"/>, and completing the message.</summary>
     protected async Task MessageHandler(ProcessMessageEventArgs args)
     {
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            var messageBody = args.Message.Body.ToString();
-            _logger.LogInformation("{ClassName} Received: {MessageBody}", nameof(ServiceBase), messageBody);
+            _logger.LogDebug("{ClassName} message received SequenceNumber={SequenceNumber} ByteCount={ByteCount}",
+                nameof(ServiceBase), args.Message.SequenceNumber, args.Message.Body.ToMemory().Length);
         }
         OnRaiseMessageReceivedEvent(args);
         await args.CompleteMessageAsync(args.Message).ConfigureAwait(false);
@@ -36,7 +36,8 @@ public abstract class ServiceBase(ILogger<ServiceBase> logger)
     protected Task ErrorHandler(ProcessErrorEventArgs args)
     {
         if (_logger.IsEnabled(LogLevel.Error))
-            _logger.LogError(args.Exception, "{ClassName} error args {@Args}", nameof(ServiceBase), args);
+            _logger.LogError(args.Exception, "{ClassName} processor error ErrorSource={ErrorSource} EntityPath={EntityPath}",
+                nameof(ServiceBase), args.ErrorSource, args.EntityPath);
         OnRaiseErrorReceivedEvent(args);
         return Task.CompletedTask;
     }

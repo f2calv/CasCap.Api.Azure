@@ -52,21 +52,13 @@ public abstract class PublisherService<T> : IPublisherService<T>// where T : IEv
     public async Task Push(List<byte[]> bytesCollection)
     {
         using var eventBatch = await _producerClient.CreateBatchAsync().ConfigureAwait(false);
-        try
+        foreach (var bytes in bytesCollection)
         {
-            foreach (var bytes in bytesCollection)
-            {
-                var data = new EventData(bytes);
-                if (!eventBatch.TryAdd(data))
-                    throw new GenericException($"EventHubName={typeof(T).Name}, batch size too big!");
-            }
-            await _producerClient.SendAsync(eventBatch).ConfigureAwait(false);
+            var data = new EventData(bytes);
+            if (!eventBatch.TryAdd(data))
+                throw new GenericException($"EventHubName={typeof(T).Name}, batch size too big!");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{ClassName} {MethodName} failure", nameof(PublisherService<>), nameof(Push));
-            throw;
-        }
+        await _producerClient.SendAsync(eventBatch).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>

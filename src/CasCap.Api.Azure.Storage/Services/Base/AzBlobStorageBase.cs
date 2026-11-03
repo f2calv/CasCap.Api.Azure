@@ -63,7 +63,8 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
 
         if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
-            _logger.LogWarning("{ClassName} blob {BlobName} does not exist", nameof(AzBlobStorageBase), blobName);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} blob does not exist in container {ContainerName}", nameof(AzBlobStorageBase), _containerClient.Name);
             return null;
         }
         var response = await blobClient.DownloadContentAsync(cancellationToken).ConfigureAwait(false);
@@ -105,8 +106,8 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
             hs.Add(hierarchyItem.Prefix);
         var prefixes = hs.Select(p => p.Replace("/", string.Empty)).ToList();
         if (_logger.IsEnabled(LogLevel.Debug))
-            _logger.LogDebug("{ClassName} prefixes returned from blob storage are; {Prefixes}",
-                nameof(AzBlobStorageBase), prefixes);
+            _logger.LogDebug("{ClassName} blob prefixes returned PrefixCount={PrefixCount}",
+                nameof(AzBlobStorageBase), prefixes.Count);
         return prefixes;
     }
 

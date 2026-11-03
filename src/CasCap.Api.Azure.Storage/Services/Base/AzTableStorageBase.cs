@@ -115,14 +115,14 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                         retval.Add(item);
                     if (_logger.IsEnabled(LogLevel.Debug))
                     {
-                        _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, partition {Partition} of {PartitionCount} partitions, {EntityCount} entities handled, {RemainingCount} entities remaining",
-                            nameof(AzTableStorageBase), TableServiceClient.AccountName, tbl.Name, partitionKey, partitions.Count, batchResult.Count, count - batchSize);
+                        _logger.LogDebug("{ClassName} account {StorageAccountName}, table {TableName}, {PartitionCount} partitions, {EntityCount} entities handled, {RemainingCount} entities remaining in partition",
+                            nameof(AzTableStorageBase), TableServiceClient.AccountName, tbl.Name, partitions.Count, batchResult.Count, count - batchSize);
                     }
                     OnRaiseBatchCompletedEvent(new AzTableStorageArgs(TableServiceClient.AccountName, tbl.Name, partitionKey, batchResult.Count, count - batchSize, DateTime.UtcNow));
                 }
-                else
-                    _logger.LogWarning("{ClassName} table {TableName}, partition {Partition} no changes affected...",
-                        nameof(AzTableStorageBase), tbl.Name, partitionKey);
+                else if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning("{ClassName} table {TableName} batch affected no entities",
+                        nameof(AzTableStorageBase), tbl.Name);
             }
         }
 
@@ -148,23 +148,14 @@ public abstract class AzTableStorageBase : IAzTableStorageBase
                 if (newTableTxnRows.Count > 0)
                     tableTxnRows = newTableTxnRows;
             }
-            try
+            var response = await tbl.SubmitTransactionAsync(tableTxnRows, cancellationToken).ConfigureAwait(false);
+            for (var i = 0; i < tableTxnRows.Count(); i++)
             {
-                var response = await tbl.SubmitTransactionAsync(tableTxnRows, cancellationToken).ConfigureAwait(false);
-                for (var i = 0; i < tableTxnRows.Count(); i++)
-                {
-                    var etag = response.Value[i].Headers.ETag;
-                    if (etag.HasValue)
-                        entityRows[i].ETag = etag.Value;
-                }
-                return entityRows;
+                var etag = response.Value[i].Headers.ETag;
+                if (etag.HasValue)
+                    entityRows[i].ETag = etag.Value;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{ClassName} tableName={TableName}, entities.Count={Count}",
-                    nameof(AzTableStorageBase), tbl.Name, entityRows.Count);
-                throw;
-            }
+            return entityRows;
         }
     }
 

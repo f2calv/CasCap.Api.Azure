@@ -115,20 +115,19 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
 
             var partitionId = args.Partition.PartitionId;
             var bytes = args.Data.EventBody.ToArray();
-            //_logger.LogDebug($"Event from partition { partitionId } with length { bytes.Length }.");
             if (bytes is not null)
             {
-                var obj = bytes.FromMessagePack<T>();
-                if (_logger.IsEnabled(LogLevel.Information))
+                _ = bytes.FromMessagePack<T>();
+                if (_logger.IsEnabled(LogLevel.Debug))
                 {
-                    _logger.LogInformation("{ClassName} Message received. Partition: {PartitionId}, Data: {Obj}",
-                        nameof(SubscriberService<>), partitionId, obj);
+                    _logger.LogDebug("{ClassName} message received PartitionId={PartitionId} ByteCount={ByteCount}",
+                        nameof(SubscriberService<>), partitionId, bytes.Length);
                 }
             }
             else
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                    _logger.LogWarning("{ClassName} Message received. Partition: {PartitionId}, Data: null",
+                    _logger.LogWarning("{ClassName} message received without data PartitionId={PartitionId}",
                         nameof(SubscriberService<>), partitionId);
             }
 
@@ -143,10 +142,13 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
                 partitionEventCount[partitionId] = 0;
             }
         }
-        catch
+        catch (Exception ex)
         {
             // It is very important that you always guard against exceptions in your handler code; the processor does not have enough understanding of your code to determine the correct action to take.
             // Any exceptions from your handlers go uncaught by the processor and will NOT be redirected to the error handler.
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(ex, "{ClassName} failed to process event PartitionId={PartitionId}",
+                    nameof(SubscriberService<>), args.Partition.PartitionId);
         }
     }
 
@@ -154,8 +156,9 @@ public abstract class SubscriberService<T> : ISubscriberService<T>
     {
         try
         {
-            _logger.LogError(args.Exception, "{ClassName} error detected in operation {Operation}",
-                nameof(SubscriberService<>), args.Operation);
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError(args.Exception, "{ClassName} error detected in operation {Operation}",
+                    nameof(SubscriberService<>), args.Operation);
         }
         catch
         {
