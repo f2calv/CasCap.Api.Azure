@@ -34,7 +34,8 @@ var inspector = new RegistryInspector(logger, registryEndpoint, credential);
 await inspector.ListRepos();
 ```
 
-Enable Information logging to see the results. Manifests are requested in descending last-updated
+Each repository and its manifest tags are logged at Debug, followed by one Information summary with
+the repository count; enable Debug logging for the namespace to see the results. Manifests are requested in descending last-updated
 order. `ListRepos()` has no cancellation-token parameter.
 
 ## Authentication

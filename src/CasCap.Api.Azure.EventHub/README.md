@@ -4,7 +4,7 @@ Generic Azure Event Hubs base services for .NET applications. `PublisherService<
 [`IPublisherService<T>`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.EventHub/Abstractions/IPublisherService%7BT%7D.cs)
 and serializes values with MessagePack; `SubscriberService<T>` implements
 [`ISubscriberService<T>`](https://github.com/f2calv/CasCap.Api.Azure/blob/eaaffef87e366fa62ddc5328dd6f71add9b6397c/src/CasCap.Api.Azure.EventHub/Abstractions/ISubscriberService%7BT%7D.cs)
-and receives, deserializes and logs values using blob checkpoints.
+and receives and deserializes values using blob checkpoints.
 
 ## Installation
 
@@ -53,13 +53,14 @@ string and checkpoint-container name. Its credential overload additionally takes
 connection string for checkpoints.
 
 `InitiateReceive(cancellationToken)` creates the checkpoint container if needed and runs until
-cancelled, using the default consumer group. The implementation logs deserialized values and updates
-checkpoints periodically. Its event/error handlers are **private**: there is no overridable
+cancelled, using the default consumer group. The implementation logs each event's partition and size at Debug, never
+its contents, and updates checkpoints periodically. Its event/error handlers are **private**: there is no overridable
 application-processing callback or message event. Use the Azure SDK directly when application work
 must run before a checkpoint is committed.
 
 The receiver catches outer processing exceptions; returning from `InitiateReceive` is not proof of
-successful processing. Information logs can include deserialized event contents. Neither base class
+successful processing; a handler exception is logged once as an Error. Send failures propagate to
+the caller without being logged by the publisher. Neither base class
 exposes SDK-client disposal through a public disposal contract.
 
 ## Authentication and Configuration

@@ -47,6 +47,11 @@ or `null` for empty text; it does not expose the service's full phrase/channel m
 `RecognizeFromMicrophone()` recognize a **single utterance**, not an entire recording; microphone
 recognition also requires a working audio input device.
 
+Speech logging never includes synthesized text or recognized transcripts, only their lengths at
+Debug. A canceled speech operation logs once: an Error with the service error code and details when
+the cancellation reason is an error, otherwise a Warning with the reason. An unrecognized utterance
+logs at Debug and returns `null`.
+
 ## Document Layout
 
 The source checkout adds

@@ -85,7 +85,10 @@ null object with the message metadata. Use the Azure SDK directly when you need 
 acknowledgement, poison-message handling or processing retries.
 
 `Enqueue(List<T>)` returns `true` when **at least one** send succeeds; it is not an all-items-success
-guarantee. Deserialization failures can log payload content, so configure log destinations accordingly.
+guarantee. A deserialization failure logs one Error with the message type, message identifier and
+queue name, never the payload. Blob names, prefixes and table partition keys are not logged; a
+missing blob in `DownloadBlobAsync` logs at Debug and returns `null`, and table batch failures
+propagate without being logged.
 
 ## Authentication and Service Versions
 
