@@ -61,4 +61,22 @@ public interface IAzBlobStorageBase
     /// <param name="stream">The stream content to upload. The caller is responsible for disposing.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     public Task UploadBlob(string blobName, Stream stream, CancellationToken cancellationToken);
+
+    /// <summary>Uploads a stream as a new block blob only when no blob with that name exists.</summary>
+    /// <param name="blobName">The name to assign to the uploaded blob.</param>
+    /// <param name="stream">The content to upload, read sequentially. The caller is responsible for disposing.</param>
+    /// <param name="args">Optional content type, metadata and access tier, or <see langword="null"/>.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns><see langword="true"/> when the blob was created; <see langword="false"/> when a blob with that name already
+    /// existed, in which case it is left unchanged.</returns>
+    /// <remarks>The write is conditional on <c>If-None-Match: *</c>, so a concurrent writer cannot be overwritten. Other Azure
+    /// failures, including a missing container, propagate. The stream is not buffered in memory.</remarks>
+    public Task<bool> UploadBlobIfNotExistsAsync(string blobName, Stream stream, AzBlobUploadArgs? args = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Reads the user metadata of a blob.</summary>
+    /// <param name="blobName">The name of the blob.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>The blob's metadata, or <see langword="null"/> when the blob does not exist.</returns>
+    public Task<IDictionary<string, string>?> GetBlobMetadataAsync(string blobName, CancellationToken cancellationToken = default);
 }

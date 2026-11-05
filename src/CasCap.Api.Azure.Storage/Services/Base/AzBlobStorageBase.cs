@@ -125,4 +125,43 @@ public abstract class AzBlobStorageBase : IAzBlobStorageBase
         var blobClient = _containerClient.GetBlobClient(blobName);
         _ = await blobClient.UploadAsync(stream, true, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <inheritdoc/>
+    public async Task<bool> UploadBlobIfNotExistsAsync(string blobName, Stream stream, AzBlobUploadArgs? args = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
+        ArgumentNullException.ThrowIfNull(stream);
+        var options = new BlobUploadOptions
+        {
+            AccessTier = args?.AccessTier,
+            Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All },
+            HttpHeaders = args?.ContentType is { } contentType ? new BlobHttpHeaders { ContentType = contentType } : null,
+            Metadata = args?.Metadata is { } metadata ? new Dictionary<string, string>(metadata) : null,
+        };
+        try
+        {
+            _ = await _containerClient.GetBlobClient(blobName).UploadAsync(stream, options, cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+        catch (RequestFailedException ex) when (ex.ErrorCode == BlobErrorCode.BlobAlreadyExists || ex.ErrorCode == BlobErrorCode.ConditionNotMet)
+        {
+            return false;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<IDictionary<string, string>?> GetBlobMetadataAsync(string blobName, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
+        try
+        {
+            var properties = await _containerClient.GetBlobClient(blobName).GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            return properties.Value.Metadata;
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            return null;
+        }
+    }
 }

@@ -70,9 +70,33 @@ The SDK uses a 64 KiB read buffer and can read ahead; this is not a total downlo
 Apply application-specific byte/page/content limits while consuming the stream. The streaming path
 does not log source names or document contents.
 
+### Create-Only Uploads
+
+The following API is also local source work, not yet a published package release. Back up or archive
+content without ever replacing an existing blob:
+
+```csharp
+using CasCap.Messages;
+
+var args = new AzBlobUploadArgs
+{
+    ContentType = "image/jpeg",
+    Metadata = new Dictionary<string, string> { ["sha256"] = sha256 },
+    AccessTier = AccessTier.Cool,
+};
+await using var content = File.OpenRead(path);
+bool created = await storage.UploadBlobIfNotExistsAsync("photos/example.jpg", content, args, cancellationToken);
+IDictionary<string, string>? metadata = await storage.GetBlobMetadataAsync("photos/example.jpg", cancellationToken);
+```
+
+`UploadBlobIfNotExistsAsync` streams the content with `If-None-Match: *` and returns `false`, leaving
+the blob unchanged, when one already exists, including one created concurrently. A missing container,
+authorization failure and other Azure errors propagate. `GetBlobMetadataAsync` returns `null` for a
+missing blob. Neither method logs blob names or metadata.
+
 | Base service | Selected operations | Important behavior |
 | --- | --- | --- |
-| `AzBlobStorageBase` | `UploadBlob`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | Conditional streaming reads are available in local source; lists are materialized |
+| `AzBlobStorageBase` | `UploadBlob`, `UploadBlobIfNotExistsAsync`, `GetBlobMetadataAsync`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | `UploadBlob` overwrites; create-only uploads, metadata reads and conditional streaming reads are available in local source; lists are materialized |
 | `AzQueueStorageBase` | `Enqueue<T>`, `DequeueSingle<T>`, `DequeueMany<T>` | JSON with Base64 queue encoding; creates the queue on first operation |
 | `AzTableStorageBase` | `GetTables`, `GetTableClient`, `UpsertEntity`, `UploadData`, `DeleteData`, `GetEntities` | Batch operations and `BatchCompletedEvent`; queries return materialized collections |
 | `StorageExtensions` | `IsKeyValid`, table existence and date/key conversion helpers | Utility extensions, not service registration |
