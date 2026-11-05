@@ -11,10 +11,11 @@ They are not observed execution results.
 | Class | Methods | Expanded cases | Category | Scope |
 | --- | ---: | ---: | --- | --- |
 | `AzStorageHelpersTests` | 10 | 18 | `Storage Keys` | Partition/row keys, validation and file-name dates |
-| `AzBlobStorageTests` | 1 | 1 | `Integration` | Container creation, upload and round-trip download |
+| `AzBlobStorageTests` | 2 | 2 | `Integration` | Container creation, upload and round-trip download; create-only upload keeps the first content and metadata |
 | `AzQueueStorageTests` | 1 | 1 | `Integration` | Enqueue and destructive dequeue |
 | `AzBlobConditionalReadTests` | 6 | 12 | `Blob Conditional Read` | Offline SDK HTTP pipeline: non-provisioning construction, conditional metadata/ranges, revision changes during reading, failures, validation, cancellation and stream ownership |
-| **Total** | **18** | **32** | | |
+| `AzBlobConditionalUploadTests` | 5 | 7 | `Blob Conditional Upload` | Offline SDK HTTP pipeline: `If-None-Match: *`, tier, content type and metadata headers; existing-blob results; propagated failures; metadata reads and missing blobs |
+| **Total** | **24** | **40** | | |
 
 These are all the trait categories. There is no Azure Table integration test in this project.
 
@@ -66,7 +67,8 @@ published shared dependencies; Debug additionally needs an adjacent
 ```text
 Tests/
 ├── Unit/
-│   └── AzBlobConditionalReadTests.cs
+│   ├── AzBlobConditionalReadTests.cs
+│   └── AzBlobConditionalUploadTests.cs
 ├── TestBase.cs
 ├── AzStorageHelpersTests.cs
 ├── AzBlobStorageTests.cs

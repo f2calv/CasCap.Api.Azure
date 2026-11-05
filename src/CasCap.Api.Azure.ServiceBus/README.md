@@ -43,8 +43,9 @@ These are `EventHandler<T>` events, **not awaited asynchronous callbacks**. Do n
 `async void` subscriber and assume completion waits for its work; use the Azure SDK directly when
 you need explicit asynchronous processing, settlement or retry control.
 
-Information logging includes message bodies. Configure logging so sensitive payloads cannot reach
-unapproved sinks. Error events include Azure SDK processing details.
+Message bodies are never logged; each received message logs its sequence number and size at Debug.
+Single sends and receiver shutdown progress log at Debug; batch sends and receiver stop log one
+Information line. Error events include the exception, error source and entity path.
 
 Batch methods split messages into SDK-sized batches, but they **dequeue entries from the supplied
 `Queue<ServiceBusMessage>` before sending**. A send failure can therefore leave the caller's queue

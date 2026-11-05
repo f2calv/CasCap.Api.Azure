@@ -34,9 +34,9 @@ public sealed class QueueService : ServiceBase, IQueueService
 
         // send the message
         await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogInformation("{ClassName} Sent a single message to the queue: {QueueName}",
+            _logger.LogDebug("{ClassName} Sent a single message to the queue: {QueueName}",
                 nameof(QueueService), _queueName);
         }
     }
@@ -110,8 +110,8 @@ public sealed class QueueService : ServiceBase, IQueueService
         }
         finally
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(QueueService));
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} Stopping the receiver...", nameof(QueueService));
             await processor.StopProcessingAsync(CancellationToken.None).ConfigureAwait(false);
             processor.ProcessMessageAsync -= MessageHandler;
             processor.ProcessErrorAsync -= ErrorHandler;

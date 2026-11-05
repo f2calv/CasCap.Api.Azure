@@ -60,7 +60,8 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         {
             if (obj is null)
             {
-                _logger.LogWarning("{ClassName} obj is null?", nameof(AzQueueStorageBase));
+                if (_logger.IsEnabled(LogLevel.Warning))
+                    _logger.LogWarning("{ClassName} skipped null {MessageType} item", nameof(AzQueueStorageBase), typeof(T).Name);
                 continue;
             }
             var json = obj.ToJson();
@@ -102,31 +103,22 @@ public abstract class AzQueueStorageBase : IAzQueueStorageBase
         {
             var json = retrievedMessage.Value.Body.ToString();
             T? obj = null;
-            var isCorrupted = false;
             try
             {
                 obj = json.FromJson<T>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{ClassName} failed to deserialize JSON, {Json}", nameof(AzQueueStorageBase), json);
-                isCorrupted = true;
+                if (_logger.IsEnabled(LogLevel.Error))
+                    _logger.LogError(ex, "{ClassName} failed to deserialize {MessageType}, removing corrupted message {MessageId} from queue {QueueName}",
+                        nameof(AzQueueStorageBase), typeof(T).Name, retrievedMessage.Value.MessageId, _queueClient.Name);
             }
             finally
             {
                 _ = await _queueClient.DeleteMessageAsync(retrievedMessage.Value.MessageId, retrievedMessage.Value.PopReceipt, cancellationToken).ConfigureAwait(false);
-                if (isCorrupted)
-                {
-                    if (_logger.IsEnabled(LogLevel.Warning))
-                        _logger.LogWarning("{ClassName} removed corrupted message {MessageId} from queue {QueueName}",
-                            nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
-                }
-                else
-                {
-                    if (_logger.IsEnabled(LogLevel.Debug))
-                        _logger.LogDebug("{ClassName} dequeued message {MessageId} from queue {QueueName}",
-                            nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
-                }
+                if (obj is not null && _logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("{ClassName} dequeued message {MessageId} from queue {QueueName}",
+                        nameof(AzQueueStorageBase), retrievedMessage.Value.MessageId, _queueClient.Name);
             }
             return (obj, retrievedMessage.Value);
         }

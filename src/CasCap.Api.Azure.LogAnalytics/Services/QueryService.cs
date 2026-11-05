@@ -19,14 +19,13 @@ public sealed partial class QueryService(
         var query = "union * | limit 50 | order by timestamp";
 
         var queryResults = await client.QueryWorkspaceAsync(logAnalyticsConfig.Value.WorkspaceId, query, timeRange).ConfigureAwait(false);
-        foreach (var row in queryResults.Value.Table.Rows)
+        var rows = queryResults.Value.Table.Rows;
+        if (logger.IsEnabled(LogLevel.Debug))
         {
-            if (!logger.IsEnabled(LogLevel.Information))
-                continue;
-
-            var formattedRow = string.Join("    ", row);
-            LogRow(logger, nameof(QueryService), formattedRow);
+            foreach (var row in rows)
+                LogRow(logger, nameof(QueryService), string.Join("    ", row));
         }
+        LogQueryCompleted(logger, nameof(QueryService), rows.Count);
     }
 
     /// <inheritdoc/>
@@ -56,6 +55,9 @@ public sealed partial class QueryService(
         return l;
     }
 
-    [LoggerMessage(LogLevel.Information, "{ClassName} {Row}")]
+    [LoggerMessage(LogLevel.Debug, "{ClassName} {Row}")]
     private static partial void LogRow(ILogger logger, string className, string row);
+
+    [LoggerMessage(LogLevel.Information, "{ClassName} query completed RowCount={RowCount}")]
+    private static partial void LogQueryCompleted(ILogger logger, string className, int rowCount);
 }

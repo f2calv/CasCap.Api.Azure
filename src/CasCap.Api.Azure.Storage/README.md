@@ -14,6 +14,18 @@ Targets `net8.0`, `net9.0` and `net10.0`.
 dotnet add package CasCap.Api.Azure.Storage
 ```
 
+## Migrating to 2.0
+
+[`IAzBlobStorageBase`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage/Abstractions/IAzBlobStorageBase.cs)
+adds two required members in 2.0. Direct implementers and test doubles must add:
+
+- `Task<bool> UploadBlobIfNotExistsAsync(string blobName, Stream stream, AzBlobUploadArgs? args = null, CancellationToken cancellationToken = default)`
+- `Task<IDictionary<string, string>?> GetBlobMetadataAsync(string blobName, CancellationToken cancellationToken = default)`
+
+Subclasses of `AzBlobStorageBase` inherit both implementations and need no additional members.
+Use the create-only method when overwriting is forbidden; existing `UploadBlob` overloads continue
+to overwrite. Callers still own the upload stream. See the behavior and example below.
+
 ## Usage
 
 Supply a connection string from secret-backed application configuration:
@@ -40,8 +52,7 @@ permission when the container is absent. Uploads overwrite existing block blobs.
 
 ### Conditional Streaming Reads
 
-The following API is local source work, not yet a published package release. Pass an existing
-`BlobContainerClient` to avoid constructor-time network I/O and container provisioning, while
+Pass an existing `BlobContainerClient` to avoid constructor-time network I/O and container provisioning, while
 preserving the caller's identity, transport, retry and service-version settings:
 
 ```csharp
@@ -70,9 +81,33 @@ The SDK uses a 64 KiB read buffer and can read ahead; this is not a total downlo
 Apply application-specific byte/page/content limits while consuming the stream. The streaming path
 does not log source names or document contents.
 
+### Create-Only Uploads
+
+Back up or archive content without ever replacing an existing blob:
+
+```csharp
+using Azure.Storage.Blobs.Models;
+using CasCap.Messages;
+
+var args = new AzBlobUploadArgs
+{
+    ContentType = "image/jpeg",
+    Metadata = new Dictionary<string, string> { ["sha256"] = sha256 },
+    AccessTier = AccessTier.Cool,
+};
+await using var content = File.OpenRead(path);
+bool created = await storage.UploadBlobIfNotExistsAsync("photos/example.jpg", content, args, cancellationToken);
+IDictionary<string, string>? metadata = await storage.GetBlobMetadataAsync("photos/example.jpg", cancellationToken);
+```
+
+`UploadBlobIfNotExistsAsync` streams the content with `If-None-Match: *` and returns `false`, leaving
+the blob unchanged, when one already exists, including one created concurrently. A missing container,
+authorization failure and other Azure errors propagate. `GetBlobMetadataAsync` returns `null` for a
+missing blob. Neither method logs blob names or metadata.
+
 | Base service | Selected operations | Important behavior |
 | --- | --- | --- |
-| `AzBlobStorageBase` | `UploadBlob`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | Conditional streaming reads are available in local source; lists are materialized |
+| `AzBlobStorageBase` | `UploadBlob`, `UploadBlobIfNotExistsAsync`, `GetBlobMetadataAsync`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | `UploadBlob` overwrites; create-only uploads never overwrite; metadata returns `null` for a missing blob; conditional reads bind one revision; lists are materialized |
 | `AzQueueStorageBase` | `Enqueue<T>`, `DequeueSingle<T>`, `DequeueMany<T>` | JSON with Base64 queue encoding; creates the queue on first operation |
 | `AzTableStorageBase` | `GetTables`, `GetTableClient`, `UpsertEntity`, `UploadData`, `DeleteData`, `GetEntities` | Batch operations and `BatchCompletedEvent`; queries return materialized collections |
 | `StorageExtensions` | `IsKeyValid`, table existence and date/key conversion helpers | Utility extensions, not service registration |
@@ -85,7 +120,10 @@ null object with the message metadata. Use the Azure SDK directly when you need 
 acknowledgement, poison-message handling or processing retries.
 
 `Enqueue(List<T>)` returns `true` when **at least one** send succeeds; it is not an all-items-success
-guarantee. Deserialization failures can log payload content, so configure log destinations accordingly.
+guarantee. A deserialization failure logs one Error with the message type, message identifier and
+queue name, never the payload. Blob names, prefixes and table partition keys are not logged; a
+missing blob in `DownloadBlobAsync` logs at Debug and returns `null`, and table batch failures
+propagate without being logged.
 
 ## Authentication and Service Versions
 

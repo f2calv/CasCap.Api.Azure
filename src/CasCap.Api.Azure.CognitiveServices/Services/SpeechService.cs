@@ -66,8 +66,7 @@ public sealed class SpeechService : ISpeechService
         if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
-            _logger.LogError("{ClassName} synthesis CANCELED: Reason={Reason}, ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}",
-                nameof(SpeechService), cancellation.Reason, cancellation.ErrorCode, cancellation.ErrorDetails);
+            LogCancellation(cancellation.Reason, cancellation.ErrorCode, cancellation.ErrorDetails);
         }
         return null;
     }
@@ -119,17 +118,12 @@ public sealed class SpeechService : ISpeechService
         if (result.Reason == ResultReason.SynthesizingAudioCompleted)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug("{ClassName} Speech synthesized to speaker for text {Soundbyte}", nameof(SpeechService), soundByte);
+                _logger.LogDebug("{ClassName} speech synthesized to WAV file, TextLength={TextLength}", nameof(SpeechService), soundByte.Length);
         }
         else if (result.Reason == ResultReason.Canceled)
         {
             var cancellation = SpeechSynthesisCancellationDetails.FromResult(result);
-            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(SpeechService), cancellation.Reason);
-            if (cancellation.Reason == CancellationReason.Error)
-            {
-                _logger.LogError("{ClassName} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
-                    nameof(SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
-            }
+            LogCancellation(cancellation.Reason, cancellation.ErrorCode, cancellation.ErrorDetails);
         }
     }
 
@@ -155,27 +149,35 @@ public sealed class SpeechService : ISpeechService
         if (result.Reason is ResultReason.RecognizedSpeech)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-                _logger.LogDebug("{ClassName} Recognized: {Text}", nameof(SpeechService), result.Text);
+                _logger.LogDebug("{ClassName} speech recognized, TextLength={TextLength}", nameof(SpeechService), result.Text?.Length ?? 0);
             return result.Text;
         }
 
         if (result.Reason is ResultReason.NoMatch)
         {
-            _logger.LogWarning("{ClassName} Speech could not be recognized", nameof(SpeechService));
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} speech could not be recognized", nameof(SpeechService));
             return null;
         }
 
         if (result.Reason is ResultReason.Canceled)
         {
             var cancellation = CancellationDetails.FromResult(result);
-            _logger.LogWarning("{ClassName} CANCELED: Reason={Reason}", nameof(SpeechService), cancellation.Reason);
-            if (cancellation.Reason == CancellationReason.Error)
-            {
-                _logger.LogError("{ClassName} CANCELED: ErrorCode={ErrorCode}, ErrorDetails={ErrorDetails}, Did you update the subscription info?",
-                    nameof(SpeechService), cancellation.ErrorCode, cancellation.ErrorDetails);
-            }
+            LogCancellation(cancellation.Reason, cancellation.ErrorCode, cancellation.ErrorDetails);
         }
 
         return null;
+    }
+
+    private void LogCancellation(CancellationReason reason, CancellationErrorCode errorCode, string? errorDetails)
+    {
+        if (reason == CancellationReason.Error)
+        {
+            if (_logger.IsEnabled(LogLevel.Error))
+                _logger.LogError("{ClassName} speech operation canceled with an error, check the endpoint and credentials ErrorCode={ErrorCode} ErrorDetails={ErrorDetails}",
+                    nameof(SpeechService), errorCode, errorDetails);
+        }
+        else if (_logger.IsEnabled(LogLevel.Warning))
+            _logger.LogWarning("{ClassName} speech operation canceled Reason={Reason}", nameof(SpeechService), reason);
     }
 }

@@ -37,9 +37,9 @@ public sealed class TopicService : ServiceBase, ITopicService
         // create a sender for the topic
         var sender = _client.CreateSender(_topicName);
         await sender.SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogInformation("{ClassName} Sent a single message to the topic: {TopicName}",
+            _logger.LogDebug("{ClassName} Sent a single message to the topic: {TopicName}",
                 nameof(TopicService), _topicName);
         }
     }
@@ -114,8 +114,8 @@ public sealed class TopicService : ServiceBase, ITopicService
         }
         finally
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("{ClassName} Stopping the receiver...", nameof(TopicService));
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} Stopping the receiver...", nameof(TopicService));
             await processor.StopProcessingAsync(CancellationToken.None).ConfigureAwait(false);
             processor.ProcessMessageAsync -= MessageHandler;
             processor.ProcessErrorAsync -= ErrorHandler;

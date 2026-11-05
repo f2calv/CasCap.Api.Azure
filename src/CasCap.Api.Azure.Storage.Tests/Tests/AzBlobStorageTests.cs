@@ -35,4 +35,24 @@ public class AzBlobStorageTests(/*ITestOutputHelper output*/) : TestBase/*(outpu
         Assert.NotNull(downloadedBytes);
         Assert.Equal(fileBytes, downloadedBytes);
     }
+
+    [Fact, Trait("Category", "Integration")]
+    public async Task UploadBlobIfNotExists()
+    {
+        var blobName = $"{Guid.NewGuid()}.bin";
+        var args = new AzBlobUploadArgs { Metadata = new Dictionary<string, string> { ["sha256"] = "first" } };
+        await _blobSvc.CreateContainerIfNotExists(TestContext.Current.CancellationToken);
+
+        using (var first = new MemoryStream(fileBytes))
+            Assert.True(await _blobSvc.UploadBlobIfNotExistsAsync(blobName, first, args, TestContext.Current.CancellationToken));
+        using (var second = new MemoryStream([1, 2, 3]))
+            Assert.False(await _blobSvc.UploadBlobIfNotExistsAsync(blobName, second,
+                args with { Metadata = new Dictionary<string, string> { ["sha256"] = "second" } }, TestContext.Current.CancellationToken));
+
+        var metadata = await _blobSvc.GetBlobMetadataAsync(blobName, TestContext.Current.CancellationToken);
+        Assert.NotNull(metadata);
+        Assert.Equal("first", metadata["sha256"]);
+        Assert.Equal(fileBytes, await _blobSvc.DownloadBlobAsync(blobName, TestContext.Current.CancellationToken));
+        Assert.Null(await _blobSvc.GetBlobMetadataAsync($"{Guid.NewGuid()}.bin", TestContext.Current.CancellationToken));
+    }
 }

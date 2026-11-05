@@ -24,20 +24,24 @@ public abstract class AcrServiceBase
     /// </remarks>
     public async Task ListRepos()
     {
+        var repositoryCount = 0;
         var repositories = _client.GetRepositoryNamesAsync();
         await foreach (var repositoryName in repositories.ConfigureAwait(false))
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-                _logger.LogInformation("{ClassName} starting {RepositoryName}", nameof(AcrServiceBase), repositoryName);
+            repositoryCount++;
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("{ClassName} listing manifests RepositoryName={RepositoryName}", nameof(AcrServiceBase), repositoryName);
 
             var repo = _client.GetRepository(repositoryName);
 
             var manifests = repo.GetAllManifestPropertiesAsync(ArtifactManifestOrder.LastUpdatedOnDescending);
             await foreach (var manifest in manifests.ConfigureAwait(false))
             {
-                if (_logger.IsEnabled(LogLevel.Information))
-                    _logger.LogInformation("{ClassName} {RepositoryName} tags={Tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug("{ClassName} RepositoryName={RepositoryName} Tags={Tags}", nameof(AcrServiceBase), manifest.RepositoryName, manifest.Tags);
             }
         }
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation("{ClassName} listed RepositoryCount={RepositoryCount}", nameof(AcrServiceBase), repositoryCount);
     }
 }

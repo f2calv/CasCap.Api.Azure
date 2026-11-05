@@ -38,8 +38,9 @@ var exceptions = await queryService.GetExceptions(limit: 20);
 - `GetExceptions(limit = 50)` queries the `exceptions` table over the last day and maps rows to
   `AppInsightsObject`. Its query applies `limit` before ordering by `timestamp`; it does not
   guarantee the newest records across the entire window.
-- `Query(QueryTimeRange)` runs `union * | limit 50 | order by timestamp` and logs returned values.
-  Use it only where logs may safely contain workspace data.
+- `Query(QueryTimeRange)` runs `union * | limit 50 | order by timestamp` and logs one Information
+  summary with the row count. Returned values are logged only at Debug; enable that level only where
+  logs may safely contain workspace data.
 
 Both methods require the table and column names expected by the implementation. Workspaces using
 different schemas need a different query client. Neither method accepts a cancellation token.

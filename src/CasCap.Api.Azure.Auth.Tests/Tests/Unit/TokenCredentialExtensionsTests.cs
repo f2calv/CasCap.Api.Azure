@@ -68,7 +68,7 @@ public sealed class TokenCredentialExtensionsTests : IDisposable
             AzureEntraPfxPath = "client-certificate.pfx",
         };
 
-        var exception = Assert.Throws<GenericException>(
+        var exception = Assert.Throws<ConfigurationException>(
             () => TokenCredentialExtensions.CreateTokenCredential(config));
 
         Assert.Contains(nameof(IAzureAuthConfig.AzureEntraPemPath), exception.Message);
