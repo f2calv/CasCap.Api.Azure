@@ -76,8 +76,9 @@ Replace placeholders through private configuration. Configure **exactly one** ce
 | `AzureEntraPemPath` | One combined PEM file containing the certificate and private key |
 | `AzureEntraPfxPath` | PKCS#12/PFX file; optional password in `AzureEntraPfxPassword` |
 
-Multiple sources cause an exception rather than fallback selection. A missing matching certificate
-or no configured source returns `null`; a loaded certificate without tenant/application IDs throws.
+Multiple sources cause `CasCap.Common.Exceptions.ConfigurationException` rather than fallback selection.
+A missing matching certificate or no configured source returns `null`; a loaded certificate without
+tenant/application IDs throws the same configuration exception.
 Upload the corresponding public certificate to the Entra application and grant that identity the
 required resource permissions. Protect private keys, passwords, cache/state and local paths; never
 commit them.

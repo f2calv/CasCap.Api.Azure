@@ -54,12 +54,10 @@ logs at Debug and returns `null`.
 
 ## Document Layout
 
-The source checkout adds
+The package includes
 [`AzDocumentLayoutClient`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.CognitiveServices/Services/AzDocumentLayoutClient.cs),
 with [`DocumentLayoutOptions`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.CognitiveServices/Models/DocumentLayoutOptions.cs)
 and [`DocumentLayoutPollResult`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.CognitiveServices/Models/DocumentLayoutPollResult.cs).
-These new source links and APIs require publication before they are available from the default branch
-and a released package.
 
 Supply a caller-owned `HttpClient` whose `BaseAddress` is a canonical, credential-free HTTPS root
 ending in `/`, on port 443. Authentication belongs in its handler. **Disable redirects, POST retries,

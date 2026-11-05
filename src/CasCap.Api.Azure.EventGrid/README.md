@@ -1,8 +1,7 @@
 # CasCap.Api.Azure.EventGrid
 
 Azure Event Grid dependencies and Blob Storage notification parsing for .NET consumers targeting
-`net8.0`, `net9.0` and `net10.0`. The parser is new in this source checkout; its availability in a
-published package has not been established.
+`net8.0`, `net9.0` and `net10.0`.
 
 ## Installation
 
@@ -10,8 +9,7 @@ published package has not been established.
 dotnet add package CasCap.Api.Azure.EventGrid
 ```
 
-The existing package supplies `Azure.Messaging.EventGrid` and shared logging/extension dependencies.
-Use a project reference to this checkout for the new parsing API until its release is verified.
+The package supplies `Azure.Messaging.EventGrid`, the parsing API and shared logging/extension dependencies.
 There is no publisher, subscriber, configuration or registration API. For delivery clients, use the
 Azure SDK and follow its
 [Event Grid client guidance](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/messaging.eventgrid-readme).
@@ -21,7 +19,6 @@ Azure SDK and follow its
 [`BlobStorageEventReader`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.EventGrid/Services/BlobStorageEventReader.cs)
 reads a single Event Grid-schema notification, including a singleton array, into
 [`BlobStorageEvent`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.EventGrid/Models/BlobStorageEvent.cs).
-These source links refer to new files awaiting publication, not verified default-branch APIs.
 
 ```csharp
 using CasCap.Services;

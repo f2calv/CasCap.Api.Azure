@@ -14,11 +14,59 @@ Each package's README includes its installation, authentication requirements and
 | [Auth](src/CasCap.Api.Azure.Auth/README.md) | Certificate and workload-identity credentials; HTTP bearer authentication | [![Auth NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.Auth)](https://www.nuget.org/packages/CasCap.Api.Azure.Auth) |
 | [CognitiveServices](src/CasCap.Api.Azure.CognitiveServices/README.md) | Speech synthesis, recognition, transcription and bounded PDF layout transport | [![CognitiveServices NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.CognitiveServices)](https://www.nuget.org/packages/CasCap.Api.Azure.CognitiveServices) |
 | [ContainerRegistry](src/CasCap.Api.Azure.ContainerRegistry/README.md) | List registry repositories and manifests to a logger | [![ContainerRegistry NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.ContainerRegistry)](https://www.nuget.org/packages/CasCap.Api.Azure.ContainerRegistry) |
-| [EventGrid](src/CasCap.Api.Azure.EventGrid/README.md) | SDK dependency package; no wrapper API | [![EventGrid NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid)](https://www.nuget.org/packages/CasCap.Api.Azure.EventGrid) |
+| [EventGrid](src/CasCap.Api.Azure.EventGrid/README.md) | Bounded Blob Storage notification parsing and SDK dependencies | [![EventGrid NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.EventGrid)](https://www.nuget.org/packages/CasCap.Api.Azure.EventGrid) |
 | [EventHub](src/CasCap.Api.Azure.EventHub/README.md) | MessagePack publishing and checkpointed diagnostic receiving | [![EventHub NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.EventHub)](https://www.nuget.org/packages/CasCap.Api.Azure.EventHub) |
 | [LogAnalytics](src/CasCap.Api.Azure.LogAnalytics/README.md) | Fixed workspace and Application Insights exception queries | [![LogAnalytics NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.LogAnalytics)](https://www.nuget.org/packages/CasCap.Api.Azure.LogAnalytics) |
 | [ServiceBus](src/CasCap.Api.Azure.ServiceBus/README.md) | Queue and topic sending and event-based receiving | [![ServiceBus NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.ServiceBus)](https://www.nuget.org/packages/CasCap.Api.Azure.ServiceBus) |
 | [Storage](src/CasCap.Api.Azure.Storage/README.md) | Blob, Queue and Table Storage base classes | [![Storage NuGet version](https://img.shields.io/nuget/v/CasCap.Api.Azure.Storage)](https://www.nuget.org/packages/CasCap.Api.Azure.Storage) |
+
+## Dependency Graph
+
+The nine Azure packages are independent of one another. Arrows show their direct shared-library
+references; Azure SDK and other third-party dependencies are omitted.
+
+```mermaid
+graph LR
+    appinsights["AppInsights"] --> logging["Common.Logging"]
+    appinsights --> extensions["Common.Extensions"]
+    auth["Auth"] --> logging
+    auth --> extensions
+    auth --> abstractions["Common.Abstractions"]
+    auth --> configuration["Common.Configuration"]
+    cognitive["CognitiveServices"] --> logging
+    cognitive --> extensions
+    registry["ContainerRegistry"] --> logging
+    registry --> extensions
+    eventgrid["EventGrid"] --> logging
+    eventgrid --> extensions
+    eventhub["EventHub"] --> logging
+    eventhub --> extensions
+    eventhub --> messagepack["Common.Serialization.MessagePack"]
+    analytics["LogAnalytics"] --> logging
+    analytics --> extensions
+    servicebus["ServiceBus"] --> logging
+    servicebus --> extensions
+    storage["Storage"] --> logging
+    storage --> extensions
+    storage --> json["Common.Serialization.Json"]
+    classDef owned fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
+    classDef published fill:#dcfce7,stroke:#15803d,color:#14532d
+    class appinsights,auth,cognitive,registry,eventgrid,eventhub,analytics,servicebus,storage owned
+    class logging,extensions,abstractions,configuration,messagepack,json published
+```
+
+Blue nodes are packages in this repository; green nodes are published `CasCap.Common` dependencies.
+All package labels omit the common `CasCap.` prefix; Azure package labels also omit `Api.Azure.`.
+
+## Upgrading to 2.0
+
+The Storage interface adds required create-only upload and metadata-read members. Direct
+implementers and test doubles must implement them; subclasses of `AzBlobStorageBase` inherit the
+implementations. See the [Storage migration notes](src/CasCap.Api.Azure.Storage/README.md#migrating-to-20)
+for the contract. Existing overwrite uploads retain their behavior.
+
+Auth configuration failures now use `CasCap.Common.Exceptions.ConfigurationException`, a subtype of
+`GenericException`. Existing base-type catches still work; exact-type assertions should be updated.
 
 ## Quick Start
 

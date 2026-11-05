@@ -14,6 +14,18 @@ Targets `net8.0`, `net9.0` and `net10.0`.
 dotnet add package CasCap.Api.Azure.Storage
 ```
 
+## Migrating to 2.0
+
+[`IAzBlobStorageBase`](https://github.com/f2calv/CasCap.Api.Azure/blob/main/src/CasCap.Api.Azure.Storage/Abstractions/IAzBlobStorageBase.cs)
+adds two required members in 2.0. Direct implementers and test doubles must add:
+
+- `Task<bool> UploadBlobIfNotExistsAsync(string blobName, Stream stream, AzBlobUploadArgs? args = null, CancellationToken cancellationToken = default)`
+- `Task<IDictionary<string, string>?> GetBlobMetadataAsync(string blobName, CancellationToken cancellationToken = default)`
+
+Subclasses of `AzBlobStorageBase` inherit both implementations and need no additional members.
+Use the create-only method when overwriting is forbidden; existing `UploadBlob` overloads continue
+to overwrite. Callers still own the upload stream. See the behavior and example below.
+
 ## Usage
 
 Supply a connection string from secret-backed application configuration:
@@ -40,8 +52,7 @@ permission when the container is absent. Uploads overwrite existing block blobs.
 
 ### Conditional Streaming Reads
 
-The following API is local source work, not yet a published package release. Pass an existing
-`BlobContainerClient` to avoid constructor-time network I/O and container provisioning, while
+Pass an existing `BlobContainerClient` to avoid constructor-time network I/O and container provisioning, while
 preserving the caller's identity, transport, retry and service-version settings:
 
 ```csharp
@@ -72,10 +83,10 @@ does not log source names or document contents.
 
 ### Create-Only Uploads
 
-The following API is also local source work, not yet a published package release. Back up or archive
-content without ever replacing an existing blob:
+Back up or archive content without ever replacing an existing blob:
 
 ```csharp
+using Azure.Storage.Blobs.Models;
 using CasCap.Messages;
 
 var args = new AzBlobUploadArgs
@@ -96,7 +107,7 @@ missing blob. Neither method logs blob names or metadata.
 
 | Base service | Selected operations | Important behavior |
 | --- | --- | --- |
-| `AzBlobStorageBase` | `UploadBlob`, `UploadBlobIfNotExistsAsync`, `GetBlobMetadataAsync`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | `UploadBlob` overwrites; create-only uploads, metadata reads and conditional streaming reads are available in local source; lists are materialized |
+| `AzBlobStorageBase` | `UploadBlob`, `UploadBlobIfNotExistsAsync`, `GetBlobMetadataAsync`, `DownloadBlobAsync`, `OpenBlobReadAsync`, `ListContainerBlobs`, `GetBlobPrefixes`, `DeleteBlob` | `UploadBlob` overwrites; create-only uploads never overwrite; metadata returns `null` for a missing blob; conditional reads bind one revision; lists are materialized |
 | `AzQueueStorageBase` | `Enqueue<T>`, `DequeueSingle<T>`, `DequeueMany<T>` | JSON with Base64 queue encoding; creates the queue on first operation |
 | `AzTableStorageBase` | `GetTables`, `GetTableClient`, `UpsertEntity`, `UploadData`, `DeleteData`, `GetEntities` | Batch operations and `BatchCompletedEvent`; queries return materialized collections |
 | `StorageExtensions` | `IsKeyValid`, table existence and date/key conversion helpers | Utility extensions, not service registration |
