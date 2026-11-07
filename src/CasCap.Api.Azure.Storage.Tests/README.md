@@ -1,7 +1,7 @@
 # CasCap.Api.Azure.Storage.Tests
 
 xUnit v3 tests for Azure Blob and Queue helpers against Azurite, plus offline storage key/date tests.
-The Microsoft.Testing.Platform executable targets .NET 8, .NET 9 and .NET 10.
+The Microsoft.Testing.Platform executable targets .NET 10 and .NET 11.
 
 ## Tests
 
@@ -37,7 +37,7 @@ No declared skips. Integration tests do **not** skip when Azurite is absent; the
 
 ## Prerequisites and Execution
 
-Use a stable .NET 10 SDK and install runtimes for the target frameworks you select.
+Use a stable .NET 11 RC3 SDK and install runtimes for the target frameworks you select.
 Integration tests read `ConnectionStrings:storage` through the shared `Test`-environment configuration
 chain: base settings, optional [appsettings.Test.json](appsettings.Test.json) and local overrides,
 User Secrets, then environment variables. The test file may be absent when another provider supplies

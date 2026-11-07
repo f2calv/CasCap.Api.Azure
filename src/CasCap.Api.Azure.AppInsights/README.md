@@ -7,7 +7,7 @@ collect telemetry or configure a telemetry exporter.
 
 ## Installation
 
-Targets `net8.0`, `net9.0` and `net10.0`.
+Targets `net10.0` and `net11.0`.
 
 ```powershell
 dotnet add package CasCap.Api.Azure.AppInsights

@@ -5,14 +5,14 @@ handlers; no Azure account, credentials, native Speech runtime or external servi
 
 ## Running
 
-From the repository root with a stable .NET 10 SDK and the supported .NET runtimes installed:
+From the repository root with the pinned .NET 11 RC3 SDK and the supported .NET runtimes installed:
 
 ```powershell
 dotnet test --project .\src\CasCap.Api.Azure.CognitiveServices.Tests\CasCap.Api.Azure.CognitiveServices.Tests.csproj --configuration Debug
 ```
 
 Debug references the adjacent shared-library checkout; use `--configuration Release` for published
-dependencies. Targets are `net8.0`, `net9.0` and `net10.0`.
+dependencies. Targets are `net10.0` and `net11.0`.
 
 ## Tests
 
@@ -29,7 +29,7 @@ The maximum accepted source size (25 MiB), result size (16 MiB) and page selecti
 using synthetic data. These tests establish transport behavior, not live upstream conformance or
 semantic extraction quality. A synthetic `%PDF-` payload is not a renderable PDF.
 
-Observed Debug validation: 110 passed per target, **330 passed**, zero failed and zero skipped.
+Observed Debug validation: 110 passed per target, **220 passed**, zero failed and zero skipped.
 
 ## Skipped Tests
 

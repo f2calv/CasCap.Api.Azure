@@ -1,7 +1,7 @@
 # CasCap.Api.Azure.EventGrid
 
 Azure Event Grid dependencies and Blob Storage notification parsing for .NET consumers targeting
-`net8.0`, `net9.0` and `net10.0`.
+`net10.0` and `net11.0`.
 
 ## Installation
 

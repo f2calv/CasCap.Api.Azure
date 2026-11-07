@@ -8,7 +8,7 @@ using the Azure Speech SDK and fast transcription client.
 
 ## Installation
 
-Targets `net8.0`, `net9.0` and `net10.0`.
+Targets `net10.0` and `net11.0`.
 
 ```powershell
 dotnet add package CasCap.Api.Azure.CognitiveServices
