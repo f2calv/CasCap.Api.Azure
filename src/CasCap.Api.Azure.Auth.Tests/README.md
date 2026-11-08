@@ -25,7 +25,7 @@ No declared skips or conditional skip attributes.
 
 ## Running Tests
 
-Use the pinned .NET 11 RC3 SDK, with the target-framework runtimes installed. Run only after explicit
+Use the pinned .NET 11 SDK, with the target-framework runtimes installed. Run only after explicit
 approval, from the repository root:
 
 ```powershell

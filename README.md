@@ -113,7 +113,7 @@ requirements before running examples, which can create resources, send messages 
 
 ## Development
 
-A stable .NET 11 RC3 SDK can build all target frameworks. From the repository root:
+A stable .NET 11 SDK can build all target frameworks. From the repository root:
 
 ```powershell
 dotnet build .\CasCap.Api.Azure.Release.slnx --configuration Release

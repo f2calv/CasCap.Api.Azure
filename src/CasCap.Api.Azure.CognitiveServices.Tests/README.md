@@ -5,7 +5,7 @@ handlers; no Azure account, credentials, native Speech runtime or external servi
 
 ## Running
 
-From the repository root with the pinned .NET 11 RC3 SDK and the supported .NET runtimes installed:
+From the repository root with the pinned .NET 11 SDK and the supported .NET runtimes installed:
 
 ```powershell
 dotnet test --project .\src\CasCap.Api.Azure.CognitiveServices.Tests\CasCap.Api.Azure.CognitiveServices.Tests.csproj --configuration Debug
