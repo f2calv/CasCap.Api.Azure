@@ -64,11 +64,7 @@ public static class TokenCredentialExtensions
         }
         else if (!string.IsNullOrWhiteSpace(config.AzureEntraPfxPath))
         {
-#if NET9_0_OR_GREATER
             certificate = X509CertificateLoader.LoadPkcs12FromFile(config.AzureEntraPfxPath, config.AzureEntraPfxPassword);
-#else
-            certificate = new X509Certificate2(config.AzureEntraPfxPath, config.AzureEntraPfxPassword);
-#endif
         }
         return certificate is null
             ? null

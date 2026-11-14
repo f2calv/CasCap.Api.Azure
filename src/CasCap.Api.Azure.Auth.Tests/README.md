@@ -1,7 +1,7 @@
 # CasCap.Api.Azure.Auth.Tests
 
 Offline xUnit v3 tests for Azure credential construction, HTTP bearer headers and authentication
-registration. The executable uses Microsoft.Testing.Platform and targets .NET 8, .NET 9 and .NET 10.
+registration. The executable uses Microsoft.Testing.Platform and targets .NET 10 and .NET 11.
 
 ## Tests
 
@@ -25,7 +25,7 @@ No declared skips or conditional skip attributes.
 
 ## Running Tests
 
-Use a stable .NET 10 SDK, with the target-framework runtimes installed. Run only after explicit
+Use the pinned .NET 11 SDK, with the target-framework runtimes installed. Run only after explicit
 approval, from the repository root:
 
 ```powershell

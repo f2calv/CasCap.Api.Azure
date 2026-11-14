@@ -2,7 +2,7 @@
 
 CasCap.Api.Azure is a collection of .NET libraries for Azure authentication, storage, messaging,
 speech, document layout and monitoring. Choose a package for the Azure service your application uses; the libraries
-target .NET 8, .NET 9 and .NET 10.
+target .NET 10 and .NET 11.
 
 ## Packages
 
@@ -113,7 +113,7 @@ requirements before running examples, which can create resources, send messages 
 
 ## Development
 
-A stable .NET 10 SDK can build all target frameworks. From the repository root:
+A stable .NET 11 SDK can build all target frameworks. From the repository root:
 
 ```powershell
 dotnet build .\CasCap.Api.Azure.Release.slnx --configuration Release
