@@ -1,5 +1,6 @@
 global using CasCap.Abstractions;
 global using CasCap.Common.Extensions;
+global using CasCap.Common.Logging;
 global using CasCap.Messages;
 global using CasCap.Services;
 global using CasCap.Tests.Abstractions;
