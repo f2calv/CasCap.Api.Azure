@@ -5,35 +5,31 @@ public abstract class TestBase : IAsyncDisposable
 {
     private readonly ConfigurationManager _configuration = new();
     private readonly ServiceProvider _serviceProvider;
-    /// <summary>Gets the Azure Storage connection string used by the tests.</summary>
-    protected string _connectionString;
 
     /// <summary>Gets the blob service under test.</summary>
-    protected IAzBlobService _blobSvc;
+    protected readonly IAzBlobService _blobSvc;
 
     /// <summary>Gets the queue service under test.</summary>
-    protected IAzQueueService _queueSvc;
+    protected readonly IAzQueueService _queueSvc;
 
     /// <summary>Initializes a new instance of <see cref="TestBase" />.</summary>
-    protected TestBase(/*ITestOutputHelper output*/)
+    protected TestBase(ITestOutputHelper output)
     {
         _configuration.AddStandardConfiguration("Test", typeof(TestBase).Assembly);
 
-        //initiate ServiceCollection w/logging
+        var connections = _configuration.GetSection(StorageTestConnectionStringsConfig.ConfigurationSectionName)
+            .Get<StorageTestConnectionStringsConfig>();
+        var connectionString = connections?.Storage;
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("Configure ConnectionStrings:storage for the disposable test emulator.");
+
         var services = new ServiceCollection()
             .AddSingleton<IConfiguration>(_configuration)
-            .AddLogging()
-            //.AddXUnitLogging(output)
-            ;
+            .AddLogging(logging => logging.AddProvider(new TestLogProvider(output)));
 
-        _connectionString = _configuration.GetConnectionString("storage")
-            ?? throw new InvalidOperationException("Configure ConnectionStrings:storage for the disposable test emulator.");
+        services.AddTransient<IAzBlobService>(_ => new AzBlobService(connectionString, $"wibble{Environment.Version.Major}"));
+        services.AddTransient<IAzQueueService>(_ => new AzQueueService(connectionString, $"wibble{Environment.Version.Major}"));
 
-        //add services
-        services.AddTransient<IAzBlobService>(s => new AzBlobService(_connectionString, $"wibble{Environment.Version.Major}"));
-        services.AddTransient<IAzQueueService>(s => new AzQueueService(_connectionString, $"wibble{Environment.Version.Major}"));
-
-        //assign services to be tested
         _serviceProvider = services.BuildServiceProvider();
         _serviceProvider.AddStaticLogging();
         _blobSvc = _serviceProvider.GetRequiredService<IAzBlobService>();

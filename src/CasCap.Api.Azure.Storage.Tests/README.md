@@ -66,16 +66,18 @@ published shared dependencies; Debug additionally needs an adjacent
 
 ```text
 Tests/
-├── Unit/
-│   ├── AzBlobConditionalReadTests.cs
-│   └── AzBlobConditionalUploadTests.cs
-├── TestBase.cs
-├── AzStorageHelpersTests.cs
-├── AzBlobStorageTests.cs
-├── AzQueueStorageTests.cs
 ├── AzBlobService.cs
 ├── AzQueueService.cs
-└── TestMessage.cs
+├── TestMessage.cs
+├── Integration/
+│   ├── AzBlobStorageTests.cs
+│   ├── AzQueueStorageTests.cs
+│   ├── StorageTestConnectionStringsConfig.cs
+│   └── TestBase.cs
+└── Unit/
+    ├── AzBlobConditionalReadTests.cs
+    ├── AzBlobConditionalUploadTests.cs
+    └── AzStorageHelpersTests.cs
 ```
 
 `TestBase` builds the configuration and service container. `AzBlobService` and `AzQueueService`
