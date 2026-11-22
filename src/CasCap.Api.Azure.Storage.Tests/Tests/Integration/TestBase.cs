@@ -15,7 +15,7 @@ public abstract class TestBase : IAsyncDisposable
     /// <summary>Initializes a new instance of <see cref="TestBase" />.</summary>
     protected TestBase(ITestOutputHelper output)
     {
-        _configuration.AddStandardConfiguration("Test", typeof(TestBase).Assembly);
+        _configuration.AddStandardConfiguration("Tests", typeof(TestBase).Assembly);
 
         var connections = _configuration.GetSection(StorageTestConnectionStringsConfig.ConfigurationSectionName)
             .Get<StorageTestConnectionStringsConfig>();

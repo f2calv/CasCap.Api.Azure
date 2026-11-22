@@ -38,8 +38,8 @@ No declared skips. Integration tests do **not** skip when Azurite is absent; the
 ## Prerequisites and Execution
 
 Use a stable .NET 11 SDK and install runtimes for the target frameworks you select.
-Integration tests read `ConnectionStrings:storage` through the shared `Test`-environment configuration
-chain: base settings, optional [appsettings.Test.json](appsettings.Test.json) and local overrides,
+Integration tests read `ConnectionStrings:storage` through the shared `Tests`-environment configuration
+chain: base settings, optional [appsettings.Tests.json](appsettings.Tests.json) and local overrides,
 User Secrets, then environment variables. The test file may be absent when another provider supplies
 the required value. Integration tests require the repository's
 [Azurite Compose environment](../../docker-compose.yml).
